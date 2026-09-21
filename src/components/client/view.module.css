@@ -1,0 +1,233 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-6);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--np-space-3);
+}
+
+.between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+  gap: var(--np-space-4);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--np-space-4);
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--np-space-4);
+}
+
+.span2 {
+  grid-column: span 2;
+}
+
+.divider {
+  height: 1px;
+  background: var(--np-border-base);
+}
+
+.muted {
+  color: var(--np-text-secondary);
+}
+
+.tiny {
+  color: var(--np-text-tertiary);
+}
+
+.mono {
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-caption-size);
+}
+
+.card {
+  background: var(--np-surface-raised);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-2);
+}
+
+.surface {
+  background: var(--np-bg-surface-2);
+  border-radius: var(--np-radius-2);
+}
+
+.emblem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--np-radius-1);
+  font-family: var(--np-font-display);
+  font-weight: 600;
+  flex: none;
+  user-select: none;
+}
+
+.emblem--sm {
+  width: 40px;
+  height: 40px;
+  font-size: var(--np-type-body-size);
+}
+
+.emblem--md {
+  width: 56px;
+  height: 56px;
+  font-size: var(--np-type-h2-size);
+}
+
+.emblem--lg {
+  width: 72px;
+  height: 72px;
+  font-size: var(--np-type-h1-size);
+}
+
+.emblemBrand {
+  background: color-mix(in srgb, var(--np-color-brand-500) 18%, transparent);
+  color: var(--np-color-brand-300);
+}
+
+.emblemGold {
+  background: var(--np-color-gold-100);
+  color: var(--np-color-gold-700);
+}
+
+.emblemSuccess {
+  background: var(--np-color-success-100);
+  color: var(--np-color-success-700);
+}
+
+.emblemWarning {
+  background: var(--np-color-warning-100);
+  color: var(--np-color-warning-700);
+}
+
+.emblemDanger {
+  background: var(--np-color-danger-100);
+  color: var(--np-color-danger-700);
+}
+
+.emblemInk {
+  background: var(--np-color-ink-900);
+  color: var(--np-color-paper-0);
+}
+
+.productTile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--np-color-ink-300);
+}
+
+.productTile--sm {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--np-radius-1);
+}
+
+.productTile--md {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--np-radius-2);
+}
+
+.productTile--lg {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--np-radius-2);
+}
+
+.tileBrand {
+  background: var(--np-color-brand-50);
+  color: var(--np-color-brand-600);
+}
+
+.tileGold {
+  background: var(--np-color-gold-100);
+  color: var(--np-color-gold-700);
+}
+
+.tileSuccess {
+  background: var(--np-color-success-100);
+  color: var(--np-color-success-700);
+}
+
+.tileWarning {
+  background: var(--np-color-warning-100);
+  color: var(--np-color-warning-700);
+}
+
+.tileDanger {
+  background: var(--np-color-danger-100);
+  color: var(--np-color-danger-700);
+}
+
+.tileInk {
+  background: var(--np-color-paper-100);
+  color: var(--np-color-ink-500);
+}
+
+.breadcrumb {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-1);
+  padding: 0;
+  margin: 0;
+  font-size: var(--np-type-caption-size);
+  color: var(--np-text-tertiary);
+}
+
+.breadcrumb a {
+  color: var(--np-text-secondary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--np-text-primary);
+}
+
+@media (max-width: 1023px) {
+  .grid3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    gap: var(--np-space-5);
+  }
+
+  .grid3,
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .span2 {
+    grid-column: span 1;
+  }
+}

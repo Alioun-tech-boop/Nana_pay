@@ -1,0 +1,68 @@
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--np-radius-sm);
+  flex-shrink: 0;
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    color var(--np-duration-fast) var(--np-ease-out);
+}
+
+.iconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.iconButton--sm {
+  width: 32px;
+  height: 32px;
+}
+
+.iconButton--md {
+  width: 40px;
+  height: 40px;
+}
+
+.iconButton--solid {
+  background: var(--np-action-primary);
+  color: var(--np-text-on-brand);
+}
+
+.iconButton--solid:hover:not(:disabled) {
+  background: var(--np-action-primary-hover);
+}
+
+.iconButton--solid:active:not(:disabled) {
+  background: var(--np-action-primary-active);
+}
+
+.iconButton--subtle {
+  background: var(--np-action-primary-soft);
+  color: var(--np-color-brand-300);
+}
+
+.iconButton--subtle:hover:not(:disabled) {
+  background: var(--np-action-primary-soft-hover);
+}
+
+.iconButton--outline {
+  background: var(--np-bg-surface);
+  border: 1px solid var(--np-border-strong);
+  color: var(--np-text-primary);
+}
+
+.iconButton--outline:hover:not(:disabled) {
+  border-color: var(--np-text-secondary);
+  background: var(--np-bg-surface-2);
+}
+
+.iconButton--ghost {
+  color: var(--np-text-secondary);
+}
+
+.iconButton--ghost:hover:not(:disabled) {
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-primary);
+}

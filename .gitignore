@@ -1,0 +1,37 @@
+# Dépendances
+node_modules/
+.pnp/
+.pnpm-store/
+
+# Build
+dist/
+build/
+coverage/
+out/
+*.tsbuildinfo
+
+# Environnements et secrets — JAMAIS commité
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tests e2e (artefacts)
+playwright-report/
+test-results/

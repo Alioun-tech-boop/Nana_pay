@@ -1,0 +1,38 @@
+.fallback {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-5);
+  animation: np-fade-up 180ms var(--np-ease-out) both;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--np-space-5);
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+  padding: var(--np-space-4);
+  border-radius: var(--np-radius-lg);
+}

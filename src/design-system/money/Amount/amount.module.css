@@ -1,0 +1,52 @@
+.amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  color: var(--np-text-primary);
+  white-space: nowrap;
+}
+
+.amountCurrency {
+  font-size: max(11px, 0.62em);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--np-text-tertiary);
+  margin-inline-start: 0.3em;
+}
+
+.amount--default {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-money-size);
+  line-height: var(--np-type-money-line);
+  font-weight: var(--np-type-money-weight);
+  letter-spacing: var(--np-type-money-tracking);
+  text-rendering: optimizeLegibility;
+}
+
+.amount--strong {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-money-strong-size);
+  line-height: var(--np-type-money-strong-line);
+  font-weight: var(--np-type-money-strong-weight);
+  letter-spacing: var(--np-type-money-strong-tracking);
+  text-rendering: optimizeLegibility;
+}
+
+.amount--display {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-money-display-size);
+  line-height: var(--np-type-money-display-line);
+  font-weight: var(--np-type-money-display-weight);
+  letter-spacing: var(--np-type-money-display-tracking);
+  text-rendering: optimizeLegibility;
+}
+
+.amount--inline {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  font-weight: 600;
+}
+
+.amount--inline .amountCurrency {
+  font-size: max(11px, 0.78em);
+  color: var(--np-text-secondary);
+}

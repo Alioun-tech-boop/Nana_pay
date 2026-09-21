@@ -1,0 +1,78 @@
+.tabsRow {
+  margin-bottom: var(--np-space-4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  padding: var(--np-space-3) var(--np-space-4);
+  background: var(--np-surface-raised);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-2);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--np-radius-lg);
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-secondary);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+  color: var(--np-text-primary);
+}
+
+.meta {
+  font-size: var(--np-type-caption-size);
+  font-family: var(--np-font-mono);
+  color: var(--np-text-tertiary);
+}
+
+.amount {
+  flex: none;
+  font-weight: 600;
+  text-align: right;
+}
+
+.amountIn {
+  color: var(--np-color-success-400);
+}
+
+.amountOut {
+  color: var(--np-text-primary);
+}
+
+@media (max-width: 600px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .amount {
+    width: 100%;
+    text-align: left;
+  }
+}

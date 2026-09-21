@@ -1,0 +1,105 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--np-bg-overlay);
+  z-index: var(--np-z-dialog);
+  animation: np-fade-in var(--np-duration-base) var(--np-ease-out) both;
+}
+
+.panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--np-bg-surface);
+  border-radius: var(--np-radius-xl) var(--np-radius-xl) 0 0;
+  box-shadow: var(--np-shadow-lg);
+  outline: none;
+  animation: np-slide-up var(--np-duration-slow) var(--np-ease-out) both;
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  margin: var(--np-space-3) auto 0;
+  border-radius: var(--np-radius-pill);
+  background: var(--np-border-strong);
+  flex-shrink: 0;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--np-space-3);
+  padding: var(--np-space-3) var(--np-space-5);
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--np-type-h2-size);
+  line-height: var(--np-type-h2-line);
+  font-weight: var(--np-type-h2-weight);
+  color: var(--np-text-primary);
+}
+
+.description {
+  margin-top: 2px;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-secondary);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--np-radius-sm);
+  color: var(--np-text-secondary);
+  flex-shrink: 0;
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    color var(--np-duration-fast) var(--np-ease-out);
+}
+
+.close:hover {
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-primary);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--np-space-3) var(--np-space-5) var(--np-space-5);
+  color: var(--np-text-primary);
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--np-space-3);
+  padding: var(--np-space-4) var(--np-space-5);
+  border-top: 1px solid var(--np-border-base);
+}
+
+@keyframes np-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

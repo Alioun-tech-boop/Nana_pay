@@ -1,0 +1,41 @@
+.ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.track {
+  stroke: var(--np-border-base);
+}
+
+.bar {
+  transition: stroke-dashoffset var(--np-duration-slow) var(--np-ease-out);
+}
+
+.bar--neutral {
+  stroke: var(--np-color-ink-400);
+}
+
+.bar--info {
+  stroke: var(--np-color-brand-500);
+}
+
+.bar--success {
+  stroke: var(--np-color-success-500);
+}
+
+.bar--warning {
+  stroke: var(--np-color-warning-500);
+}
+
+.bar--danger {
+  stroke: var(--np-color-danger-500);
+}
+
+.value {
+  position: absolute;
+  font-size: calc(var(--np-type-body-sm-size) * 1.15);
+  font-weight: 600;
+  color: var(--np-text-primary);
+}

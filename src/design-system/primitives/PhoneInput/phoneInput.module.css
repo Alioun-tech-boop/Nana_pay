@@ -1,0 +1,119 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+}
+
+.label {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: var(--np-bg-surface);
+  border: 1px solid var(--np-border-strong);
+  border-radius: var(--np-radius-sm);
+  min-height: 40px;
+  transition:
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+}
+
+.control:focus-within {
+  border-color: var(--np-color-brand-400);
+  box-shadow: var(--np-focus-ring);
+}
+
+.control--error {
+  border-color: var(--np-color-danger-500);
+}
+
+.control--error:focus-within {
+  border-color: var(--np-color-danger-500);
+  box-shadow: var(--np-focus-ring-danger);
+}
+
+.control--disabled {
+  background: var(--np-bg-surface-2);
+}
+
+.prefix {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--np-border-base);
+  padding: 0 var(--np-space-3);
+  flex-shrink: 0;
+}
+
+.select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  cursor: pointer;
+}
+
+.prefixLabel {
+  position: absolute;
+  inset: 0;
+}
+
+.code {
+  font-size: var(--np-type-body-size);
+  font-weight: 500;
+  color: var(--np-text-primary);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--np-text-primary);
+  padding: 0 var(--np-space-3);
+  font-size: var(--np-type-body-size);
+}
+
+.input::placeholder {
+  color: var(--np-text-tertiary);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  color: var(--np-text-disabled);
+}
+
+.error {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-status-danger-text);
+}
+
+.hint {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

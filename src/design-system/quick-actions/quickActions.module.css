@@ -1,0 +1,129 @@
+/* NanaQuickActions — grille d'actions rapides NanoPay.
+   Mobile : 4 actions sur une ligne lorsque l'espace le permet.
+   Écran trop petit : défilement horizontal (jamais de compression). */
+
+.quickActions {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--np-space-1);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quickActions::-webkit-scrollbar {
+  display: none;
+}
+
+.quickAction {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--np-space-2);
+  min-width: var(--np-quick-action-min, 68px);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--np-text-secondary);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  scroll-snap-align: start;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quickActionCircle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--np-quick-action-size, 52px);
+  height: var(--np-quick-action-size, 52px);
+  border-radius: var(--np-radius-pill);
+  background: var(--np-bg-surface-3);
+  color: var(--np-text-primary);
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    transform var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+}
+
+.quickActionLabel {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--np-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--np-duration-fast) var(--np-ease-out);
+}
+
+.quickActionBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--np-radius-pill);
+  background: var(--np-action-primary);
+  color: var(--np-text-on-brand);
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+}
+
+@media (hover: hover) {
+  .quickAction:hover:not(:disabled) .quickActionCircle {
+    background: var(--np-bg-surface-4);
+  }
+
+  .quickAction:hover:not(:disabled) .quickActionLabel {
+    color: var(--np-text-primary);
+  }
+}
+
+.quickAction:active:not(:disabled) .quickActionCircle {
+  background: var(--np-bg-surface-4);
+  transform: scale(0.96);
+}
+
+.quickAction:focus-visible {
+  outline: none;
+}
+
+.quickAction:focus-visible .quickActionCircle {
+  box-shadow: var(--np-focus-ring);
+}
+
+.quickAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.quickAction:disabled .quickActionCircle {
+  background: var(--np-bg-surface-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quickActionCircle,
+  .quickActionLabel {
+    transition: none;
+  }
+
+  .quickAction:active:not(:disabled) .quickActionCircle {
+    transform: none;
+  }
+}

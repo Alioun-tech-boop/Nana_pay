@@ -1,0 +1,40 @@
+.picker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-1);
+  background: var(--np-surface-raised);
+  padding: var(--np-space-1);
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--np-radius-1);
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-primary);
+  cursor: pointer;
+}
+
+.step:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--np-color-moon-0) 10%, transparent);
+  color: var(--np-text-primary);
+}
+
+.step:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.value {
+  min-width: 32px;
+  text-align: center;
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-body-size);
+  color: var(--np-text-primary);
+}

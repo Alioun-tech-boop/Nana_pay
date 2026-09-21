@@ -1,0 +1,20 @@
+.control--disabled {
+  background: var(--np-bg-surface-2);
+}
+
+.input {
+  min-height: 38px;
+}
+
+.input::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.input:invalid {
+  color: var(--np-text-disabled);
+}
+
+.required {
+  color: var(--np-color-danger-500);
+}

@@ -1,0 +1,113 @@
+.control {
+  padding-right: var(--np-space-2);
+}
+
+.control--disabled {
+  background: var(--np-bg-surface-2);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--np-radius-sm);
+  color: var(--np-text-tertiary);
+  padding: var(--np-space-1);
+}
+
+button.action {
+  cursor: pointer;
+  transition: color var(--np-duration-fast) var(--np-ease-out);
+}
+
+button.action:hover {
+  color: var(--np-text-primary);
+}
+
+.listbox {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: var(--np-z-dropdown);
+  background: var(--np-bg-surface);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-sm);
+  box-shadow: var(--np-shadow-md);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.list {
+  padding: var(--np-space-1);
+}
+
+.group {
+  padding: var(--np-space-3) var(--np-space-3) var(--np-space-1);
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-tertiary);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  padding: var(--np-space-2) var(--np-space-3);
+  border-radius: var(--np-radius-sm);
+  cursor: pointer;
+}
+
+.option--active {
+  background: var(--np-bg-surface-2);
+}
+
+.option--selected {
+  color: var(--np-color-brand-600);
+}
+
+.option--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.optionLabel {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  color: var(--np-text-primary);
+}
+
+.option--disabled .optionLabel {
+  color: var(--np-text-tertiary);
+}
+
+.optionHint {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}
+
+.optionCheck {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--np-color-brand-600);
+}
+
+.empty {
+  padding: var(--np-space-4);
+  font-size: var(--np-type-body-sm-size);
+  color: var(--np-text-tertiary);
+  text-align: center;
+}

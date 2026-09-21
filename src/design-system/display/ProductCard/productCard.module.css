@@ -1,0 +1,160 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-lg);
+  background: var(--np-bg-surface);
+  overflow: hidden;
+  transition:
+    transform var(--np-duration-fast) var(--np-ease-out),
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  transform: translateY(-1px);
+  border-color: var(--np-border-strong);
+  box-shadow: var(--np-shadow-sm);
+}
+
+.clickable:active {
+  transform: translateY(0);
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--np-color-brand-500);
+  outline-offset: 2px;
+}
+
+.selected {
+  border-color: var(--np-color-brand-500);
+  box-shadow: 0 0 0 1px var(--np-color-brand-500);
+}
+
+.media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--np-bg-surface-2);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--np-text-tertiary);
+}
+
+.badge {
+  position: absolute;
+  top: var(--np-space-2);
+  left: var(--np-space-2);
+}
+
+.badge--success,
+.badge--danger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--np-radius-pill);
+  font-size: var(--np-type-caption-size);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.badge--success {
+  background: rgba(34, 197, 94, 0.16);
+  border-color: rgba(74, 222, 128, 0.42);
+  color: #86efac;
+}
+
+.badge--danger {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(248, 113, 113, 0.42);
+  color: #fca5a5;
+}
+
+.check {
+  position: absolute;
+  top: var(--np-space-2);
+  right: var(--np-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--np-radius-pill);
+  background: var(--np-color-brand-500);
+  color: var(--np-color-night-950);
+  box-shadow: var(--np-shadow-xs);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+  padding: var(--np-space-4);
+  flex: 1;
+}
+
+.name {
+  font-size: var(--np-type-body-size);
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--np-text-primary);
+}
+
+.merchant {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-secondary);
+}
+
+.description {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-space-2);
+  margin-top: auto;
+  padding-top: var(--np-space-2);
+}
+
+.price {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  font-weight: 600;
+  color: var(--np-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.priceNote {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+  text-align: end;
+}

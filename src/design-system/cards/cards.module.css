@@ -1,0 +1,617 @@
+/* ============================================================
+   NanaPay — Système de cartes premium
+   Fondation unique : surfaces sombres, bord très subtil,
+   rayons généreux et arrondis, finition fine et humanisée,
+   profondeur cinématographique. Aucune couleur décorative :
+   l'interface tient en noir et blanc.
+   ============================================================ */
+
+/* ---- Surface de base ---- */
+
+.surface {
+  position: relative;
+  display: block;
+  background: var(--np-bg-surface-2);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-xl);
+  box-shadow: var(--np-shadow-card);
+  color: var(--np-text-primary);
+  transition:
+    transform var(--np-duration-base) var(--np-ease-out),
+    background-color var(--np-duration-base) var(--np-ease-out),
+    border-color var(--np-duration-base) var(--np-ease-out),
+    box-shadow var(--np-duration-base) var(--np-ease-out);
+}
+
+/* Liseré lumineux supérieur : profondeur sans lourdeur. */
+.surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--np-color-moon-0) 8%, transparent),
+    transparent 42%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---- Élévation ---- */
+
+.surface--flat {
+  background: var(--np-bg-surface-2);
+  box-shadow: var(--np-shadow-card);
+}
+
+.surface--elevated {
+  background: var(--np-bg-surface-3);
+  box-shadow: var(--np-shadow-md);
+}
+
+/* ---- Rayons ---- */
+
+.surface--radius-md {
+  border-radius: var(--np-radius-md);
+}
+
+.surface--radius-lg {
+  border-radius: var(--np-radius-lg);
+}
+
+.surface--radius-xl {
+  border-radius: var(--np-radius-xl);
+}
+
+/* ---- Padding (mobile-first) ---- */
+
+.surface--padding-none {
+  padding: 0;
+}
+
+.surface--padding-sm {
+  padding: var(--np-space-4);
+}
+
+.surface--padding-md {
+  padding: var(--np-space-5);
+}
+
+.surface--padding-lg {
+  padding: var(--np-space-6);
+}
+
+@media (min-width: 768px) {
+  .surface--padding-md {
+    padding: var(--np-space-6);
+  }
+
+  .surface--padding-lg {
+    padding: var(--np-space-7);
+  }
+}
+
+/* ---- Accents par domaine (jamais décoratifs) ---- */
+
+.surface--tone-savings {
+  border-color: var(--np-domain-savings-accent-border);
+}
+
+.surface--tone-vault {
+  border-color: var(--np-domain-vault-accent-border);
+}
+
+.surface--tone-credit {
+  border-color: var(--np-domain-credit-accent-border);
+}
+
+.surface--tone-payment {
+  border-color: var(--np-domain-payment-accent-border);
+}
+
+.surface--tone-confirmation {
+  border-color: var(--np-domain-confirmation-accent-border);
+}
+
+.surface--tone-danger {
+  border-color: color-mix(in srgb, var(--np-color-danger-500) 40%, transparent);
+}
+
+/* ---- États ---- */
+
+.surface--interactive {
+  width: 100%;
+  text-align: start;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.surface--interactive:hover:not(.surface--disabled) {
+  transform: translateY(-2px);
+  background: var(--np-bg-surface-3);
+  border-color: var(--np-border-strong);
+  box-shadow: var(--np-shadow-sm);
+}
+
+.surface--elevated.surface--interactive:hover:not(.surface--disabled) {
+  background: var(--np-bg-surface-4);
+  box-shadow: var(--np-shadow-lg);
+}
+
+.surface--interactive:active:not(.surface--disabled) {
+  transform: translateY(0);
+  background: var(--np-bg-surface-4);
+  box-shadow: var(--np-shadow-xs);
+}
+
+.surface--interactive:focus-visible {
+  outline: none;
+  border-color: var(--np-state-focus-border);
+  box-shadow: var(--np-focus-ring);
+}
+
+.surface--selected {
+  border-color: var(--np-state-selected-border);
+  box-shadow: 0 0 0 1px var(--np-color-brand-500), var(--np-shadow-xs);
+}
+
+.surface--disabled {
+  opacity: var(--np-state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.surface--disabled.surface--interactive:hover,
+.surface--disabled.surface--interactive:active {
+  transform: none;
+  background: var(--np-bg-surface-2);
+  border-color: var(--np-border-base);
+  box-shadow: var(--np-shadow-xs);
+}
+
+.surface--loading {
+  cursor: progress;
+}
+
+.surface--loading > :not(.loadingLayer) {
+  opacity: 0.18;
+  transition: opacity var(--np-duration-fast) var(--np-ease-out);
+}
+
+.loadingLayer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--np-bg-page) 46%, transparent);
+  color: var(--np-text-secondary);
+}
+
+/* ============================================================
+   NanaPhotoCard — la photo fait partie de la composition.
+   Le média est clippé par la carte, fondu vers la surface noire,
+   le texte de l'interface se pose directement sur l'image.
+   ============================================================ */
+
+.photoCard {
+  overflow: hidden;
+}
+
+.photoMedia {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+
+.photoImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.94) contrast(1.03) brightness(0.98);
+  transition:
+    transform var(--np-duration-slow) var(--np-ease-out),
+    filter var(--np-duration-base) var(--np-ease-out);
+}
+
+.photoCard:hover .photoImage {
+  transform: scale(1.03);
+  filter: saturate(1) contrast(1.05) brightness(1.04);
+}
+
+.photoPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--np-color-moon-0) 68%, transparent);
+  background:
+    radial-gradient(120% 140% at 18% 0%, color-mix(in srgb, var(--np-color-brand-500) 22%, transparent), transparent 58%),
+    radial-gradient(120% 140% at 92% 112%, color-mix(in srgb, var(--np-color-gold-500) 12%, transparent), transparent 58%),
+    var(--np-color-night-800);
+}
+
+.photoCard[data-variant='savings'] .photoPlaceholder,
+.photoCard[data-variant='goal'] .photoPlaceholder {
+  background:
+    radial-gradient(120% 140% at 20% 0%, color-mix(in srgb, var(--np-color-gold-500) 26%, transparent), transparent 60%),
+    radial-gradient(120% 140% at 90% 115%, color-mix(in srgb, var(--np-color-night-700) 62%, transparent), transparent 60%),
+    var(--np-color-night-800);
+}
+
+.photoCard[data-variant='travel'] .photoPlaceholder,
+.photoCard[data-variant='lifestyle'] .photoPlaceholder {
+  background:
+    radial-gradient(120% 140% at 20% 0%, color-mix(in srgb, var(--np-color-cyan-500) 26%, transparent), transparent 60%),
+    radial-gradient(120% 140% at 90% 115%, color-mix(in srgb, var(--np-color-brand-500) 14%, transparent), transparent 60%),
+    var(--np-color-night-800);
+}
+
+.photoCard[data-variant='family'] .photoPlaceholder {
+  background:
+    radial-gradient(120% 140% at 20% 0%, color-mix(in srgb, var(--np-color-success-500) 22%, transparent), transparent 60%),
+    radial-gradient(120% 140% at 90% 115%, color-mix(in srgb, var(--np-color-gold-500) 12%, transparent), transparent 60%),
+    var(--np-color-night-800);
+}
+
+.photoCard[data-variant='business'] .photoPlaceholder {
+  background:
+    radial-gradient(120% 140% at 20% 0%, color-mix(in srgb, var(--np-color-brand-500) 26%, transparent), transparent 60%),
+    radial-gradient(120% 140% at 90% 115%, color-mix(in srgb, var(--np-color-cyan-500) 12%, transparent), transparent 60%),
+    var(--np-color-night-800);
+}
+
+/* Profondeur : vignette interne, jamais une image plate. */
+.photoVignette {
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--np-color-moon-0) 5%, transparent),
+    inset 0 -84px 96px -52px color-mix(in srgb, var(--np-color-night-950) 68%, transparent);
+  pointer-events: none;
+}
+
+/* transparent → dark transparent → surface noire */
+.photoScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--np-color-night-950) 28%, transparent) 42%,
+    color-mix(in srgb, var(--np-color-night-950) 70%, transparent) 74%,
+    var(--np-bg-surface-2) 100%
+  );
+  pointer-events: none;
+}
+
+.photoBadge {
+  position: absolute;
+  top: var(--np-space-4);
+  inset-inline-start: var(--np-space-4);
+}
+
+.photoBody {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+  padding: var(--np-space-5);
+  padding-bottom: var(--np-space-6);
+  max-width: 36ch;
+}
+
+.photoLabel {
+  color: color-mix(in srgb, var(--np-color-moon-0) 82%, transparent);
+}
+
+.photoAmount {
+  color: var(--np-color-moon-0);
+}
+
+.photoCaption {
+  font-family: var(--np-font-sans);
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: color-mix(in srgb, var(--np-color-moon-0) 68%, transparent);
+}
+
+.photoSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+  padding: var(--np-space-5);
+  padding-top: var(--np-space-4);
+}
+
+.photoSectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.photoSectionTitle {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+  color: var(--np-text-primary);
+}
+
+.photoSectionMeta {
+  font-size: var(--np-type-caption-size);
+  color: var(--np-text-secondary);
+}
+
+.photoDescription {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-secondary);
+}
+
+.photoAction {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+  width: 100%;
+  padding: var(--np-space-4) var(--np-space-5);
+  border-top: 1px solid var(--np-border-base);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-text-primary);
+  text-align: start;
+}
+
+.photoActionIcon {
+  display: inline-flex;
+  color: var(--np-text-tertiary);
+  transition: transform var(--np-duration-base) var(--np-ease-out);
+}
+
+.photoAction:hover .photoActionIcon {
+  transform: translateX(2px);
+  color: var(--np-text-secondary);
+}
+
+.photoFooter {
+  padding: var(--np-space-4) var(--np-space-5);
+  border-top: 1px solid var(--np-border-base);
+}
+
+/* ============================================================
+   NanaAccountCard — carte compte, halo brand + gold
+   ============================================================ */
+
+.account {
+  overflow: hidden;
+  background: var(--np-surface-hero);
+  border-color: var(--np-border-strong);
+  box-shadow: var(--np-shadow-md);
+}
+
+.account::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    120% 90% at 100% 0%,
+    color-mix(in srgb, var(--np-color-moon-0) 7%, transparent),
+    transparent 56%
+  );
+  pointer-events: none;
+}
+
+.accountTop {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.accountHeading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+  min-width: 0;
+}
+
+.accountLabel {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+}
+
+.accountNumber {
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-body-sm-size);
+  letter-spacing: 0.14em;
+  color: var(--np-text-secondary);
+}
+
+.accountMark {
+  display: inline-flex;
+  color: var(--np-color-brand-300);
+}
+
+.accountBalance {
+  position: relative;
+  margin-top: var(--np-space-6);
+}
+
+.accountFooter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-4);
+  margin-top: var(--np-space-5);
+  padding-top: var(--np-space-4);
+  border-top: 1px solid var(--np-border-base);
+}
+
+.accountMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  min-width: 0;
+  font-size: var(--np-type-body-sm-size);
+  color: var(--np-text-secondary);
+}
+
+/* ============================================================
+   NanaSecurityCard
+   ============================================================ */
+
+.security {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--np-space-4);
+}
+
+.securityIcon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--np-radius-sm);
+  background: color-mix(in srgb, var(--np-color-moon-0) 8%, transparent);
+  color: var(--np-text-secondary);
+}
+
+.securityIcon--active {
+  background: var(--np-status-success-bg);
+  color: var(--np-status-success-text);
+}
+
+.securityIcon--pending {
+  background: var(--np-status-warning-bg);
+  color: var(--np-status-warning-text);
+}
+
+.securityIcon--disabled {
+  background: color-mix(in srgb, var(--np-color-moon-0) 8%, transparent);
+  color: var(--np-text-tertiary);
+}
+
+.securityBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.securityState {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  font-weight: 500;
+  color: var(--np-text-tertiary);
+}
+
+.securityDot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--np-radius-pill);
+  background: currentColor;
+}
+
+.securityState--active {
+  color: var(--np-status-success-text);
+}
+
+.securityState--pending {
+  color: var(--np-status-warning-text);
+}
+
+.securityState--disabled {
+  color: var(--np-text-tertiary);
+}
+
+.securityAction {
+  margin-top: var(--np-space-4);
+}
+
+/* ============================================================
+   NanaGoalCard
+   ============================================================ */
+
+.goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-4);
+}
+
+.goalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.goalLabel {
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+  color: var(--np-text-primary);
+}
+
+.goalPercent {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-money-strong-size);
+  line-height: var(--np-type-money-strong-line);
+  font-weight: var(--np-type-money-strong-weight);
+  color: var(--np-domain-savings-accent-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.goalAmounts {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+  flex-wrap: wrap;
+}
+
+.goalSaved {
+  color: var(--np-text-primary);
+}
+
+.goalTarget {
+  font-size: var(--np-type-body-sm-size);
+  color: var(--np-text-secondary);
+}
+
+.goalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.goalDeadline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  font-size: var(--np-type-caption-size);
+  color: var(--np-text-tertiary);
+}

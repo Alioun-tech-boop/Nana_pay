@@ -1,0 +1,26 @@
+/* Coque mobile-first NanoPay : colonne étroite centrée, navigation basse seule. */
+
+.shell {
+  --np-mobile-nav-max: 640px;
+  min-height: 100vh;
+  background: var(--np-bg-page);
+}
+
+.main {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--np-space-5) var(--np-space-4) calc(88px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 640px) {
+  .main {
+    padding-inline: var(--np-space-5);
+  }
+}
+
+@media (min-width: 768px) {
+  .main {
+    padding-top: var(--np-space-7);
+  }
+}

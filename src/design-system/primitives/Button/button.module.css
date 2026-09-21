@@ -1,0 +1,102 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--np-space-2);
+  border-radius: var(--np-radius-sm);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    color var(--np-duration-fast) var(--np-ease-out),
+    transform var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+  user-select: none;
+  cursor: pointer;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.button--sm {
+  height: 32px;
+  padding: 0 var(--np-space-3);
+  font-size: var(--np-type-body-sm-size);
+}
+
+.button--md {
+  height: 40px;
+  padding: 0 var(--np-space-4);
+  font-size: var(--np-type-body-size);
+}
+
+.button--lg {
+  height: 48px;
+  padding: 0 var(--np-space-5);
+  font-size: var(--np-type-body-lg-size);
+}
+
+.button--full {
+  width: 100%;
+}
+
+.button--primary {
+  background: var(--np-action-primary);
+  color: var(--np-text-on-brand);
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--np-action-primary-hover);
+}
+
+.button--primary:active:not(:disabled) {
+  background: var(--np-action-primary-active);
+}
+
+.button--secondary {
+  background: var(--np-bg-surface);
+  color: var(--np-text-primary);
+  border: 1px solid var(--np-border-strong);
+}
+
+.button--secondary:hover:not(:disabled) {
+  border-color: var(--np-state-hover-border);
+  background: var(--np-state-hover-surface);
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--np-text-secondary);
+}
+
+.button--ghost:hover:not(:disabled) {
+  background: var(--np-state-hover-surface);
+  color: var(--np-text-primary);
+}
+
+.button--danger {
+  background: transparent;
+  color: var(--np-text-primary);
+  border: 1px solid var(--np-border-strong);
+}
+
+.button--danger:hover:not(:disabled) {
+  border-color: var(--np-border-on-strong);
+  background: var(--np-state-hover-surface);
+}
+
+.button--loading {
+  opacity: 0.8;
+}
+
+.button[disabled] {
+  margin: 0;
+}

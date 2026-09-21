@@ -1,0 +1,207 @@
+.hero {
+  position: relative;
+  min-height: clamp(420px, 60vh, 560px);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 0;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.25) 0%,
+    rgba(10, 10, 10, 0.35) 35%,
+    rgba(10, 10, 10, 0.65) 65%,
+    rgba(10, 10, 10, 0.95) 100%
+  );
+}
+
+.heroOverlay {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: clamp(420px, 60vh, 560px);
+  padding: var(--np-space-6);
+}
+
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--np-space-4);
+  margin-bottom: auto;
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: var(--np-font-display);
+  font-size: clamp(32px, 6vw, 56px);
+  line-height: 1.1;
+  font-weight: var(--np-type-h1-weight);
+  letter-spacing: var(--np-type-h1-tracking);
+  color: #ffffff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5);
+}
+
+.searchIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--np-radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    border-color var(--np-duration-fast) var(--np-ease-out);
+}
+
+.searchIconBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.searchIconBtn:focus-visible {
+  outline: 2px solid var(--np-color-brand-300);
+  outline-offset: 2px;
+}
+
+.heroControls {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto var(--np-space-4);
+  align-self: flex-end;
+}
+
+.filters {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--np-space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  z-index: 100;
+}
+
+.filters > * {
+  min-width: 180px;
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+}
+
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-1);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-color-brand-300);
+  text-decoration: none;
+}
+
+.seeAll:hover {
+  text-decoration: underline;
+}
+
+/* Search Modal */
+.searchModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--np-space-4);
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(4px);
+  animation: fadeIn var(--np-duration-fast) var(--np-ease-out);
+}
+
+.searchModalContent {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--np-bg-surface-2);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-xl);
+  padding: var(--np-space-6);
+  box-shadow: var(--np-shadow-lg);
+  animation: slideUp var(--np-duration-base) var(--np-ease-out);
+}
+
+.searchModalLabel {
+  display: block;
+  font-size: var(--np-type-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+  margin-bottom: var(--np-space-3);
+}
+
+.searchModalInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--np-space-4);
+  font-size: var(--np-type-body-size);
+  color: var(--np-text-primary);
+  background: var(--np-bg-surface);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-lg);
+  outline: none;
+  transition:
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+}
+
+.searchModalInput::placeholder {
+  color: var(--np-text-tertiary);
+}
+
+.searchModalInput:hover {
+  border-color: var(--np-border-strong);
+}
+
+.searchModalInput:focus {
+  border-color: var(--np-color-brand-400);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--np-color-brand-500) 30%, transparent);
+}
+
+.searchModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--np-space-3);
+  margin-top: var(--np-space-4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,61 @@
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--np-space-2);
+}
+
+.label {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+}
+
+.icon {
+  display: inline-flex;
+  color: var(--np-text-tertiary);
+}
+
+.value {
+  font-size: var(--np-type-monetary-size);
+  line-height: var(--np-type-monetary-line);
+  font-weight: var(--np-type-monetary-weight);
+  letter-spacing: var(--np-type-monetary-tracking);
+  color: var(--np-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-1);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 500;
+}
+
+.delta--up {
+  color: var(--np-status-success-text);
+}
+
+.delta--down {
+  color: var(--np-status-danger-text);
+}
+
+.delta--neutral {
+  color: var(--np-text-tertiary);
+}
+
+.hint {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}

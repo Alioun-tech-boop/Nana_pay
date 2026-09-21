@@ -1,0 +1,35 @@
+.wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--np-space-3);
+}
+
+.canvas {
+  border-radius: var(--np-radius-lg);
+  background: var(--np-color-paper-0);
+  box-shadow: var(--np-shadow-sm);
+  width: 100%;
+  height: auto;
+}
+
+.label {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,1 @@
+export { SavingsPage, SavingsIndexPage, VaultPage, CreditPage, PaymentModePage, MobileMoneyPage, BankCardPage } from './pages'

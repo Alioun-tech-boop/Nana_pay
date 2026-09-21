@@ -1,0 +1,27 @@
+.control--disabled {
+  background: var(--np-bg-surface-2);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--np-radius-sm);
+  color: var(--np-text-tertiary);
+  padding: var(--np-space-1);
+  margin-right: var(--np-space-2);
+}
+
+button.status {
+  cursor: pointer;
+  transition: color var(--np-duration-fast) var(--np-ease-out);
+}
+
+button.status:hover {
+  color: var(--np-text-primary);
+}
+
+input[type='search']::-webkit-search-cancel-button {
+  display: none;
+}

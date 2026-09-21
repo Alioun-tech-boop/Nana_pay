@@ -1,0 +1,35 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--np-space-3);
+}
+
+.gridProducts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--np-space-3);
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+  padding: var(--np-space-3);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-2);
+  background: var(--np-surface-raised);
+}
+
+.storeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-color-brand-300);
+  text-decoration: none;
+}
+
+.storeLink:hover {
+  text-decoration: underline;
+}

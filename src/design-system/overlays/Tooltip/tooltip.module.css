@@ -1,0 +1,68 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: var(--np-z-dropdown);
+  max-width: 260px;
+  padding: var(--np-space-2) var(--np-space-3);
+  background: var(--np-color-night-700);
+  color: var(--np-color-moon-50);
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  border-radius: var(--np-radius-sm);
+  border: 1px solid var(--np-border-base);
+  box-shadow: var(--np-shadow-md);
+  pointer-events: none;
+  animation: np-fade-in var(--np-duration-fast) var(--np-ease-out) both;
+}
+
+.tooltip--top {
+  bottom: calc(100% + 6px);
+}
+
+.tooltip--bottom {
+  top: calc(100% + 6px);
+}
+
+.tooltip--left {
+  right: calc(100% + 6px);
+}
+
+.tooltip--right {
+  left: calc(100% + 6px);
+}
+
+.tooltip--center.tooltip--top,
+.tooltip--center.tooltip--bottom {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tooltip--center.tooltip--left,
+.tooltip--center.tooltip--right {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.tooltip--start.tooltip--top,
+.tooltip--start.tooltip--bottom {
+  left: 0;
+}
+
+.tooltip--end.tooltip--top,
+.tooltip--end.tooltip--bottom {
+  right: 0;
+}
+
+.tooltip--start.tooltip--left,
+.tooltip--start.tooltip--right {
+  top: 0;
+}
+
+.tooltip--end.tooltip--left,
+.tooltip--end.tooltip--right {
+  bottom: 0;
+}

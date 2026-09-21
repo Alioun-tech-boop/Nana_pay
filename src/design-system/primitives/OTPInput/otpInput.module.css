@@ -1,0 +1,72 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+}
+
+.label {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-secondary);
+}
+
+.cells {
+  display: flex;
+  gap: var(--np-space-2);
+}
+
+.cell {
+  width: 44px;
+  height: 52px;
+  border: 1px solid var(--np-border-strong);
+  border-radius: var(--np-radius-sm);
+  background: var(--np-bg-surface);
+  font-size: var(--np-type-h2-size);
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--np-text-primary);
+  transition:
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    box-shadow var(--np-duration-fast) var(--np-ease-out);
+}
+
+.cell:focus {
+  outline: none;
+  border-color: var(--np-color-brand-400);
+  box-shadow: var(--np-focus-ring);
+}
+
+.cell--filled {
+  border-color: var(--np-color-brand-300);
+}
+
+.cell--error {
+  border-color: var(--np-color-danger-500);
+}
+
+.cell--error:focus {
+  border-color: var(--np-color-danger-500);
+  box-shadow: var(--np-focus-ring-danger);
+}
+
+.cell:disabled {
+  cursor: not-allowed;
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-disabled);
+}
+
+.error {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-status-danger-text);
+}
+
+.hint {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}

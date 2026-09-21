@@ -1,0 +1,531 @@
+/* ============================================================
+   Tableau de bord client — composition éditoriale mobile-first.
+   Beaucoup d'espace négatif, très peu de bordures, très peu de
+   couleurs. Le solde principal domine visuellement.
+   ============================================================ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-8);
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* 1. Hero solde — image de fond plein cadre, sans bordure ---------- */
+
+.balanceHero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-5);
+  min-height: clamp(380px, 66vh, 560px);
+  padding: var(--np-space-7) var(--np-space-5) var(--np-space-9);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.balanceHero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 10, 0.58) 0%,
+    rgba(10, 10, 10, 0.62) 30%,
+    rgba(10, 10, 10, 0.76) 65%,
+    rgba(10, 10, 10, 0.94) 100%
+  );
+}
+
+/* 2. Solde principal ---------------------------------------------- */
+
+.balance {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--np-space-2);
+  padding: var(--np-space-4) var(--np-space-5) 0;
+  border-radius: var(--np-radius-lg);
+  text-align: center;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.72);
+}
+
+.balanceLabel {
+  margin: 0;
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.balanceValue {
+  display: block;
+  color: var(--np-text-primary);
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.8);
+}
+
+.balanceCaption {
+  margin: 0;
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.balanceHeroButton {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  margin-top: var(--np-space-3);
+  padding-inline: var(--np-space-7);
+  border-radius: var(--np-radius-pill);
+}
+
+/* 4. Quick actions — voir NanaQuickActions (design system) --------- */
+
+/* 5 + 6. Statistique et graphique minimal ------------------------- */
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-5);
+}
+
+.statHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+}
+
+.statLabel {
+  margin: 0;
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  color: var(--np-text-secondary);
+}
+
+.statValue {
+  color: var(--np-text-primary);
+}
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+}
+
+.chartBars {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--np-space-3);
+  height: 96px;
+}
+
+.chartBar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+}
+
+.chartBarFill {
+  width: 100%;
+  max-width: 44px;
+  min-height: 3px;
+  border-radius: var(--np-radius-pill);
+  background: color-mix(in srgb, var(--np-color-moon-0) 13%, transparent);
+  transition:
+    height var(--np-duration-slow) var(--np-ease-out),
+    background-color var(--np-duration-base) var(--np-ease-out);
+}
+
+.chartBarFillActive {
+  background: var(--np-color-moon-0);
+}
+
+.chartAxis {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--np-space-3);
+}
+
+.chartAxisLabel {
+  text-align: center;
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  color: var(--np-text-tertiary);
+}
+
+.chartEmpty {
+  margin: 0;
+  padding: var(--np-space-4) 0;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-tertiary);
+}
+
+/* 6. Graphique circulaire (donut) ----------------------------------- */
+
+.donut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--np-space-5);
+}
+
+.donutWrap {
+  position: relative;
+  width: 100%;
+  max-width: 224px;
+}
+
+.donutSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.donutCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--np-space-1);
+  text-align: center;
+}
+
+.donutCenterValue {
+  color: var(--np-text-primary);
+}
+
+.donutCenterLabel {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  font-weight: 500;
+  color: var(--np-text-tertiary);
+}
+
+.donutLegend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+  width: 100%;
+}
+
+.donutRow {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+}
+
+.donutDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--np-radius-pill);
+}
+
+.donutRowLabel {
+  flex: 1;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-secondary);
+}
+
+.donutRowAmount {
+  color: var(--np-text-primary);
+}
+
+.chartEmpty {
+  margin: 0;
+  padding: var(--np-space-4) 0;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-tertiary);
+}
+
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-space-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+  color: var(--np-text-primary);
+}
+
+.sectionLink {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+  text-decoration: none;
+  transition: color var(--np-duration-fast) var(--np-ease-out);
+}
+
+.txList {
+  list-style: none;
+  margin: var(--np-space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tx {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  padding: var(--np-space-4) 0;
+  border-top: 1px solid var(--np-border-base);
+}
+
+.tx:first-child {
+  border-top: none;
+}
+
+.txIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--np-radius-pill);
+  background: color-mix(in srgb, var(--np-color-moon-0) 7%, transparent);
+  color: var(--np-text-secondary);
+}
+
+.txMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.txTitle {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  font-weight: 500;
+  color: var(--np-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.txMeta {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}
+
+.txAmount {
+  flex: none;
+  font-weight: 600;
+  color: var(--np-text-primary);
+}
+
+.emptyText {
+  margin: 0;
+  padding: var(--np-space-4) 0;
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-tertiary);
+}
+
+/* 8. Widgets ------------------------------------------------------- */
+
+.widgets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-4);
+}
+
+.widgetsTitle {
+  margin: 0;
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+  color: var(--np-text-primary);
+}
+
+.widgetGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--np-space-3);
+}
+
+.widget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-2);
+  padding: var(--np-space-5);
+  background: var(--np-bg-surface-2);
+  border-radius: var(--np-radius-xl);
+}
+
+.widgetLabel {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-secondary);
+}
+
+.widgetValue {
+  display: block;
+  color: var(--np-text-primary);
+}
+
+.widget .widgetValue {
+  font-size: clamp(16px, 4.4vw, 21px);
+  line-height: 1.2;
+}
+
+.widgetHint {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-tertiary);
+}
+
+/* Bottom sheet « Plus » ------------------------------------------- */
+
+.sheetList {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheetLink {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  padding: var(--np-space-4) var(--np-space-2);
+  border-top: 1px solid var(--np-border-base);
+  text-decoration: none;
+  color: var(--np-text-primary);
+}
+
+.sheetLink:first-child {
+  border-top: none;
+}
+
+.sheetIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--np-radius-pill);
+  background: color-mix(in srgb, var(--np-color-moon-0) 7%, transparent);
+  color: var(--np-text-secondary);
+}
+
+.sheetLabel {
+  flex: 1;
+  font-size: var(--np-type-body-size);
+}
+
+.sheetChevron {
+  display: inline-flex;
+  color: var(--np-text-tertiary);
+}
+
+/* Interactions ----------------------------------------------------- */
+
+@media (hover: hover) {
+  .sectionLink:hover {
+    color: var(--np-text-primary);
+  }
+}
+
+.sheetLink:hover .sheetIcon {
+  color: var(--np-text-primary);
+}
+
+/* ============================================================
+   Widget Trends & Sparklines
+   ============================================================ */
+
+.widgetHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--np-space-2);
+}
+
+.widgetTrend {
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--np-radius-pill);
+  white-space: nowrap;
+}
+
+.widgetTrendUp {
+  color: #34D399;
+  background: color-mix(in srgb, #34D399 15%, transparent);
+}
+
+.widgetTrendDown {
+  color: #EF4444;
+  background: color-mix(in srgb, #EF4444 13%, transparent);
+}
+
+.widgetTrendNeutral {
+  color: var(--np-text-tertiary);
+  background: color-mix(in srgb, var(--np-text-tertiary) 15%, transparent);
+}
+
+.widgetSubHint {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  color: var(--np-text-tertiary);
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.sparkline {
+  margin-top: var(--np-space-2);
+  margin-bottom: calc(-1 * var(--np-space-3));
+  margin-inline: calc(-1 * var(--np-space-5));
+  width: calc(100% + var(--np-space-5) * 2);
+  height: 44px;
+  border-radius: 0 0 var(--np-radius-xl) var(--np-radius-xl);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--np-bg-surface-2) 40%, transparent) 100%
+  );
+}

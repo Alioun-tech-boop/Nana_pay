@@ -1,0 +1,30 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-1);
+  padding: 3px var(--np-space-2);
+  border-radius: var(--np-radius-xs);
+  font-size: var(--np-type-caption-size);
+  line-height: 1.3;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.badge--neutral {
+  background: var(--np-status-neutral-bg);
+  color: var(--np-status-neutral-text);
+}
+
+.badge--success {
+  background: #10B981;
+  color: #0A0A0A;
+}
+
+.badge--danger {
+  background: #EF4444;
+  color: #FFFFFF;
+}

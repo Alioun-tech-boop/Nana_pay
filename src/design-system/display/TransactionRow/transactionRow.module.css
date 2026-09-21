@@ -1,0 +1,126 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  width: 100%;
+  padding: var(--np-space-3) var(--np-space-2);
+  border: none;
+  background: transparent;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+}
+
+.clickable {
+  cursor: pointer;
+  border-radius: var(--np-radius-sm);
+}
+
+.clickable:hover {
+  background: var(--np-bg-surface-2);
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--np-color-brand-500);
+  outline-offset: -2px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--np-radius-sm);
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-tertiary);
+  flex-shrink: 0;
+}
+
+.icon--info {
+  background: var(--np-status-info-bg);
+  color: var(--np-status-info-text);
+}
+
+.icon--success {
+  background: var(--np-status-success-bg);
+  color: var(--np-status-success-text);
+}
+
+.icon--warning {
+  background: var(--np-status-warning-bg);
+  color: var(--np-status-warning-text);
+}
+
+.icon--danger {
+  background: var(--np-status-danger-bg);
+  color: var(--np-status-danger-text);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--np-type-body-sm-size);
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--np-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timestamp {
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-caption-size);
+  color: var(--np-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.amountCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.amount {
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-text-primary);
+}
+
+.trailing {
+  flex-shrink: 0;
+}
+
+.skeletonBody {
+  gap: var(--np-space-2);
+}
+
+.skeletonEnd {
+  flex-shrink: 0;
+}
+
+@media (max-width: 479px) {
+  .timestamp {
+    display: none;
+  }
+}

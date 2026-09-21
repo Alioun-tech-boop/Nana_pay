@@ -1,0 +1,97 @@
+.typography {
+  margin: 0;
+  font-family: var(--np-font-sans);
+}
+
+.typography--display {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-display-size);
+  line-height: var(--np-type-display-line);
+  font-weight: var(--np-type-display-weight);
+  letter-spacing: var(--np-type-display-tracking);
+}
+
+.typography--h1 {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h1-size);
+  line-height: var(--np-type-h1-line);
+  font-weight: var(--np-type-h1-weight);
+  letter-spacing: var(--np-type-h1-tracking);
+}
+
+.typography--h2 {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h2-size);
+  line-height: var(--np-type-h2-line);
+  font-weight: var(--np-type-h2-weight);
+  letter-spacing: var(--np-type-h2-tracking);
+}
+
+.typography--h3 {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-h3-size);
+  line-height: var(--np-type-h3-line);
+  font-weight: var(--np-type-h3-weight);
+  letter-spacing: var(--np-type-h3-tracking);
+}
+
+.typography--body-lg {
+  font-size: var(--np-type-body-lg-size);
+  line-height: var(--np-type-body-lg-line);
+  font-weight: var(--np-type-body-lg-weight);
+}
+
+.typography--body {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  font-weight: var(--np-type-body-weight);
+}
+
+.typography--body-sm {
+  font-size: var(--np-type-body-sm-size);
+  line-height: var(--np-type-body-sm-line);
+  font-weight: var(--np-type-body-sm-weight);
+}
+
+.typography--caption {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  font-weight: var(--np-type-caption-weight);
+}
+
+.typography--label {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+}
+
+.typography--code {
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-code-size);
+  line-height: var(--np-type-code-line);
+  font-weight: var(--np-type-code-weight);
+}
+
+.typography--monetary {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-money-size);
+  line-height: var(--np-type-money-line);
+  font-weight: var(--np-type-money-weight);
+  letter-spacing: var(--np-type-money-tracking);
+}
+
+.typography--align-center {
+  text-align: center;
+}
+
+.typography--align-end {
+  text-align: end;
+}
+
+.typography--muted {
+  color: var(--np-text-secondary);
+}

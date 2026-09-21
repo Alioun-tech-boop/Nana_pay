@@ -1,0 +1,286 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-6);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+}
+
+.headTitle {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-page-title-size);
+  line-height: var(--np-type-page-title-line);
+  font-weight: var(--np-type-page-title-weight);
+  letter-spacing: var(--np-type-page-title-tracking);
+  color: var(--np-text-primary);
+}
+
+.headDescription {
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  color: var(--np-text-secondary);
+  max-width: 640px;
+}
+
+.groupLabel {
+  font-size: var(--np-type-label-size);
+  line-height: var(--np-type-label-line);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-tertiary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--np-space-4);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--np-space-4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--np-space-3);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+}
+
+.spacer {
+  height: var(--np-space-2);
+}
+
+.scannerPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--np-color-paper-200);
+  background:
+    radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--np-color-brand-500) 22%, transparent), transparent 45%),
+    radial-gradient(circle at 70% 65%, color-mix(in srgb, var(--np-color-gold-500) 14%, transparent), transparent 40%),
+    var(--np-color-night-925);
+}
+
+.demoCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-3);
+}
+
+.identityPanel {
+  position: relative;
+  overflow: hidden;
+  padding: var(--np-space-8) var(--np-space-7);
+  background: var(--np-surface-hero-strong);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-2);
+}
+
+.identityEyebrow {
+  margin: 0 0 var(--np-space-3);
+  font-size: var(--np-type-caption-size);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--np-color-brand-300);
+}
+
+.identityHeadline {
+  margin: 0;
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-display-2-size);
+  font-weight: var(--np-type-display-2-weight);
+  line-height: var(--np-type-display-2-line);
+  letter-spacing: var(--np-type-display-2-tracking);
+  color: var(--np-text-primary);
+}
+
+.identityLede {
+  margin: var(--np-space-4) 0 0;
+  font-size: var(--np-type-body-size);
+  line-height: 1.65;
+  color: var(--np-text-secondary);
+  max-width: 58ch;
+}
+
+.moneyHero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+}
+
+.moneyLabel {
+  font-size: var(--np-type-label-size);
+  font-weight: var(--np-type-label-weight);
+  letter-spacing: var(--np-type-label-tracking);
+  text-transform: uppercase;
+  color: var(--np-text-tertiary);
+}
+
+.moneyMeta {
+  font-size: var(--np-type-body-sm-size);
+  color: var(--np-text-secondary);
+}
+
+.statFigure {
+  font-family: var(--np-font-display);
+  font-size: var(--np-type-page-title-size);
+  line-height: var(--np-type-page-title-line);
+  font-weight: var(--np-type-page-title-weight);
+  letter-spacing: var(--np-type-page-title-tracking);
+  color: var(--np-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.domainChips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--np-space-2);
+}
+
+.domainChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  padding: var(--np-space-2) var(--np-space-3);
+  border-radius: var(--np-radius-full);
+  border: 1px solid var(--np-border-base);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-text-primary);
+  background: var(--np-surface-raised);
+}
+
+.domainDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.domainChip--savings .domainDot {
+  background: var(--np-domain-savings-accent-solid);
+}
+
+.domainChip--savings {
+  border-color: var(--np-domain-savings-accent-border);
+}
+
+.domainChip--vault .domainDot {
+  background: var(--np-domain-vault-accent-solid);
+}
+
+.domainChip--vault {
+  border-color: var(--np-domain-vault-accent-border);
+}
+
+.domainChip--credit .domainDot {
+  background: var(--np-domain-credit-accent-solid);
+}
+
+.domainChip--credit {
+  border-color: var(--np-domain-credit-accent-border);
+}
+
+.domainChip--payment .domainDot {
+  background: var(--np-domain-payment-accent-solid);
+}
+
+.domainChip--payment {
+  border-color: var(--np-domain-payment-accent-border);
+}
+
+.domainChip--confirmation .domainDot {
+  background: var(--np-domain-confirmation-accent-solid);
+}
+
+.domainChip--confirmation {
+  border-color: var(--np-domain-confirmation-accent-border);
+}
+
+.surfaceSwatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--np-space-3);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+  padding: var(--np-space-3);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-1);
+}
+
+.swatchSwatch {
+  height: 40px;
+  border-radius: var(--np-radius-1);
+}
+
+.swatchPage {
+  background: var(--np-bg-page);
+  border: 1px solid var(--np-border-base);
+}
+
+.swatchSurface {
+  background: var(--np-bg-surface);
+}
+
+.swatchAnthracite {
+  background: var(--np-bg-surface-2);
+}
+
+.swatchGraphite {
+  background: var(--np-bg-surface-3);
+}
+
+.swatchLabel {
+  font-size: var(--np-type-caption-size);
+  font-weight: 600;
+  color: var(--np-text-primary);
+}
+
+.swatchHint {
+  font-family: var(--np-font-mono);
+  font-size: var(--np-type-caption-size);
+  color: var(--np-text-tertiary);
+}
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--np-space-2) var(--np-space-4);
+}
+
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-1);
+}
+
+.quickActionsDemo {
+  max-width: 320px;
+}
+
+@media (max-width: 767px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}

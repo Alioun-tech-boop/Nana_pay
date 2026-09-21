@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="56" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+  <circle cx="60" cy="60" r="30" fill="#2a2a2a"/>
+  <text x="60" y="70" font-family="system-ui" font-size="22" font-weight="800" fill="#fff" text-anchor="middle">TS</text>
+  <text x="60" y="95" font-family="system-ui" font-size="9" fill="#666" text-anchor="middle">TekShop</text>
+</svg>

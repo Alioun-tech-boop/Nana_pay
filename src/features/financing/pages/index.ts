@@ -1,0 +1,7 @@
+export { SavingsPage } from './SavingsPage'
+export { SavingsIndexPage } from './SavingsIndexPage'
+export { VaultPage } from './VaultPage'
+export { CreditPage } from './CreditPage'
+export { PaymentModePage } from './PaymentModePage'
+export { MobileMoneyPage } from './MobileMoneyPage'
+export { BankCardPage } from './BankCardPage'

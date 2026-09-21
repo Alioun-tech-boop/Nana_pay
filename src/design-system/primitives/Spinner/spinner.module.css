@@ -1,0 +1,4 @@
+.root {
+  animation: np-spin var(--np-duration-slower) linear infinite;
+  flex-shrink: 0;
+}

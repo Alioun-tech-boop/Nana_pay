@@ -1,0 +1,218 @@
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource-variable/schibsted-grotesk/index.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--np-bg-page);
+}
+
+body {
+  background: var(--np-bg-page);
+  color: var(--np-text-primary);
+  font-family: var(--np-font-sans);
+  font-size: var(--np-type-body-size);
+  line-height: var(--np-type-body-line);
+  font-weight: var(--np-type-body-weight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: var(--np-color-brand-400);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--np-color-brand-300);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--np-color-brand-400);
+  outline-offset: 2px;
+  border-radius: var(--np-radius-xs);
+}
+
+::selection {
+  background: var(--np-color-brand-500);
+  color: var(--np-color-night-950);
+}
+
+.np-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+@keyframes np-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes np-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes np-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes np-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes np-shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes np-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes np-pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes np-draw-check {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.np-anim-fade-in {
+  animation: np-fade-in var(--np-duration-base) var(--np-ease-out) both;
+}
+
+.np-anim-fade-up {
+  animation: np-fade-up var(--np-duration-base) var(--np-ease-out) both;
+}
+
+.np-anim-scale-in {
+  animation: np-scale-in var(--np-duration-base) var(--np-ease-out) both;
+}
+
+.np-anim-slide-down {
+  animation: np-slide-down var(--np-duration-base) var(--np-ease-out) both;
+}
+
+.np-anim-draw-check {
+  animation: np-draw-check var(--np-duration-slow) var(--np-ease-snap) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

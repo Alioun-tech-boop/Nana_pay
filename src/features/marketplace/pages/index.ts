@@ -1,0 +1,6 @@
+export { MarketplacePage } from './MarketplacePage'
+export { SearchPage } from './SearchPage'
+export { StorePage } from './StorePage'
+export { ProductPage } from './ProductPage'
+export { CartPage } from './CartPage'
+export { CheckoutPage } from './CheckoutPage'

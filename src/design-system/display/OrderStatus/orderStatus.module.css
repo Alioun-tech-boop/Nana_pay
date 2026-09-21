@@ -1,0 +1,50 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-3);
+}
+
+.iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--np-radius-sm);
+  flex-shrink: 0;
+}
+
+.iconWrap--neutral {
+  background: var(--np-bg-surface-2);
+  color: var(--np-text-tertiary);
+}
+
+.iconWrap--success {
+  background: #10B981;
+  color: #0A0A0A;
+}
+
+.iconWrap--danger {
+  background: #EF4444;
+  color: #FFFFFF;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.stage {
+  font-size: var(--np-type-body-sm-size);
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--np-text-primary);
+}
+
+.description {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-secondary);
+}

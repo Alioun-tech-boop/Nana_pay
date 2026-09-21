@@ -1,0 +1,98 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+  padding: 2px var(--np-space-3);
+  border-radius: var(--np-radius-pill);
+  border: 1px solid var(--np-border-base);
+  font-size: var(--np-type-body-sm-size);
+  line-height: 1.6;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge--neutral {
+  background: var(--np-status-neutral-bg);
+  border-color: transparent;
+  color: var(--np-status-neutral-text);
+}
+
+.badge--info {
+  background: var(--np-status-info-bg);
+  border-color: transparent;
+  color: var(--np-status-info-text);
+}
+
+.badge--success {
+  background: var(--np-status-success-bg);
+  border-color: transparent;
+  color: var(--np-status-success-text);
+}
+
+.badge--warning {
+  background: var(--np-status-warning-bg);
+  border-color: transparent;
+  color: var(--np-status-warning-text);
+}
+
+.badge--danger {
+  background: var(--np-status-danger-bg);
+  border-color: transparent;
+  color: var(--np-status-danger-text);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--np-radius-pill);
+  flex-shrink: 0;
+}
+
+.dot--neutral {
+  background: var(--np-status-neutral-text);
+}
+
+.dot--info {
+  background: var(--np-status-info-text);
+}
+
+.dot--success {
+  background: var(--np-status-success-text);
+}
+
+.dot--warning {
+  background: var(--np-status-warning-text);
+}
+
+.dot--danger {
+  background: var(--np-status-danger-text);
+}
+
+.dot--pulse {
+  animation: np-pulse var(--np-duration-slow) var(--np-ease-in-out) infinite;
+}
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.icon--neutral {
+  color: var(--np-status-neutral-text);
+}
+
+.icon--info {
+  color: var(--np-status-info-text);
+}
+
+.icon--success {
+  color: var(--np-status-success-text);
+}
+
+.icon--warning {
+  color: var(--np-status-warning-text);
+}
+
+.icon--danger {
+  color: var(--np-status-danger-text);
+}

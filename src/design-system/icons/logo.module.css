@@ -1,0 +1,49 @@
+.mark {
+  color: var(--np-text-primary);
+}
+
+.mark--paper {
+  color: var(--np-color-paper-0);
+}
+
+.pin {
+  fill: currentColor;
+}
+
+.chip-body {
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: transparent;
+}
+
+.node {
+  fill: var(--np-color-brand-500);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--np-space-2);
+}
+
+.logo--stacked {
+  flex-direction: column;
+  gap: var(--np-space-1);
+}
+
+.wordmark {
+  font-family: var(--np-font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--np-text-primary);
+  white-space: nowrap;
+}
+
+.wordmark--stacked {
+  font-size: 1rem;
+}
+
+.wordmarkAccent {
+  color: var(--np-color-brand-500);
+}
