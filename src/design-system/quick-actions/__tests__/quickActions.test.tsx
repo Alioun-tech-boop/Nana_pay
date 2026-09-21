@@ -26,7 +26,7 @@ describe('NanaQuickAction', () => {
   it('déclenche onClick', () => {
     const onClick = vi.fn()
     render(<NanaQuickAction variant="send" onClick={onClick} />)
-    screen.getByRole('button', { name: 'Envoyer' }).click()
+    screen.getByRole('button', { name: 'Acheter' }).click()
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 

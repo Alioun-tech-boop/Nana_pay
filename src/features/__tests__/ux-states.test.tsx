@@ -31,7 +31,7 @@ describe('UX states', () => {
       const searchBtn = await screen.findByRole('button', { name: /rechercher/i })
       expect(searchBtn).toBeInTheDocument()
 
-      const sectionHeading = await screen.findByRole('heading', { name: /Boutiques vérifiées/i })
+      const sectionHeading = await screen.findByRole('heading', { name: /^Boutiques$/i })
       expect(sectionHeading).toBeInTheDocument()
 
       const productHeading = await screen.findByRole('heading', { name: /Produits disponibles/i })
@@ -53,7 +53,7 @@ describe('UX states', () => {
       expect(screen.getByRole('button', { name: /Ajouter de l'argent/i })).toBeInTheDocument()
 
       expect(screen.getByRole('navigation', { name: /Actions rapides/i })).toBeInTheDocument()
-      for (const label of ['Recharger', 'Envoyer', 'Retirer', 'Plus']) {
+      for (const label of ['Recharger', 'Acheter', 'Retirer', 'Plus']) {
         expect(screen.getByRole('button', { name: new RegExp(label, 'i') })).toBeInTheDocument()
       }
 

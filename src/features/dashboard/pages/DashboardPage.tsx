@@ -27,26 +27,6 @@ const KIND_ICON: Record<HistoryKind, IconName> = {
   CREDIT: 'bank',
 }
 
-const KIND_LABELS: Record<HistoryKind, string> = {
-  ORDER: 'Commandes',
-  SAVINGS: 'Épargne',
-  VAULT: 'Coffre',
-  WITHDRAWAL: 'Retraits',
-  CREDIT: 'Crédit',
-}
-
-const KIND_COLORS: Record<HistoryKind, string> = {
-  ORDER: '#8B5CF6',
-  SAVINGS: '#34D399',
-  VAULT: '#60A5FA',
-  WITHDRAWAL: '#FBBF24',
-  CREDIT: '#F87171',
-}
-
-const DONUT_SIZE = 220
-const DONUT_STROKE = 18
-const DONUT_GAP = 20
-
 const QUICK_ACTIONS: Array<{ id: string; variant: NanaQuickActionVariant; to?: string }> = [
   { id: 'recharge', variant: 'recharge', to: '/payment-mode' },
   { id: 'send', variant: 'send', to: '/marketplace' },
@@ -84,6 +64,8 @@ function inSameMonth(dateISO: string): boolean {
   )
 }
 
+const TREND_DAYS = 14
+
 function startOfDayTimestamps(days: number): number[] {
   const starts: number[] = []
   const now = new Date()
@@ -104,32 +86,28 @@ function bucketize<T>(
 ): number[] {
   const starts = startOfDayTimestamps(days)
   const buckets = new Array<number>(days).fill(0)
-
   for (const item of items) {
     const time = dateOf(item)
     if (Number.isNaN(time)) continue
-
     let index = -1
     for (let i = 0; i < days; i += 1) {
-      if (time >= starts[i]) {
-        index = i
-      } else {
-        break
-      }
+      if (time >= starts[i]) index = i
+      else break
     }
-
     if (index < 0) continue
     buckets[index] += valueOf(item)
   }
-
   const points: number[] = []
   let acc = 0
   for (const bucket of buckets) {
     acc += bucket
     points.push(acc)
   }
-
   return points
+}
+
+function signedAmount(entry: HistoryEntry): number {
+  return entry.direction === 'IN' ? entry.amount.amount : -entry.amount.amount
 }
 
 function trendOf(points: number[]): { direction: 'up' | 'down' | 'neutral'; pct: number | null } {
@@ -152,8 +130,35 @@ interface SpendSegment {
   amount: number
 }
 
+const KIND_COLORS: Record<HistoryKind, string> = {
+  ORDER: '#D8423A',
+  WITHDRAWAL: '#F2F2F2',
+  SAVINGS: '#A6A6A6',
+  VAULT: '#6F6F6F',
+  CREDIT: '#FFFFFF',
+}
+
+const KIND_LABELS: Record<HistoryKind, string> = {
+  ORDER: 'Commandes',
+  SAVINGS: 'Épargne',
+  VAULT: 'Coffre',
+  WITHDRAWAL: 'Retraits',
+  CREDIT: 'Crédit',
+}
+
+const DONUT_SIZE = 140
+const DONUT_STROKE = 10
+const DONUT_GAP = 2.5
+
 function SpendDonut({ entries }: { entries: HistoryEntry[] }) {
-  const grouped = useMemo(() => Object.keys(KIND_LABELS) as HistoryKind[], [])
+  const grouped = useMemo(() => {
+    const totals = new Map<HistoryKind, number>()
+    for (const entry of entries) {
+      const current = totals.get(entry.kind) ?? 0
+      totals.set(entry.kind, current + entry.amount.amount)
+    }
+    return Object.keys(KIND_LABELS) as HistoryKind[]
+  }, [entries])
 
   const segments: SpendSegment[] = useMemo(
     () =>
@@ -215,7 +220,6 @@ function SpendDonut({ entries }: { entries: HistoryEntry[] }) {
               fill="none"
               stroke={arc.color}
               strokeWidth={DONUT_STROKE}
-              strokeLinecap="round"
               strokeDasharray={`${arc.visible} ${circumference - arc.visible}`}
               strokeDashoffset={-arc.offset}
               transform={`rotate(-90 ${DONUT_SIZE / 2} ${DONUT_SIZE / 2})`}
@@ -247,17 +251,16 @@ function SpendDonut({ entries }: { entries: HistoryEntry[] }) {
   )
 }
 
-type OverviewWidgetProps = {
+interface OverviewWidgetProps {
   label: string
   hint: string
-  money: Money | null
-  loading: boolean
+  money?: Money | null
+  loading?: boolean
   trend?: { direction: 'up' | 'down' | 'neutral'; pct: number | null }
 }
 
 function OverviewWidget({ label, hint, money, loading, trend }: OverviewWidgetProps) {
   let value: ReactNode
-
   if (loading) {
     value = <Skeleton width={92} height={22} />
   } else if (money) {
@@ -277,20 +280,14 @@ function OverviewWidget({ label, hint, money, loading, trend }: OverviewWidgetPr
     <article className={styles.widget}>
       <div className={styles.widgetHeader}>
         <span className={styles.widgetLabel}>{label}</span>
-        {trend && (
+        {trend && trend.direction !== 'neutral' && trend.pct !== null ? (
           <span
-            className={`${styles.widgetTrend} ${
-              trend.direction === 'up'
-                ? styles.widgetTrendUp
-                : trend.direction === 'down'
-                  ? styles.widgetTrendDown
-                  : styles.widgetTrendNeutral
-            }`}
+            className={`${styles.widgetTrend} ${trend.direction === 'up' ? styles.widgetTrendUp : styles.widgetTrendDown}`}
+            title={`Évolution sur les ${TREND_DAYS} derniers jours`}
           >
-            {trend.direction === 'up' ? '▲' : trend.direction === 'down' ? '▼' : '—'}{' '}
-            {trend.pct !== null ? formatTrendPct(trend.pct) : '—'}
+            {trend.direction === 'up' ? '▲' : '▼'} {formatTrendPct(trend.pct)}
           </span>
-        )}
+        ) : null}
       </div>
       {value}
       <span className={styles.widgetHint}>{hint}</span>
@@ -310,6 +307,7 @@ export function DashboardPage() {
   const savingsItems = savingsReq.data?.items ?? []
   const historyItems = historyReq.data?.items ?? []
 
+  const balanceLoading = vaultReq.isLoading
   const syncError = vaultReq.isError || savingsReq.isError || historyReq.isError
 
   const savingsTotal = sumMoney(savingsItems.map((item) => item.savedAmount))
@@ -320,24 +318,19 @@ export function DashboardPage() {
   const patrimoine = sumMoney([vault?.balance, savingsTotal])
 
   const monthOutflow = useMemo(
-    () => historyReq.data?.items.filter((entry) => entry.direction === 'OUT' && inSameMonth(entry.date)) ?? [],
+    () =>
+      historyReq.data?.items.filter((entry) => entry.direction === 'OUT' && inSameMonth(entry.date)) ?? [],
     [historyReq.data],
   )
 
   const monthSpend = sumMoney(monthOutflow.map((entry) => entry.amount))
 
-  const recentTransactions: HistoryEntry[] = historyItems.slice(0, 5)
-  const activeGoalsHint =
-    activeGoals.length > 0
-      ? `${activeGoals.length} plan${activeGoals.length > 1 ? 's' : ''} actif${activeGoals.length > 1 ? 's' : ''}`
-      : 'Aucun plan en cours'
-
   const patrimoineTrend = useMemo(() => {
     const points = bucketize(
       historyItems,
       (entry) => new Date(entry.date).getTime(),
-      (entry) => (entry.direction === 'IN' ? entry.amount.amount : -entry.amount.amount),
-      14,
+      signedAmount,
+      TREND_DAYS,
     )
     return trendOf(points)
   }, [historyItems])
@@ -347,7 +340,7 @@ export function DashboardPage() {
       savingsItems,
       (item) => new Date(item.startedAt).getTime(),
       (item) => item.savedAmount.amount,
-      14,
+      TREND_DAYS,
     )
     return trendOf(points)
   }, [savingsItems])
@@ -357,7 +350,7 @@ export function DashboardPage() {
       savingsItems,
       (item) => new Date(item.startedAt).getTime(),
       (item) => item.targetAmount.amount,
-      14,
+      TREND_DAYS,
     )
     return trendOf(points)
   }, [savingsItems])
@@ -367,10 +360,16 @@ export function DashboardPage() {
       historyItems.filter((entry) => entry.direction === 'OUT'),
       (entry) => new Date(entry.date).getTime(),
       (entry) => entry.amount.amount,
-      14,
+      TREND_DAYS,
     )
     return trendOf(points)
   }, [historyItems])
+
+  const recentTransactions: HistoryEntry[] = historyItems.slice(0, 5)
+  const activeGoalsHint =
+    activeGoals.length > 0
+      ? `${activeGoals.length} plan${activeGoals.length > 1 ? 's' : ''} actif${activeGoals.length > 1 ? 's' : ''}`
+      : 'Aucun plan en cours'
 
   return (
     <div className={styles.page}>
@@ -390,7 +389,7 @@ export function DashboardPage() {
           <p id="dashboard-balance" className={styles.balanceLabel}>
             Votre solde
           </p>
-          {vaultReq.isLoading ? (
+          {balanceLoading ? (
             <Skeleton width={248} height={54} />
           ) : vault ? (
             <MoneyAmount
@@ -410,7 +409,7 @@ export function DashboardPage() {
           className={styles.balanceHeroButton}
           size="md"
           leadingIcon={<Icon name="plus" size={16} />}
-          onClick={() => navigate('/payment-mode')}
+          onClick={() => navigate('/vault')}
         >
           Ajouter de l'argent
         </Button>

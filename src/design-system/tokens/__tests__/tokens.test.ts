@@ -70,10 +70,10 @@ describe('design tokens — identité NanoPay', () => {
 
   it('expose l’échelle financière avec devise sous-dominante', () => {
     const css = tokenStyles()
-    expect(css).toContain('--np-type-money-size: clamp(22px, 3.2vw, 28px)')
-    expect(css).toContain('--np-type-money-strong-size: clamp(18px, 2.4vw, 22px)')
-    expect(css).toContain('--np-type-money-display-size: clamp(34px, 7.5vw, 80px)')
-    expect(css).toContain('--np-type-money-display-line: 0.94')
+    expect(css).toContain('--np-type-money-size: clamp(17px, 2.4vw, 23px)')
+    expect(css).toContain('--np-type-money-strong-size: clamp(15px, 2vw, 20px)')
+    expect(css).toContain('--np-type-money-display-size: clamp(26px, 5vw, 42px)')
+    expect(css).toContain('--np-type-money-display-line: 1')
   })
 
   it('indexe tous les groupes de tokens attendus', () => {
