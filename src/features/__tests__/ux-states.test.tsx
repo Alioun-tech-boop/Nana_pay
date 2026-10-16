@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { BrowserRouter, MemoryRouter, useLocation } from 'react-router-dom'
 import { EmptyState, MoneyAmount } from '../../design-system'
 import { MarketplacePage } from '../../features/marketplace/pages/MarketplacePage'
+import { BoutiquesPage } from '../../features/marketplace/pages/BoutiquesPage'
 import { DashboardPage } from '../../features/dashboard/pages/DashboardPage'
 import { PaymentModePage } from '../../features/financing/pages/PaymentModePage'
 import { AppProviders } from '../../components/providers/AppProviders'
@@ -25,7 +26,7 @@ describe('UX states', () => {
   })
 
   describe('MarketplacePage', () => {
-    it('renders search and content after loading', async () => {
+    it('renders search, produit filters and produits after loading', async () => {
       render(
         <BrowserRouter>
           <AppProviders>
@@ -37,11 +38,40 @@ describe('UX states', () => {
       const searchBtn = await screen.findByRole('button', { name: /rechercher/i })
       expect(searchBtn).toBeInTheDocument()
 
-      const sectionHeading = await screen.findByRole('heading', { name: /^Boutiques$/i })
-      expect(sectionHeading).toBeInTheDocument()
-
       const productHeading = await screen.findByRole('heading', { name: /Produits disponibles/i })
       expect(productHeading).toBeInTheDocument()
+
+      const produitsLink = await screen.findByRole('link', { name: /^Produits$/i })
+      expect(produitsLink).toHaveAttribute('aria-current', 'page')
+
+      const boutiquesLink = await screen.findByRole('link', { name: /^Boutiques$/i })
+      expect(boutiquesLink).toBeInTheDocument()
+      expect(boutiquesLink).not.toHaveAttribute('aria-current')
+
+      expect(await screen.findByRole('button', { name: /Tous/i })).toBeInTheDocument()
+    })
+  })
+
+  describe('BoutiquesPage', () => {
+    it('renders boutiques with a switch back to produits', async () => {
+      render(
+        <BrowserRouter>
+          <AppProviders>
+            <BoutiquesPage />
+          </AppProviders>
+        </BrowserRouter>,
+      )
+
+      expect(await screen.findByRole('heading', { name: /^Boutiques$/i })).toBeInTheDocument()
+
+      const boutiquesLink = await screen.findByRole('link', { name: /^Boutiques$/i })
+      expect(boutiquesLink).toHaveAttribute('aria-current', 'page')
+
+      const produitsLink = await screen.findByRole('link', { name: /^Produits$/i })
+      expect(produitsLink).toBeInTheDocument()
+      expect(produitsLink).not.toHaveAttribute('aria-current')
+
+      expect(await screen.findByText(/Toutes les boutiques/)).toBeInTheDocument()
     })
   })
 

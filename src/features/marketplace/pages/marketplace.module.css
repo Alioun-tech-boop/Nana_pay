@@ -13,12 +13,14 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* Voile directionnel : seul le titre et le bouton de recherche occupent
+     le haut. Le reste de l'image reste dégagé, sans contrôles superposés. */
   background: linear-gradient(
     180deg,
-    rgba(10, 10, 10, 0.25) 0%,
-    rgba(10, 10, 10, 0.35) 35%,
-    rgba(10, 10, 10, 0.65) 65%,
-    rgba(10, 10, 10, 0.95) 100%
+    rgba(10, 10, 10, 0.42) 0%,
+    rgba(10, 10, 10, 0.14) 42%,
+    rgba(10, 10, 10, 0.3) 78%,
+    rgba(10, 10, 10, 0.55) 100%
   );
 }
 
@@ -79,44 +81,50 @@
   outline-offset: 2px;
 }
 
-.heroControls {
-  width: 100%;
-  max-width: 720px;
-  margin: 0 auto var(--np-space-4);
-  align-self: flex-end;
-}
-
-.filters {
+/* Filtres par type de produit */
+.categoryBar {
   display: flex;
-  align-items: flex-end;
-  gap: var(--np-space-3);
   flex-wrap: wrap;
-  justify-content: center;
-  position: relative;
-  z-index: 100;
+  gap: var(--np-space-2);
+  margin: 0 0 var(--np-space-5);
 }
 
-.filters > * {
-  min-width: 180px;
-}
-
-.reset {
+.categoryChip {
   display: inline-flex;
   align-items: center;
-}
-
-.seeAll {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--np-space-1);
+  min-height: 34px;
+  padding: 0 var(--np-space-4);
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-pill);
+  background: var(--np-bg-surface);
+  color: var(--np-text-secondary);
   font-size: var(--np-type-body-sm-size);
   font-weight: 600;
-  color: var(--np-color-brand-300);
-  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--np-duration-fast) var(--np-ease-out),
+    border-color var(--np-duration-fast) var(--np-ease-out),
+    color var(--np-duration-fast) var(--np-ease-out);
 }
 
-.seeAll:hover {
-  text-decoration: underline;
+.categoryChip:hover {
+  border-color: var(--np-border-strong);
+  background: var(--np-state-hover-surface);
+  color: var(--np-text-primary);
+}
+
+.categoryChip:focus-visible {
+  outline: 2px solid var(--np-color-brand-300);
+  outline-offset: 2px;
+}
+
+.categoryChipActive,
+.categoryChipActive:hover {
+  background: var(--np-state-selected-surface);
+  border-color: var(--np-state-selected-border);
+  color: var(--np-state-selected-text);
 }
 
 /* Search Modal */

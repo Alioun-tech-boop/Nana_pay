@@ -22,6 +22,9 @@ const DesignSystemPage = lazyPage(() =>
 const MarketplacePage = lazyPage(() =>
   import('../features/marketplace/pages/MarketplacePage').then((m) => ({ default: m.MarketplacePage })),
 )
+const BoutiquesPage = lazyPage(() =>
+  import('../features/marketplace/pages/BoutiquesPage').then((m) => ({ default: m.BoutiquesPage })),
+)
 const SearchPage = lazyPage(() =>
   import('../features/marketplace/pages/SearchPage').then((m) => ({ default: m.SearchPage })),
 )
@@ -217,6 +220,7 @@ export function App() {
               }
             >
               <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/boutiques" element={<BoutiquesPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/shops/:merchantId" element={<StorePage />} />
               <Route path="/products/:productId" element={<ProductPage />} />

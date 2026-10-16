@@ -1,22 +1,23 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Button,
+  cx,
   EmptyState,
   ErrorState,
   Icon,
-  Select,
   Section,
-  Skeleton,
   Text,
 } from '../../../design-system'
 import { marketplaceService } from '../../../services'
 import { useRequest } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
-import { MerchantShelf } from '../components/MerchantShelf'
 import { ProductShelf } from '../components/ProductShelf'
+import { MarketplaceNav } from '../components/MarketplaceNav'
+import { buildCategoryOptions, type ProductCategoryOption } from '../lib/categories'
 import styles from './marketplace.module.css'
 import viewStyles from '../../../components/client/view.module.css'
+
 const heroImage = '/assets/wakefield-market.jpeg'
 
 function useDebounced(value: string, delay = 350): string {
@@ -31,33 +32,37 @@ function useDebounced(value: string, delay = 350): string {
 export function MarketplacePage() {
   const [params, setParams] = useSearchParams()
   const initialQ = params.get('q') ?? ''
-  const city = params.get('city') ?? ''
-  const commune = params.get('commune') ?? ''
+  const categoryId = params.get('category') ?? ''
 
   const [term, setTerm] = useState(initialQ)
   const debouncedTerm = useDebounced(term)
   const appliedQuery = useRef(initialQ)
   const [showSearch, setShowSearch] = useState(false)
+  const [categoryOptions, setCategoryOptions] = useState<ProductCategoryOption[]>([])
 
-  const meta = useRequest(() => marketplaceService.getMerchantMeta(), { deps: [] })
-  const merchants = useRequest(
-    () =>
-      marketplaceService.getMerchants({
-        q: appliedQuery.current || undefined,
-        city: city || undefined,
-        commune: commune || undefined,
-        pageSize: 30,
-      }),
-    { deps: [city, commune, appliedQuery.current] },
-  )
   const products = useRequest(
     () =>
       marketplaceService.getProducts({
         q: appliedQuery.current || undefined,
+        categoryId: categoryId || undefined,
         pageSize: 30,
       }),
-    { deps: [appliedQuery.current] },
+    { deps: [appliedQuery.current, categoryId] },
   )
+
+  // Options de filtre déduites des produits renvoyés par le backend.
+  // Union monotone : un filtre actif ne fait jamais rétrécir la liste connue.
+  useEffect(() => {
+    if (!products.data) return
+    const fetched = buildCategoryOptions(products.data.items)
+    setCategoryOptions((previous) => {
+      const map = new Map(previous.map((option) => [option.id, option]))
+      for (const option of fetched) {
+        if (!map.has(option.id)) map.set(option.id, option)
+      }
+      return [...map.values()].sort((a, b) => a.label.localeCompare(b.label, 'fr'))
+    })
+  }, [products.data])
 
   useEffect(() => {
     if (debouncedTerm === appliedQuery.current) return
@@ -68,35 +73,17 @@ export function MarketplacePage() {
     setParams(next, { replace: true })
   }, [debouncedTerm, params, setParams])
 
-  const updateFilter = (key: string, value: string) => {
-    const next = new URLSearchParams(params)
-    if (value) next.set(key, value)
-    else next.delete(key)
-    if (key === 'city') next.delete('commune')
-    if (next.toString() !== params.toString()) setParams(next, { replace: true })
+  const selectCategory = (next: string) => {
+    const nextParams = new URLSearchParams(params)
+    if (next) nextParams.set('category', next)
+    else nextParams.delete('category')
+    if (nextParams.toString() !== params.toString()) setParams(nextParams, { replace: true })
   }
 
   const reset = () => {
     setTerm('')
     setParams(new URLSearchParams(), { replace: true })
   }
-
-  const hasFilters = initialQ.length > 0 || city.length > 0 || commune.length > 0
-  const hasError = merchants.isError || products.isError
-  const loading = merchants.isLoading || products.isLoading || meta.isLoading
-  const empty = merchants.isSuccess && products.isSuccess && !loading && (merchants.data?.items.length ?? 0) === 0 && (products.data?.items.length ?? 0) === 0
-
-  const cities = meta.data?.cities ?? []
-  const communes = useMemo(() => (city ? (meta.data?.communes[city] ?? []) : []), [city, meta.data])
-
-  // Auto-select the only city if there's only one and no city is selected
-  useEffect(() => {
-    if (cities.length === 1 && !city) {
-      const next = new URLSearchParams(params)
-      next.set('city', cities[0])
-      setParams(next, { replace: true })
-    }
-  }, [cities, city, params, setParams])
 
   const handleSearchChange = (value: string) => {
     setTerm(value)
@@ -106,6 +93,9 @@ export function MarketplacePage() {
     setTerm(value)
     setShowSearch(false)
   }
+
+  const hasProducts = (products.data?.items.length ?? 0) > 0
+  const empty = products.isSuccess && !products.isLoading && !hasProducts
 
   return (
     <div className={viewStyles.page}>
@@ -125,52 +115,21 @@ export function MarketplacePage() {
               <Icon name="search" size={22} />
             </button>
           </div>
-          <div className={styles.heroControls}>
-            <div className={styles.filters}>
-              <Select
-                label="Ville"
-                value={city}
-                onChange={(event) => updateFilter('city', event.target.value)}
-                aria-label="Filtrer par ville"
-              >
-                <option value="">Toutes les villes</option>
-                {cities.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </Select>
-              <Select
-                label="Commune"
-                value={commune}
-                onChange={(event) => updateFilter('commune', event.target.value)}
-                disabled={communes.length === 0}
-                aria-label="Filtrer par commune"
-              >
-                <option value="">Toutes les communes</option>
-                {communes.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </Select>
-              {hasFilters ? (
-                <span className={styles.reset}>
-                  <Button variant="ghost" size="sm" leadingIcon={<Icon name="close" size={14} />} onClick={reset}>
-                    Réinitialiser
-                  </Button>
-                </span>
-              ) : null}
-            </div>
-          </div>
+          <MarketplaceNav active="products" />
         </div>
       </header>
 
       {showSearch && (
-        <div className={styles.searchModal} onClick={() => setShowSearch(false)} role="dialog" aria-modal="true" aria-label="Recherche">
+        <div
+          className={styles.searchModal}
+          onClick={() => setShowSearch(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Recherche"
+        >
           <div className={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
             <label htmlFor="marketplace-search" className={styles.searchModalLabel}>
-              Rechercher un produit ou une boutique
+              Rechercher un produit
             </label>
             <input
               id="marketplace-search"
@@ -194,56 +153,60 @@ export function MarketplacePage() {
         </div>
       )}
 
-      {hasError ? (
+      {products.isError ? (
         <ErrorState
-          title="La marketplace n'a pas pu être chargée"
-          description={merchants.error ? toUserMessage(merchants.error) : toUserMessage(products.error as Error)}
-          onRetry={() => {
-            void merchants.refresh()
-            void products.refresh()
-          }}
+          title="Les produits n'ont pas pu être chargés"
+          description={toUserMessage(products.error as Error)}
+          onRetry={() => void products.refresh()}
         />
       ) : empty ? (
         <EmptyState
           icon="search"
-          title="Aucun résultat"
+          title="Aucun produit"
           description={
             <Text muted>
-              Aucun produit ou boutique ne correspond à vos critères. Modifiez la recherche ou réinitialisez les filtres.
+              Aucun produit ne correspond à vos critères. Modifiez la recherche ou réinitialisez
+              les filtres.
             </Text>
           }
           action={
             <Button onClick={reset} variant="secondary">
-              Réinitialiser la recherche
+              Réinitialiser les filtres
             </Button>
           }
         />
       ) : (
-        <>
-          <Section
-            title="Boutiques"
-            actions={
-              <Link to="/search" className={styles.seeAll}>
-                Voir tout
-                <Icon name="arrow-right" size={14} />
-              </Link>
-            }
-          >
-            {meta.isLoading ? <Skeleton width={220} height={16} /> : <MerchantShelf merchants={merchants.data?.items ?? []} loading={merchants.isLoading} count={6} />}
-          </Section>
+        <Section title="Produits disponibles">
+          {categoryOptions.length > 0 ? (
+            <div className={styles.categoryBar} role="group" aria-label="Filtrer par type de produit">
+              <button
+                type="button"
+                className={cx(styles.categoryChip, !categoryId && styles.categoryChipActive)}
+                aria-pressed={!categoryId}
+                onClick={() => selectCategory('')}
+              >
+                Tous
+              </button>
+              {categoryOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={cx(styles.categoryChip, categoryId === option.id && styles.categoryChipActive)}
+                  aria-pressed={categoryId === option.id}
+                  onClick={() => selectCategory(option.id)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
 
-          <Section
-            title="Produits disponibles"
-            actions={
-              <Link to="/search" className={styles.seeAll}>
-                Tous les produits
-                <Icon name="arrow-right" size={14} />
-              </Link>
-            }
-          >
-            <ProductShelf products={products.data?.items ?? []} loading={products.isLoading} count={9} />
-          </Section>
-        </>
+          {products.isLoading ? (
+            <ProductShelf products={[]} loading skeletonCount={6} />
+          ) : (
+            <ProductShelf products={products.data?.items ?? []} />
+          )}
+        </Section>
       )}
     </div>
   )

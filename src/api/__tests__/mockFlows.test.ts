@@ -48,6 +48,19 @@ describe('business flows via mock backend', () => {
       const meta = await marketplaceService.getMerchantMeta()
       expect(meta.cities.length).toBeGreaterThan(0)
     })
+
+    it('filters products by category', async () => {
+      const result = await marketplaceService.getProducts({ categoryId: 'cat_phones', pageSize: 10 })
+      expect(result.items.length).toBeGreaterThan(0)
+      for (const product of result.items) {
+        expect(product.categoryId).toBe('cat_phones')
+      }
+    })
+
+    it('returns empty products for an unknown category', async () => {
+      const result = await marketplaceService.getProducts({ categoryId: 'cat_unknown', pageSize: 10 })
+      expect(result.items).toHaveLength(0)
+    })
   })
 
   describe('client: order creation', () => {

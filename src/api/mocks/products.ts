@@ -16,6 +16,9 @@ export const productRoutes: MockRoute[] = [
       if (query.merchantId) {
         filtered = filtered.filter((product) => product.merchantId === query.merchantId)
       }
+      if (query.categoryId) {
+        filtered = filtered.filter((product) => product.categoryId === query.categoryId)
+      }
       const sorted = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
       return ok(paginate(sorted, page, pageSize))
     },

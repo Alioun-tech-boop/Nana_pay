@@ -1,4 +1,5 @@
 export { MarketplacePage } from './MarketplacePage'
+export { BoutiquesPage } from './BoutiquesPage'
 export { SearchPage } from './SearchPage'
 export { StorePage } from './StorePage'
 export { ProductPage } from './ProductPage'
