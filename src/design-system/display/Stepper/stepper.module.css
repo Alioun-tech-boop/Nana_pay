@@ -92,6 +92,12 @@
   flex-shrink: 0;
 }
 
+.number {
+  font-size: var(--np-type-body-sm-size);
+  line-height: 1;
+  font-weight: 600;
+}
+
 .circle--done {
   border-color: var(--np-status-success-text);
   background: var(--np-status-success-bg);

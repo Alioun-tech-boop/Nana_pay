@@ -37,6 +37,11 @@
   cursor: not-allowed;
 }
 
+.prev,
+.next {
+  padding: 0;
+}
+
 .page {
   border-color: var(--np-border-base);
   background: var(--np-bg-surface);

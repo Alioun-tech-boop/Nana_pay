@@ -11,6 +11,12 @@
   white-space: nowrap;
 }
 
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .badge--neutral {
   background: var(--np-status-neutral-bg);
   border-color: transparent;

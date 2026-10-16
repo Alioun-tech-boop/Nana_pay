@@ -35,12 +35,15 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* Voile directionnel : le haut du hero ne contient aucun texte
+     (le solde est pousse en bas via margin-top:auto), l'image peut donc
+     y respirer. L'opacite ne monte que la ou le texte se pose. */
   background: linear-gradient(
     180deg,
-    rgba(10, 10, 10, 0.58) 0%,
-    rgba(10, 10, 10, 0.62) 30%,
-    rgba(10, 10, 10, 0.76) 65%,
-    rgba(10, 10, 10, 0.94) 100%
+    rgba(10, 10, 10, 0.28) 0%,
+    rgba(10, 10, 10, 0.14) 34%,
+    rgba(10, 10, 10, 0.30) 58%,
+    rgba(10, 10, 10, 0.82) 100%
   );
 }
 

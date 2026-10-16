@@ -161,6 +161,24 @@
   flex: 1;
 }
 
+.secondaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--np-border-base);
+  border-radius: var(--np-radius-1);
+  padding: var(--np-space-3);
+  font-size: var(--np-type-body-sm-size);
+  font-weight: 600;
+  color: var(--np-text-primary);
+  text-decoration: none;
+}
+
+.secondaryLink:hover {
+  border-color: var(--np-border-strong);
+  background: var(--np-bg-surface-2);
+}
+
 .contactSwitch {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

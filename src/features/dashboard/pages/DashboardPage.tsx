@@ -16,7 +16,7 @@ import { historyService, savingsService, vaultService } from '../../../services'
 import { useRequest } from '../../../hooks'
 import { formatDate } from '../../../lib/dates'
 import type { HistoryEntry, HistoryKind, Money } from '../../../types'
-import balanceHeroImage from '../../../assets/balance-hero.png'
+import balanceHeroImage from '../../../assets/balance-hero.webp'
 import styles from '../dashboard.module.css'
 
 const KIND_ICON: Record<HistoryKind, IconName> = {

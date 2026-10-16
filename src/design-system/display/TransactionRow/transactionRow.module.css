@@ -85,6 +85,16 @@
   text-overflow: ellipsis;
 }
 
+.status {
+  font-size: var(--np-type-caption-size);
+  line-height: var(--np-type-caption-line);
+  color: var(--np-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
 .timestamp {
   font-family: var(--np-font-mono);
   font-size: var(--np-type-caption-size);

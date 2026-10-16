@@ -213,7 +213,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(0.94) contrast(1.03) brightness(0.98);
+  /* Legere attenuation seulement : la photo doit rester nette et Vive,
+     le survol pousse plus loin. */
+  filter: saturate(1.04) contrast(1.04) brightness(1.01);
   transition:
     transform var(--np-duration-slow) var(--np-ease-out),
     filter var(--np-duration-base) var(--np-ease-out);
@@ -221,7 +223,7 @@
 
 .photoCard:hover .photoImage {
   transform: scale(1.03);
-  filter: saturate(1) contrast(1.05) brightness(1.04);
+  filter: saturate(1.1) contrast(1.06) brightness(1.05);
 }
 
 .photoPlaceholder {
