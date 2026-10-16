@@ -95,12 +95,38 @@ describe('business flows via mock backend', () => {
     it('makes a savings payment and advances progress', async () => {
       const result = await savingsService.makeSavingsPayment({
         savingsId: 'sav_01HSAV1',
+        amount: 15000,
+        method: 'MOBILE_MONEY',
         idempotencyKey: 'test-pay-001',
       })
       expect(result.accepted).toBe(true)
       const updated = await savingsService.getSavingsById('sav_01HSAV1')
       expect(updated.savedAmount.amount).toBeGreaterThan(42500)
       expect(updated.progressPercent).toBeGreaterThan(34)
+    })
+
+    it('rejects a savings payment below the 1 000 minimum', async () => {
+      await expect(
+        savingsService.makeSavingsPayment({
+          savingsId: 'sav_01HSAV1',
+          amount: 500,
+          method: 'MOBILE_MONEY',
+          idempotencyKey: 'test-pay-min-001',
+        }),
+      ).rejects.toMatchObject({ kind: 'business', status: 422 })
+    })
+
+    it('rejects a savings payment beyond the remaining target', async () => {
+      const before = await savingsService.getSavingsById('sav_01HSAV1')
+      const remaining = before.targetAmount.amount - before.savedAmount.amount
+      await expect(
+        savingsService.makeSavingsPayment({
+          savingsId: 'sav_01HSAV1',
+          amount: remaining + 1000,
+          method: 'CARD',
+          idempotencyKey: 'test-pay-over-001',
+        }),
+      ).rejects.toMatchObject({ kind: 'business', status: 422 })
     })
 
     it('fetches savings payment history', async () => {
@@ -241,6 +267,38 @@ describe('business flows via mock backend', () => {
     it('fetches vault transactions', async () => {
       const result = await vaultService.getTransactions({ pageSize: 10 })
       expect(result.items.length).toBeGreaterThan(0)
+    })
+
+    it('configures the vault plan and returns the updated vault', async () => {
+      const updated = await vaultService.configurePlan({
+        monthlyAmount: 25000,
+        targetAmount: 600000,
+        idempotencyKey: 'test-vault-plan-001',
+      })
+      expect(updated.monthlyContribution?.amount).toBe(25000)
+      expect(updated.targetAmount?.amount).toBe(600000)
+
+      const fetched = await vaultService.getVault()
+      expect(fetched.monthlyContribution?.amount).toBe(25000)
+      expect(fetched.targetAmount?.amount).toBe(600000)
+    })
+
+    it('rejects a vault plan with invalid amounts', async () => {
+      await expect(
+        vaultService.configurePlan({
+          monthlyAmount: 0,
+          targetAmount: 500000,
+          idempotencyKey: 'test-vault-plan-002',
+        }),
+      ).rejects.toMatchObject({ kind: 'business', status: 422 })
+
+      await expect(
+        vaultService.configurePlan({
+          monthlyAmount: 20000,
+          targetAmount: 12.5,
+          idempotencyKey: 'test-vault-plan-003',
+        }),
+      ).rejects.toMatchObject({ kind: 'business', status: 422 })
     })
   })
 

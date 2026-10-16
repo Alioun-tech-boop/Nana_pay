@@ -118,10 +118,6 @@ export function SavingsIndexPage() {
                     <span>
                       Reste <MoneyAmount amount={remaining} currency={item.targetAmount.currency} />
                     </span>
-                    <span>
-                      Prochain versement{' '}
-                      <MoneyAmount amount={item.nextPaymentDue.amount} currency={item.nextPaymentDue.currency} />
-                    </span>
                   </div>
                 </div>
                 <div className={styles.savingsSide}>

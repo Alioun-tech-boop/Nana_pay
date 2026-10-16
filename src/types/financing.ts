@@ -34,7 +34,6 @@ export interface Savings {
   startedAt: ServerDate
   deadline: ServerDate
   status: SavingsStatus
-  nextPaymentDue: Money
 }
 
 export interface StartSavingsRequest {
@@ -57,6 +56,9 @@ export interface Vault {
   id: string
   balance: Money
   eligible: boolean
+  /** Somme visée (« objectif ») définie par le client ; null tant qu'aucun plan n'est actif. */
+  targetAmount: Money | null
+  /** Montant prélevé chaque mois sur le salaire ; null tant qu'aucun plan n'est actif. */
   monthlyContribution: Money | null
   transactionsCount: number
 }

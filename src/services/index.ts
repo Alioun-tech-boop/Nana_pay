@@ -8,10 +8,20 @@ export { orderService } from './orderService'
 export type { CreateOrderInput } from './orderService'
 
 export { savingsService } from './savingsService'
-export type { StartSavingsInput, SavingsPaymentInput, SavingsQuery } from './savingsService'
+export type {
+  StartSavingsInput,
+  SavingsPaymentInput,
+  SavingsPaymentMethod,
+  SavingsQuery,
+} from './savingsService'
 
 export { vaultService } from './vaultService'
-export type { UseVaultInput, VaultTransactionsQuery, UseVaultResult } from './vaultService'
+export type {
+  UseVaultInput,
+  VaultTransactionsQuery,
+  UseVaultResult,
+  ConfigureVaultPlanInput,
+} from './vaultService'
 
 export { creditService } from './creditService'
 export type { RequestCreditInput, CreditRequestsQuery } from './creditService'

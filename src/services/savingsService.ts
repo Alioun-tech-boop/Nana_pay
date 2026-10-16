@@ -1,13 +1,19 @@
 import { api } from '../api'
-import type { Paginated, Savings, SavingsPayment } from '../types'
+import type { Paginated, PaymentMethod, Savings, SavingsPayment } from '../types'
 
 export interface StartSavingsInput {
   orderId: string
   idempotencyKey: string
 }
 
+/** Moyen utilisé pour un versement d'épargne. */
+export type SavingsPaymentMethod = Extract<PaymentMethod, 'MOBILE_MONEY' | 'CARD'>
+
 export interface SavingsPaymentInput {
   savingsId: string
+  /** Montant libre du versement (≥ 1 000 F), validé par le backend. */
+  amount: number
+  method: SavingsPaymentMethod
   idempotencyKey: string
 }
 
@@ -53,6 +59,7 @@ export const savingsService = {
     return api.request<{ accepted: boolean }>({
       method: 'POST',
       path: `/savings/${input.savingsId}/payment`,
+      body: { amount: input.amount, method: input.method },
       idempotencyKey: input.idempotencyKey,
     })
   },

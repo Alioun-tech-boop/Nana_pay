@@ -148,6 +148,16 @@
   gap: var(--np-space-4);
 }
 
+.formRecap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--np-space-2);
+  margin: 0;
+  color: var(--np-text-secondary);
+  font-size: var(--np-type-body-sm-size);
+}
+
 .formFooter p {
   display: flex;
   align-items: center;

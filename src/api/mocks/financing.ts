@@ -74,7 +74,6 @@ export const financingRoutes: MockRoute[] = [
           startedAt: daysAhead(0),
           deadline: daysAhead(96),
           status: 'IN_PROGRESS',
-          nextPaymentDue: { amount: 15000, currency: 'XOF' },
         })
       }
       const order = findOrder(orderId)
@@ -82,7 +81,6 @@ export const financingRoutes: MockRoute[] = [
       if (order.financingMode !== 'SAVINGS') {
         return businessRule('SAVINGS_NOT_ELIGIBLE', 'Épargne non éligible', 'Cette commande ne peut pas être financée par épargne progressive.')
       }
-      const amount = order.product.price.amount
       const item = {
         id: `sav_01HGEN${mockSavings.length}`,
         orderId: order.id,
@@ -95,7 +93,6 @@ export const financingRoutes: MockRoute[] = [
         startedAt: daysAhead(0),
         deadline: daysAhead(365),
         status: 'IN_PROGRESS' as const,
-        nextPaymentDue: { amount: Math.round(amount / 12 / 500) * 500, currency: order.product.price.currency },
       }
       mockSavings.push(item)
       mockSavingsPayments[item.id] = []
@@ -106,29 +103,47 @@ export const financingRoutes: MockRoute[] = [
     method: 'POST',
     pattern: '/savings/:id/payment',
     handler: (ctx) => {
+      const body = bodyOf(ctx)
       const savings = mockSavings.find((s) => s.id === ctx.params.id)
-      const saved = savings?.savedAmount.amount ?? 0
-      const target = savings?.targetAmount.amount ?? 0
-      const due = savings?.nextPaymentDue.amount ?? 0
-      if (savings && saved < target) {
-        savings.savedAmount = { ...savings.savedAmount, amount: Math.min(target, saved + due) }
-        savings.progressPercent = target > 0 ? Math.round((savings.savedAmount.amount / target) * 100) : 0
+      if (!savings) return notFound('SAVINGS_NOT_FOUND', 'Épargne introuvable.')
+      if (savings.status !== 'IN_PROGRESS' && savings.status !== 'EXTENDED') {
+        return businessRule('SAVINGS_NOT_OPEN', 'Épargne fermée', 'Cette épargne n’accepte plus de versements.')
       }
-      if (savings && savings.progressPercent >= 100) {
+      const amount = body.amount
+      if (typeof amount !== 'number' || !Number.isInteger(amount) || amount < 1000) {
+        return businessRule(
+          'SAVINGS_PAYMENT_AMOUNT_INVALID',
+          'Montant invalide',
+          'Le versement doit être d’au moins 1 000 F CFA.',
+          'amount',
+        )
+      }
+      const remaining = savings.targetAmount.amount - savings.savedAmount.amount
+      if (amount > remaining) {
+        return businessRule(
+          'SAVINGS_PAYMENT_OVER_TARGET',
+          'Montant trop élevé',
+          'Le montant dépasse le reste à atteindre.',
+          'amount',
+        )
+      }
+      savings.savedAmount = { ...savings.savedAmount, amount: savings.savedAmount.amount + amount }
+      savings.progressPercent =
+        savings.targetAmount.amount > 0
+          ? Math.round((savings.savedAmount.amount / savings.targetAmount.amount) * 100)
+          : 0
+      if (savings.progressPercent >= 100) {
         savings.status = 'REACHED'
         savings.remainingMonths = 0
-        savings.nextPaymentDue = { amount: 0, currency: savings.targetAmount.currency }
       }
-      if (savings) {
-        const history = mockSavingsPayments[savings.id] ?? []
-        history.unshift({
-          id: `spy_gen_${Date.now()}`,
-          amount: { amount: due, currency: savings.targetAmount.currency },
-          date: secondsAgo(0).slice(0, 10),
-          status: 'CONFIRMED',
-        })
-        mockSavingsPayments[savings.id] = history
-      }
+      const history = mockSavingsPayments[savings.id] ?? []
+      history.unshift({
+        id: `spy_gen_${Date.now()}`,
+        amount: { amount, currency: savings.targetAmount.currency },
+        date: secondsAgo(0).slice(0, 10),
+        status: 'CONFIRMED',
+      })
+      mockSavingsPayments[savings.id] = history
       return accepted({ accepted: true })
     },
   },
@@ -145,6 +160,37 @@ export const financingRoutes: MockRoute[] = [
       const page = Number.parseInt(query.page ?? '1', 10)
       const pageSize = Number.parseInt(query.pageSize ?? '25', 10)
       return ok(paginate(mockVaultTransactions, page, pageSize))
+    },
+  },
+  {
+    method: 'PUT',
+    pattern: '/vault/plan',
+    handler: (ctx) => {
+      if (!mockVault.eligible) {
+        return businessRule('VAULT_NOT_ELIGIBLE', 'Coffre non éligible', 'Votre profil bancaire doit être validé pour définir un plan coffre.')
+      }
+      const body = bodyOf(ctx)
+      const monthlyAmount = body.monthlyAmount
+      const targetAmount = body.targetAmount
+      if (typeof monthlyAmount !== 'number' || !Number.isInteger(monthlyAmount) || monthlyAmount <= 0) {
+        return businessRule(
+          'VAULT_PLAN_MONTHLY_INVALID',
+          'Montant mensuel invalide',
+          'Saisissez un montant mensuel entier supérieur à zéro.',
+          'monthlyAmount',
+        )
+      }
+      if (typeof targetAmount !== 'number' || !Number.isInteger(targetAmount) || targetAmount <= 0) {
+        return businessRule(
+          'VAULT_PLAN_TARGET_INVALID',
+          'Somme visée invalide',
+          'Saisissez une somme visée entière supérieure à zéro.',
+          'targetAmount',
+        )
+      }
+      mockVault.monthlyContribution = { amount: monthlyAmount, currency: mockVault.balance.currency }
+      mockVault.targetAmount = { amount: targetAmount, currency: mockVault.balance.currency }
+      return ok(mockVault)
     },
   },
   {

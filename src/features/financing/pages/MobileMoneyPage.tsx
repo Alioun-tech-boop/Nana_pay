@@ -6,11 +6,12 @@ import {
   Icon,
   InlineAlert,
   Input,
+  MoneyAmount,
   Section,
 } from '../../../design-system'
 import type { MobileMoneyProvider, Payment } from '../../../types'
 import { useIdempotencyKey } from '../../../hooks'
-import { paymentService } from '../../../services'
+import { paymentService, savingsService } from '../../../services'
 import { toUserMessage } from '../../../lib/errors'
 import { PageHeader } from '../../../components/client'
 import viewStyles from '../../../components/client/view.module.css'
@@ -36,9 +37,17 @@ export function MobileMoneyPage() {
   const [phoneNumber, setPhoneNumber] = useState('')
   const [error, setError] = useState('')
   const [payment, setPayment] = useState<Payment | null>(null)
+  const [savingsDone, setSavingsDone] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const idempotencyKey = useIdempotencyKey()
   const params = new URLSearchParams(location.search)
+
+  const isSavingsPayment = params.get('type') === 'savings'
+  const savingsId = params.get('savingsId') ?? ''
+  const savingsAmount = Number(params.get('amount'))
+  const savingsAmountValid = Number.isInteger(savingsAmount) && savingsAmount >= 1000
+  const savingsCurrency = params.get('currency') ?? 'XOF'
+  const methodPath = `/payment-mode${location.search}`
 
   async function submitPayment() {
     const normalizedPhone = phoneNumber.replace(/[\s()-]/g, '')
@@ -46,18 +55,31 @@ export function MobileMoneyPage() {
       setError('Saisissez un numéro Mobile Money valide.')
       return
     }
+    if (isSavingsPayment && (!savingsId || !savingsAmountValid)) {
+      setError('Le montant du versement est invalide. Revenez choisir un montant.')
+      return
+    }
 
     setError('')
     setIsSubmitting(true)
     try {
-      const result = await paymentService.startMobileMoneyPayment({
-        provider: selectedProvider,
-        phoneNumber: normalizedPhone,
-        orderId: params.get('orderId') ?? undefined,
-        savingsId: params.get('savingsId') ?? undefined,
-        idempotencyKey,
-      })
-      setPayment(result)
+      if (isSavingsPayment) {
+        await savingsService.makeSavingsPayment({
+          savingsId,
+          amount: savingsAmount,
+          method: 'MOBILE_MONEY',
+          idempotencyKey,
+        })
+        setSavingsDone(true)
+      } else {
+        const result = await paymentService.startMobileMoneyPayment({
+          provider: selectedProvider,
+          phoneNumber: normalizedPhone,
+          orderId: params.get('orderId') ?? undefined,
+          idempotencyKey,
+        })
+        setPayment(result)
+      }
     } catch (caught) {
       setError(toUserMessage(caught))
     } finally {
@@ -66,10 +88,15 @@ export function MobileMoneyPage() {
   }
 
   const selectedOperator = OPERATORS.find((operator) => operator.id === selectedProvider) ?? OPERATORS[0]
+  const isDone = Boolean(payment) || savingsDone
 
   return (
     <div className={`${viewStyles.page} ${styles.page}`}>
-      <PageHeader backTo="/payment-mode" eyebrow="Paiement sécurisé" title="Payer avec Mobile Money" />
+      <PageHeader
+        backTo={methodPath}
+        eyebrow={isSavingsPayment ? 'Épargne progressive' : 'Paiement sécurisé'}
+        title={isSavingsPayment ? 'Verser avec Mobile Money' : 'Payer avec Mobile Money'}
+      />
 
       <section className={styles.hero} aria-labelledby="mobile-money-title">
         <div className={styles.heroGlow} aria-hidden="true" />
@@ -84,13 +111,32 @@ export function MobileMoneyPage() {
         </div>
       </section>
 
+      {savingsDone ? (
+        <InlineAlert
+          tone="success"
+          title="Versement transmis à NanoPay"
+          action={
+            <Button size="sm" variant="secondary" onClick={() => navigate(`/savings/${savingsId}`)}>
+              Voir mon épargne
+            </Button>
+          }
+        >
+          Votre versement de{' '}
+          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanoPay.
+        </InlineAlert>
+      ) : null}
+
       {payment ? (
         <InlineAlert tone="success" title="Paiement transmis à NanoPay">
           La confirmation finale dépend du retour de votre opérateur. Statut reçu : {payment.status}.
         </InlineAlert>
       ) : null}
 
-      {error ? <InlineAlert tone="danger" title="Paiement impossible">{error}</InlineAlert> : null}
+      {error ? (
+        <InlineAlert tone="danger" title={isSavingsPayment ? 'Versement impossible' : 'Paiement impossible'}>
+          {error}
+        </InlineAlert>
+      ) : null}
 
       <Section title="Votre opérateur">
         <div className={styles.operatorGrid} role="radiogroup" aria-label="Choisir un opérateur Mobile Money">
@@ -131,6 +177,13 @@ export function MobileMoneyPage() {
           </div>
           <span className={styles.selectedProvider}>{selectedOperator.name}</span>
         </div>
+
+        {isSavingsPayment && savingsAmountValid ? (
+          <p className={styles.formRecap}>
+            Montant du versement : <MoneyAmount amount={savingsAmount} currency={savingsCurrency} />
+          </p>
+        ) : null}
+
         <Input
           label="Numéro Mobile Money"
           type="tel"
@@ -139,9 +192,9 @@ export function MobileMoneyPage() {
           placeholder="07 00 00 00 00"
           value={phoneNumber}
           onChange={(event) => setPhoneNumber(event.target.value)}
-          disabled={isSubmitting || Boolean(payment)}
+          disabled={isSubmitting || isDone}
           hint="Le numéro sera transmis uniquement au partenaire de paiement."
-          error={error && !payment ? error : undefined}
+          error={error && !isDone ? error : undefined}
         />
         <div className={styles.formFooter}>
           <p><Icon name="shield" size={16} /> Le montant et la confirmation sont déterminés par NanoPay.</p>
@@ -150,16 +203,22 @@ export function MobileMoneyPage() {
             size="lg"
             fullWidth
             loading={isSubmitting}
-            disabled={Boolean(payment)}
+            disabled={isDone || (isSavingsPayment && !savingsAmountValid)}
             trailingIcon={<Icon name="arrow-right" size={18} />}
             onClick={() => void submitPayment()}
           >
-            {payment ? 'Paiement en attente de confirmation' : `Payer avec ${selectedOperator.name}`}
+            {savingsDone
+              ? 'Versement en attente de confirmation'
+              : payment
+                ? 'Paiement en attente de confirmation'
+                : isSavingsPayment
+                  ? `Verser avec ${selectedOperator.name}`
+                  : `Payer avec ${selectedOperator.name}`}
           </Button>
         </div>
       </section>
 
-      <button type="button" className={styles.backAction} onClick={() => navigate('/payment-mode')}>
+      <button type="button" className={styles.backAction} onClick={() => navigate(methodPath)}>
         Modifier le mode de paiement
       </button>
     </div>

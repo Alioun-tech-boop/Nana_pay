@@ -41,17 +41,18 @@ Correspondance visuelle (côté Client / Commerçant / Banque / Admin) : `OrderT
 4. **Confirmation de création** : `ConfirmDialog` avec référence `NP-YYYY-NNNNNNNN`, produit, montant, méthode. Bouton `disabled` pendant l'appel + `Idempotency-Key`.
 
 ### 2.2 Épargne progressive
-1. Vue de l'épargne : cible, épargné, progression %, échéance, échéance, prochain versement — **valeurs backend**.
-2. Versement (Mobile Money) :
+1. Vue de l'épargne : cible, épargné, progression %, échéance — **valeurs backend**. Il n'y a **pas de versement planifié** : le client verse librement.
+2. Versement d'un **montant libre** (minimum **1 000 F CFA**, plafonné au reste à atteindre) :
    - `ConfirmPayment` → POST → statut **asynchrone** (202).
    - L'UI **ne considère pas un succès Mobile Money comme un paiement NanoPay confirmé** : elle interroge le backend et n'affiche `Confirmé` que sur confirmation backend.
 3. Échec de versement → rejet/refus affiché (jamais d'erreur technique brute).
 4. Extension d'épargne : le bouton/date limite vient du backend (max 2 mois) ; l'UI n'invente pas les durées.
 
 ### 2.3 Coffre NanoPay
-1. Vue coffre : solde, historique, éligibilité (backend).
-2. Affectation du coffre à une commande éligible : confirmation + `Idempotency-Key`.
-3. Toujours affiché comme **mécanisme de financement validé pour salariés**, pas comme un wallet générique.
+1. Vue coffre : solde, plan (prélèvement mensuel + somme visée), historique, éligibilité (backend).
+2. **Le client choisit** le montant prélevé chaque mois sur son salaire et la **somme visée** ; le backend valide et confirme les termes. Le coffre est alimenté **uniquement par prélèvement salaire**, jusqu'à atteindre la somme visée — pas de rechargement manuel.
+3. Affectation du coffre à une commande éligible : confirmation + `Idempotency-Key`.
+4. Toujours affiché comme **mécanisme de financement validé pour salariés**, pas comme un wallet générique.
 
 ### 2.4 Crédit bancaire
 1. Vérification d'éligibilité (backend).

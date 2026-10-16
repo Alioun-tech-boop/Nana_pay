@@ -1,13 +1,19 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import { BrowserRouter } from 'react-router-dom'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { BrowserRouter, MemoryRouter, useLocation } from 'react-router-dom'
 import { EmptyState, MoneyAmount } from '../../design-system'
 import { MarketplacePage } from '../../features/marketplace/pages/MarketplacePage'
 import { DashboardPage } from '../../features/dashboard/pages/DashboardPage'
+import { PaymentModePage } from '../../features/financing/pages/PaymentModePage'
 import { AppProviders } from '../../components/providers/AppProviders'
 import { api } from '../../api'
 import { mockTransport } from '../../api/mockTransport'
 import { AppError, toAppError, toUserMessage } from '../../lib/errors'
+
+function LocationProbe() {
+  const location = useLocation()
+  return <span data-testid="location">{location.pathname + location.search}</span>
+}
 
 describe('UX states', () => {
   beforeEach(() => {
@@ -50,16 +56,46 @@ describe('UX states', () => {
       )
 
       expect(screen.getByText('Votre solde')).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /Ajouter de l'argent/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /Gérer mon coffre/i })).toBeInTheDocument()
 
       expect(screen.getByRole('navigation', { name: /Actions rapides/i })).toBeInTheDocument()
-      for (const label of ['Recharger', 'Acheter', 'Retirer', 'Plus']) {
+      for (const label of ['Épargner', 'Acheter', 'Retirer', 'Plus']) {
         expect(screen.getByRole('button', { name: new RegExp(label, 'i') })).toBeInTheDocument()
       }
 
       expect(await screen.findByText('Dépenses ce mois-ci')).toBeInTheDocument()
       expect(await screen.findByRole('heading', { name: /Transactions récentes/i })).toBeInTheDocument()
       expect(await screen.findByRole('heading', { name: /Vue d'ensemble/i })).toBeInTheDocument()
+    })
+
+    it('dirige « Gérer mon coffre » vers le coffre', async () => {
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <AppProviders>
+            <LocationProbe />
+            <DashboardPage />
+          </AppProviders>
+        </MemoryRouter>,
+      )
+
+      fireEvent.click(await screen.findByRole('button', { name: /Gérer mon coffre/i }))
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/vault')
+    })
+  })
+
+  describe('PaymentModePage', () => {
+    it('propose les deux modes de paiement', async () => {
+      render(
+        <MemoryRouter initialEntries={['/payment-mode']}>
+          <PaymentModePage />
+        </MemoryRouter>,
+      )
+
+      expect((await screen.findAllByText('Choisir un mode de paiement')).length).toBeGreaterThan(0)
+      expect(screen.getByText('Mobile Money')).toBeInTheDocument()
+      expect(screen.getByText('Carte Bancaire')).toBeInTheDocument()
+      expect(screen.queryByLabelText(/Montant à ajouter/i)).not.toBeInTheDocument()
     })
   })
 

@@ -201,7 +201,7 @@ Règles :
 | `GET /savings` | `[PROPOSED]` | `{ items: Savings[], pagination }` |
 | `GET /savings/:id` | `[PROPOSED]` | `Savings` |
 | `POST /savings/start` | `[PROPOSED]` | `201 Savings` (lié à une commande) — requiert `Idempotency-Key` |
-| `POST /savings/:id/payment` | `[PROPOSED]` | `202` — versement Mobile Money ; status asynchrone vérifié via `GET /savings/:id` |
+| `POST /savings/:id/payment` | `[PROPOSED]` | `202` — versement d'un **montant libre** ; status asynchrone vérifié via `GET /savings/:id` |
 
 ```json
 {
@@ -214,10 +214,11 @@ Règles :
   "remainingMonths": 6,
   "maxExtensionMonths": 2,
   "deadline": "2027-03-01",
-  "status": "IN_PROGRESS",
-  "nextPaymentDue": { "amount": 15000, "currency": "XOF" }
+  "status": "IN_PROGRESS"
 }
 ```
+
+`POST /savings/:id/payment` — corps : `{ "amount": 5000, "method": "MOBILE_MONEY" | "CARD" }`. Le client choisit **librement** le montant de chaque versement. Règles **validées par le backend** : montant entier, **minimum 1 000 F CFA**, et **plafonné au reste à atteindre** (`targetAmount − savedAmount`). Le front affiche ces règles mais ne les applique pas comme source de vérité. Il n'existe **pas** de versement planifié : l'épargne est alimentée à la demande jusqu'à l'objectif.
 
 Règles métier (affichées, jamais calculées) : extension max **2 mois**, pénalité **15 %**, remboursement **85 %** — valeurs fournies par le backend.
 
@@ -225,11 +226,25 @@ Règles métier (affichées, jamais calculées) : extension max **2 mois**, pén
 
 | Endpoint | Méthode | Réponse |
 |---|---|---|
-| `GET /vault` | `[PROPOSED]` | `Vault` (solde, historique) |
+| `GET /vault` | `[PROPOSED]` | `Vault` (solde, plan, historique) |
 | `GET /vault/transactions` | `[PROPOSED]` | `{ items: VaultTransaction[], pagination }` |
+| `PUT /vault/plan` | `[PROPOSED]` | `200 Vault` — définition du plan coffre ; requiert `Idempotency-Key` |
 | `POST /vault/use` | `[PROPOSED]` | `201` — affectation à une commande ; requiert `Idempotency-Key` |
 
-Contrainte : le Coffre est réservé aux **salariés éligibles** dont le profil bancaire est validé. L'éligibilité est décidée par le backend, jamais par l'UI.
+```json
+{
+  "id": "vlt_01H...",
+  "balance": { "amount": 250000, "currency": "XOF" },
+  "eligible": true,
+  "targetAmount": { "amount": 500000, "currency": "XOF" },
+  "monthlyContribution": { "amount": 20000, "currency": "XOF" },
+  "transactionsCount": 4
+}
+```
+
+`PUT /vault/plan` — corps : `{ "monthlyAmount": 20000, "targetAmount": 500000 }`. **Le client choisit** le montant prélevé chaque mois sur son salaire et la **somme visée**. Le backend **valide** (entiers, unités mineures, > 0) et confirme les termes définitifs ; le front n'applique aucune règle métier. Le coffre est alimenté **uniquement par prélèvement mensuel sur salaire**, jusqu'à atteindre la somme visée : il n'existe **pas** de rechargement manuel.
+
+Contrainte : le Coffre est réservé aux **salariés éligibles** dont le profil bancaire est validé. L'éligibilité est décidée par le backend, jamais par l'UI. Le coffre reste un mécanisme de financement lié à l'éligibilité bancaire, pas un portefeuille générique.
 
 ### 6.3 Crédit bancaire
 
@@ -376,7 +391,7 @@ Règles : l'Admin **supervise** (utilisateurs, boutiques, commandes, paiements, 
 
 Mutouvements concernés :
 - `POST /savings/start`, `POST /savings/:id/payment`
-- `POST /vault/use`, `POST /credit/request`
+- `PUT /vault/plan`, `POST /vault/use`, `POST /credit/request`
 - `POST /withdrawals`, `POST /merchant/settle`
 
 Le frontend génère un UUID par opération (`crypto.randomUUID()`), le transmet via `Idempotency-Key`, et **ne répond pas au succès tant que le backend n'a pas confirmé**. Une réponse `201/202` au même `Idempotency-Key` ne crée jamais de seconde opération.

@@ -1,19 +1,23 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import {
-  Button,
-  Icon,
-  Section,
-} from '../../../design-system'
+import { Button, Icon, Section } from '../../../design-system'
 import { PageHeader } from '../../../components/client'
 import viewStyles from '../../../components/client/view.module.css'
 import styles from '../financing.module.css'
+
 const paymentHeroImage = '/assets/payment-hero.jpeg'
+
+type PaymentMethodId = 'MOBILE_MONEY' | 'BANK_CARD'
 
 export function PaymentModePage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [selectedMethod, setSelectedMethod] = useState<'MOBILE_MONEY' | 'BANK_CARD'>('MOBILE_MONEY')
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId>('MOBILE_MONEY')
+
+  function continueToMethod() {
+    const methodPath = selectedMethod === 'MOBILE_MONEY' ? '/payments/mobile-money' : '/payments/bank-card'
+    navigate(`${methodPath}${location.search}`)
+  }
 
   return (
     <div className={`${viewStyles.page} ${styles.paymentModePage}`}>
@@ -26,7 +30,9 @@ export function PaymentModePage() {
       >
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
-          <h2 id="payment-hero-title" className={styles.heroTitle}>Choisir un mode de paiement</h2>
+          <h2 id="payment-hero-title" className={styles.heroTitle}>
+            Choisir un mode de paiement
+          </h2>
           <p className={styles.heroMeta}>Sélectionnez votre méthode de paiement préférée</p>
         </div>
       </section>
@@ -69,14 +75,7 @@ export function PaymentModePage() {
 
       <Section title="Continuer">
         <div className={styles.continueActions}>
-          <Button className={styles.continueButton} size="lg" fullWidth onClick={() => {
-            // Navigate to the appropriate payment flow based on selected method
-            if (selectedMethod === 'MOBILE_MONEY') {
-              navigate(`/payments/mobile-money${location.search}`)
-            } else {
-              navigate(`/payments/bank-card${location.search}`)
-            }
-          }}>
+          <Button className={styles.continueButton} size="lg" fullWidth onClick={continueToMethod}>
             Continuer avec {selectedMethod === 'MOBILE_MONEY' ? 'Mobile Money' : 'Carte Bancaire'}
           </Button>
         </div>

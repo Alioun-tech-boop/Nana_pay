@@ -1,9 +1,11 @@
 import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import {
   Button,
   ErrorState,
   Icon,
   InlineAlert,
+  Input,
   MoneyAmount,
   Section,
   Skeleton,
@@ -19,9 +21,13 @@ import { PageHeader } from '../../../components/client'
 import viewStyles from '../../../components/client/view.module.css'
 import styles from '../financing.module.css'
 
+/** Montant minimum d'un versement d'épargne, en unités mineures. Règle backend. */
+const MIN_PAYMENT = 1000
+
 export function SavingsPage() {
   const { savingsId = '' } = useParams()
   const navigate = useNavigate()
+  const [amountInput, setAmountInput] = useState('')
 
   const savings = useRequest(() => savingsService.getSavingsById(savingsId), { deps: [savingsId] })
   const history = useRequest(() => savingsService.getSavingsHistory(savingsId), {
@@ -44,17 +50,37 @@ export function SavingsPage() {
 
   const data = savings.data
   const statusKey = data ? (data.status as string) : ''
-  const isInProgress = statusKey === 'IN_PROGRESS'
+  const isOpen = statusKey === 'IN_PROGRESS' || statusKey === 'EXTENDED'
   const isReached = statusKey === 'REACHED'
   const isFailed = statusKey === 'FAILED' || statusKey === 'REFUNDED'
   const isSuspended = statusKey === 'SUSPENDED'
-  const canPay = Boolean(data && isInProgress && data.progressPercent < 100)
+  const canPay = Boolean(data && isOpen && data.progressPercent < 100)
 
   const status = data ? getStatusDefinition(data.status) : null
   const remaining = data ? Math.max(0, data.targetAmount.amount - data.savedAmount.amount) : 0
 
   const payments = [...(history.data?.items ?? [])].reverse()
   const daysLeft = data ? daysBetween(todayISO(), data.deadline) : 0
+
+  const amountValue = Number(amountInput)
+  const amountError =
+    amountInput === ''
+      ? null
+      : !Number.isInteger(amountValue) || amountValue <= 0
+        ? 'Saisissez un montant entier.'
+        : amountValue < MIN_PAYMENT
+          ? `Le versement minimum est de ${MIN_PAYMENT.toLocaleString('fr-FR')} F CFA.`
+          : amountValue > remaining
+            ? `Le montant dépasse le reste à atteindre (${remaining.toLocaleString('fr-FR')} F CFA).`
+            : null
+  const amountValid = amountInput !== '' && amountError === null
+
+  function goToPayment() {
+    if (!data || !amountValid) return
+    navigate(
+      `/payment-mode?type=savings&savingsId=${data.id}&amount=${amountValue}&currency=${data.targetAmount.currency}`,
+    )
+  }
 
   return (
     <div className={viewStyles.page}>
@@ -98,12 +124,7 @@ export function SavingsPage() {
                 <StatusPill tone={status?.tone ?? 'neutral'} label={status?.label ?? data.status} />
               </div>
               <div className={styles.heroSavingsActions}>
-                {canPay ? (
-                  <Button onClick={() => navigate('/payment-mode?type=savings&savingsId=' + data.id)}>
-                    Effectuer le versement de {data.nextPaymentDue.amount.toLocaleString('fr-FR')} XOF
-                  </Button>
-                ) : null}
-                {isInProgress || isReached ? (
+                {isOpen || isReached ? (
                   <Link to={`/orders/${data.orderId}`}>
                     <Button variant="secondary">Voir ma commande</Button>
                   </Link>
@@ -111,6 +132,69 @@ export function SavingsPage() {
               </div>
             </div>
           </section>
+
+          {canPay ? (
+            <Section title="Faire un versement">
+              <div className={styles.contributionPanel}>
+                <p className={styles.nextStepText}>
+                  Versez librement le montant de votre choix, à tout moment, jusqu’à atteindre votre
+                  objectif. Le montant minimum par versement est de 1 000 F CFA.
+                </p>
+                <Input
+                  label="Montant du versement (F CFA)"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  placeholder="5 000"
+                  value={amountInput}
+                  onChange={(event) => setAmountInput(event.target.value.replace(/\D/g, '').slice(0, 9))}
+                  error={amountError ?? undefined}
+                  hint={`Reste à atteindre : ${remaining.toLocaleString('fr-FR')} F CFA.`}
+                />
+                <Button
+                  size="lg"
+                  disabled={!amountValid}
+                  trailingIcon={<Icon name="arrow-right" size={18} />}
+                  onClick={goToPayment}
+                >
+                  Continuer
+                </Button>
+              </div>
+            </Section>
+          ) : (
+            <section className={styles.nextStep}>
+              <span className={styles.nextStepIcon} aria-hidden="true">
+                <Icon name="coins" size={22} />
+              </span>
+              <div className={styles.nextStepMain}>
+                <h3 className={styles.nextStepTitle}>
+                  {isReached ? 'Épargne complète' : isFailed ? 'Épargne non aboutie' : 'Statut de votre épargne'}
+                </h3>
+                {isReached ? (
+                  <p className={styles.nextStepText}>
+                    Votre épargne est complète. NanoPay a généré le QR de retrait à présenter au commerçant.
+                  </p>
+                ) : isFailed ? (
+                  <p className={styles.nextStepText}>
+                    Épargne non aboutie. La pénalité (15 %) et le remboursement (85 %) sont calculés et confirmés
+                    par NanoPay.
+                  </p>
+                ) : isSuspended ? (
+                  <p className={styles.nextStepText}>
+                    Cette épargne est actuellement suspendue. Reportez-vous à NanoPay pour toute information.
+                  </p>
+                ) : (
+                  <p className={styles.nextStepText}>Cette épargne n’accepte plus de versements.</p>
+                )}
+              </div>
+              <div className={styles.nextStepActions}>
+                {isReached ? (
+                  <Link to={`/orders/${data.orderId}/qr`}>
+                    <Button leadingIcon={<Icon name="qr" size={16} />}>Voir mon QR de retrait</Button>
+                  </Link>
+                ) : null}
+              </div>
+            </section>
+          )}
 
           <Section title="Historique des versements">
             {history.isLoading ? (
@@ -143,66 +227,9 @@ export function SavingsPage() {
                     </li>
                   )
                 })}
-                {isInProgress ? (
-                  <li className={styles.timelineItem}>
-                    <span className={styles.timelineNodeNext} aria-hidden="true" />
-                    <span className={styles.timelineMain}>
-                      <span className={styles.timelineAmount}>
-                        <span className={styles.timelinePlus}>+</span>
-                        <MoneyAmount amount={data.nextPaymentDue.amount} currency={data.nextPaymentDue.currency} />
-                      </span>
-                      <span className={styles.timelineDate}>Prochaine étape</span>
-                    </span>
-                  </li>
-                ) : null}
               </ol>
             )}
           </Section>
-
-          <section className={styles.nextStep}>
-            <span className={styles.nextStepIcon} aria-hidden="true">
-              <Icon name="coins" size={22} />
-            </span>
-            <div className={styles.nextStepMain}>
-              <h3 className={styles.nextStepTitle}>Prochaine étape</h3>
-              {isInProgress ? (
-                <p className={styles.nextStepText}>
-                  Effectuez le versement de{' '}
-                  <MoneyAmount amount={data.nextPaymentDue.amount} currency={data.nextPaymentDue.currency} variant="strong" />{' '}
-                  pour continuer vers votre objectif.
-                </p>
-              ) : isReached ? (
-                <p className={styles.nextStepText}>
-                  Votre épargne est complète. NanoPay a généré le QR de retrait à présenter au commerçant.
-                </p>
-              ) : isFailed ? (
-                <p className={styles.nextStepText}>
-                  Épargne non aboutie. La pénalité (15 %) et le remboursement (85 %) sont calculés et confirmés par NanoPay.
-                </p>
-              ) : isSuspended ? (
-                <p className={styles.nextStepText}>Cette épargne est actuellement suspendue. Reportez-vous à NanoPay pour toute information.</p>
-              ) : (
-                <p className={styles.nextStepText}>Cette épargne n’accepte plus de versements.</p>
-              )}
-            </div>
-            <div className={styles.nextStepActions}>
-              {canPay ? (
-                <Button onClick={() => navigate('/payment-mode?type=savings&savingsId=' + data.id)}>
-                  Effectuer le versement de {data.nextPaymentDue.amount.toLocaleString('fr-FR')} XOF
-                </Button>
-              ) : null}
-              {isReached ? (
-                <Link to={`/orders/${data.orderId}/qr`}>
-                  <Button leadingIcon={<Icon name="qr" size={16} />}>Voir mon QR de retrait</Button>
-                </Link>
-              ) : null}
-              {canPay || isReached ? (
-                <Link to={`/orders/${data.orderId}`}>
-                  <Button variant="ghost">Voir la commande</Button>
-                </Link>
-              ) : null}
-            </div>
-          </section>
 
           {statusKey === 'FAILED' || statusKey === 'REFUNDED' ? (
             <div className={styles.alertStack}>

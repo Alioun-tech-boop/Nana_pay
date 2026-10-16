@@ -1,28 +1,43 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Button,
   ErrorState,
   Icon,
   InlineAlert,
+  Input,
   Metric,
   MoneyAmount,
+  ProgressBar,
   Section,
   Skeleton,
   StatusPill,
   Text,
 } from '../../../design-system'
 import { vaultService } from '../../../services'
-import { useRequest } from '../../../hooks'
+import { useFreshIdempotencyKey, useRequest } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
 import { formatDate } from '../../../lib/dates'
 import { PageHeader } from '../../../components/client'
 import viewStyles from '../../../components/client/view.module.css'
 import styles from '../financing.module.css'
+
 const vaultHeroImage = '/assets/vault-hero.jpeg'
 
 export function VaultPage() {
   const vault = useRequest(() => vaultService.getVault(), { deps: [] })
   const transactions = useRequest(() => vaultService.getTransactions({ pageSize: 25 }), { deps: [] })
+
+  const [isEditingPlan, setIsEditingPlan] = useState(false)
+  const [monthlyInput, setMonthlyInput] = useState('')
+  const [targetInput, setTargetInput] = useState('')
+  const [formError, setFormError] = useState('')
+  const [planSaved, setPlanSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Clé d'idempotence liée aux valeurs soumises : modifier le plan génère une nouvelle clé,
+  // tandis qu'un nouvel essai avec les mêmes valeurs reste idempotent.
+  const idempotencyKey = useFreshIdempotencyKey(`${monthlyInput}:${targetInput}`)
 
   if (vault.isError) {
     return (
@@ -38,6 +53,54 @@ export function VaultPage() {
   }
 
   const data = vault.data
+  const target = data?.targetAmount ?? null
+  const monthly = data?.monthlyContribution ?? null
+  const remainingToTarget = target && data ? Math.max(0, target.amount - data.balance.amount) : 0
+  const progressPercent =
+    target && data && target.amount > 0
+      ? Math.min(100, Math.round((data.balance.amount / target.amount) * 100))
+      : 0
+
+  const monthlyValue = Number(monthlyInput)
+  const targetValue = Number(targetInput)
+  const monthlyValid = monthlyInput !== '' && Number.isInteger(monthlyValue) && monthlyValue > 0
+  const targetValid = targetInput !== '' && Number.isInteger(targetValue) && targetValue > 0
+
+  function startEditing() {
+    setMonthlyInput(monthly ? String(monthly.amount) : '')
+    setTargetInput(target ? String(target.amount) : '')
+    setFormError('')
+    setPlanSaved(false)
+    setIsEditingPlan(true)
+  }
+
+  async function savePlan(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!monthlyValid) {
+      setFormError('Saisissez un prélèvement mensuel entier supérieur à zéro.')
+      return
+    }
+    if (!targetValid) {
+      setFormError('Saisissez une somme visée entière supérieure à zéro.')
+      return
+    }
+    setFormError('')
+    setIsSaving(true)
+    try {
+      await vaultService.configurePlan({
+        monthlyAmount: monthlyValue,
+        targetAmount: targetValue,
+        idempotencyKey,
+      })
+      await vault.refresh()
+      setIsEditingPlan(false)
+      setPlanSaved(true)
+    } catch (caught) {
+      setFormError(toUserMessage(caught))
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   return (
     <div className={viewStyles.page}>
@@ -95,6 +158,17 @@ export function VaultPage() {
             </div>
           ) : null}
 
+          {planSaved ? (
+            <div className={styles.alertStack}>
+              <InlineAlert tone="success" title="Plan coffre enregistré">
+                <Text muted>
+                  Le prélèvement mensuel sera effectué sur votre salaire jusqu’à atteindre la somme visée. NanoPay
+                  confirme les termes définitifs.
+                </Text>
+              </InlineAlert>
+            </div>
+          ) : null}
+
           <div className={styles.metricGrid}>
             <Metric
               label="Solde du coffre"
@@ -102,11 +176,11 @@ export function VaultPage() {
               value={<MoneyAmount amount={data.balance.amount} currency={data.balance.currency} />}
             />
             <Metric
-              label="Contribution mensuelle"
+              label="Prélèvement mensuel"
               icon="calendar"
               value={
-                data.monthlyContribution ? (
-                  <MoneyAmount amount={data.monthlyContribution.amount} currency={data.monthlyContribution.currency} />
+                monthly ? (
+                  <MoneyAmount amount={monthly.amount} currency={monthly.currency} />
                 ) : (
                   '—'
                 )
@@ -114,6 +188,116 @@ export function VaultPage() {
             />
             <Metric label="Mouvements" icon="refresh" value={data.transactionsCount} />
           </div>
+
+          <Section title="Mon plan coffre">
+            {!data.eligible ? (
+              <Text muted>
+                Le plan coffre sera disponible après la validation de votre profil bancaire par votre employeur.
+              </Text>
+            ) : (
+              <>
+                {target ? (
+                  <ProgressBar
+                    value={progressPercent}
+                    tone="gold"
+                    label="Progression vers la somme visée"
+                    showLabel
+                  />
+                ) : null}
+
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Prélèvement mensuel</span>
+                    <span className={styles.infoValue}>
+                      {monthly ? (
+                        <MoneyAmount amount={monthly.amount} currency={monthly.currency} />
+                      ) : (
+                        'À définir'
+                      )}
+                    </span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Somme visée</span>
+                    <span className={styles.infoValue}>
+                      {target ? (
+                        <MoneyAmount amount={target.amount} currency={target.currency} />
+                      ) : (
+                        'À définir'
+                      )}
+                    </span>
+                  </div>
+                  {target ? (
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Reste à atteindre</span>
+                      <span className={styles.infoValue}>
+                        <MoneyAmount amount={remainingToTarget} currency={target.currency} />
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {!isEditingPlan ? (
+                  <>
+                    <Text muted>
+                      {target && monthly
+                        ? 'Un montant fixe est prélevé chaque mois sur votre salaire, jusqu’à atteindre la somme visée.'
+                        : 'Définissez le montant prélevé chaque mois sur votre salaire et la somme que vous souhaitez atteindre.'}
+                    </Text>
+                    <div className={styles.nextStepActions}>
+                      <Button variant="secondary" onClick={startEditing}>
+                        {target && monthly ? 'Modifier mon plan' : 'Définir mon plan'}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <form className={styles.contributionPanel} onSubmit={(event) => void savePlan(event)}>
+                    <Input
+                      label="Prélèvement mensuel (F CFA)"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="20 000"
+                      value={monthlyInput}
+                      onChange={(event) => setMonthlyInput(event.target.value.replace(/\D/g, '').slice(0, 9))}
+                      disabled={isSaving}
+                      hint="Montant prélevé chaque mois sur votre salaire."
+                    />
+                    <Input
+                      label="Somme visée (F CFA)"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="500 000"
+                      value={targetInput}
+                      onChange={(event) => setTargetInput(event.target.value.replace(/\D/g, '').slice(0, 10))}
+                      disabled={isSaving}
+                      hint="Objectif à atteindre pour utiliser le coffre."
+                    />
+                    {formError ? (
+                      <InlineAlert tone="danger" title="Enregistrement impossible">
+                        {formError}
+                      </InlineAlert>
+                    ) : null}
+                    <div className={styles.nextStepActions}>
+                      <Button
+                        type="submit"
+                        loading={isSaving}
+                        disabled={!monthlyValid || !targetValid}
+                      >
+                        Enregistrer mon plan
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        disabled={isSaving}
+                        onClick={() => setIsEditingPlan(false)}
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </form>
+                )}
+              </>
+            )}
+          </Section>
 
           <Section title="Mouvements du coffre">
             {transactions.isLoading ? (
@@ -134,7 +318,7 @@ export function VaultPage() {
                       </span>
                       <span className={styles.itemMain}>
                         <span className={styles.itemTitle}>
-                          {credit ? 'Alimentation du coffre' : 'Financement de commande'}
+                          {credit ? 'Prélèvement salaire' : 'Financement de commande'}
                         </span>
                         <span className={styles.itemMuted}>
                           {formatDate(entry.createdAt)}

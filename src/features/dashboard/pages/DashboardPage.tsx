@@ -27,8 +27,14 @@ const KIND_ICON: Record<HistoryKind, IconName> = {
   CREDIT: 'bank',
 }
 
-const QUICK_ACTIONS: Array<{ id: string; variant: NanaQuickActionVariant; to?: string }> = [
-  { id: 'recharge', variant: 'recharge', to: '/payment-mode' },
+const QUICK_ACTIONS: Array<{
+  id: string
+  variant: NanaQuickActionVariant
+  to?: string
+  label?: string
+  icon?: IconName
+}> = [
+  { id: 'save', variant: 'recharge', to: '/savings', label: 'Épargner', icon: 'coins' },
   { id: 'send', variant: 'send', to: '/marketplace' },
   { id: 'withdraw', variant: 'withdraw', to: '/payment-mode' },
   { id: 'more', variant: 'more' },
@@ -408,10 +414,10 @@ export function DashboardPage() {
         <Button
           className={styles.balanceHeroButton}
           size="md"
-          leadingIcon={<Icon name="plus" size={16} />}
+          leadingIcon={<Icon name="vault" size={16} />}
           onClick={() => navigate('/vault')}
         >
-          Ajouter de l'argent
+          Gérer mon coffre
         </Button>
       </section>
 
@@ -420,6 +426,8 @@ export function DashboardPage() {
           <NanaQuickAction
             key={action.id}
             variant={action.variant}
+            label={action.label}
+            icon={action.icon}
             onClick={() => (action.to ? navigate(action.to) : setMoreOpen(true))}
             aria-haspopup={action.to ? undefined : 'dialog'}
           />

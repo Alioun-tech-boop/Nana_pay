@@ -388,7 +388,6 @@ export const mockSavings: Savings[] = [
     startedAt: daysAgo(28),
     deadline: daysAhead(96),
     status: 'IN_PROGRESS',
-    nextPaymentDue: { amount: 15000, currency: XOF },
   },
   {
     id: 'sav_01HSAV3',
@@ -402,7 +401,6 @@ export const mockSavings: Savings[] = [
     startedAt: daysAgo(64),
     deadline: daysAgo(2),
     status: 'REACHED',
-    nextPaymentDue: { amount: 0, currency: XOF },
   },
 ]
 
@@ -424,6 +422,7 @@ export const mockVault: Vault = {
   id: 'vlt_01HVAULT',
   balance: { amount: 250000, currency: XOF },
   eligible: true,
+  targetAmount: { amount: 500000, currency: XOF },
   monthlyContribution: { amount: 20000, currency: XOF },
   transactionsCount: 4,
 }

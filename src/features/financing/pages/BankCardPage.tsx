@@ -5,11 +5,12 @@ import {
   Icon,
   InlineAlert,
   Input,
+  MoneyAmount,
   Section,
 } from '../../../design-system'
 import type { Payment } from '../../../types'
 import { useIdempotencyKey } from '../../../hooks'
-import { paymentService } from '../../../services'
+import { paymentService, savingsService } from '../../../services'
 import { toUserMessage } from '../../../lib/errors'
 import { PageHeader } from '../../../components/client'
 import viewStyles from '../../../components/client/view.module.css'
@@ -30,9 +31,17 @@ export function BankCardPage() {
   const [lastFour, setLastFour] = useState('••••')
   const [error, setError] = useState('')
   const [payment, setPayment] = useState<Payment | null>(null)
+  const [savingsDone, setSavingsDone] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const idempotencyKey = useIdempotencyKey()
   const params = new URLSearchParams(location.search)
+
+  const isSavingsPayment = params.get('type') === 'savings'
+  const savingsId = params.get('savingsId') ?? ''
+  const savingsAmount = Number(params.get('amount'))
+  const savingsAmountValid = Number.isInteger(savingsAmount) && savingsAmount >= 1000
+  const savingsCurrency = params.get('currency') ?? 'XOF'
+  const methodPath = `/payment-mode${location.search}`
 
   async function submitPayment() {
     const digits = cardNumber.replace(/\s/g, '')
@@ -40,24 +49,40 @@ export function BankCardPage() {
       setError('Vérifiez les informations de votre carte.')
       return
     }
+    if (isSavingsPayment && (!savingsId || !savingsAmountValid)) {
+      setError('Le montant du versement est invalide. Revenez choisir un montant.')
+      return
+    }
 
     setError('')
     setIsSubmitting(true)
     try {
-      const result = await paymentService.startCardPayment({
-        cardNumber: digits,
-        expiryMonth,
-        expiryYear,
-        cvv,
-        cardholderName: cardholderName.trim(),
-        orderId: params.get('orderId') ?? undefined,
-        savingsId: params.get('savingsId') ?? undefined,
-        idempotencyKey,
-      })
-      setLastFour(digits.slice(-4))
-      setCardNumber('')
-      setCvv('')
-      setPayment(result)
+      if (isSavingsPayment) {
+        await savingsService.makeSavingsPayment({
+          savingsId,
+          amount: savingsAmount,
+          method: 'CARD',
+          idempotencyKey,
+        })
+        setLastFour(digits.slice(-4))
+        setCardNumber('')
+        setCvv('')
+        setSavingsDone(true)
+      } else {
+        const result = await paymentService.startCardPayment({
+          cardNumber: digits,
+          expiryMonth,
+          expiryYear,
+          cvv,
+          cardholderName: cardholderName.trim(),
+          orderId: params.get('orderId') ?? undefined,
+          idempotencyKey,
+        })
+        setLastFour(digits.slice(-4))
+        setCardNumber('')
+        setCvv('')
+        setPayment(result)
+      }
     } catch (caught) {
       setError(toUserMessage(caught))
     } finally {
@@ -65,9 +90,15 @@ export function BankCardPage() {
     }
   }
 
+  const isDone = Boolean(payment) || savingsDone
+
   return (
     <div className={`${viewStyles.page} ${styles.page}`}>
-      <PageHeader backTo="/payment-mode" eyebrow="Paiement sécurisé" title="Payer par carte bancaire" />
+      <PageHeader
+        backTo={methodPath}
+        eyebrow={isSavingsPayment ? 'Épargne progressive' : 'Paiement sécurisé'}
+        title={isSavingsPayment ? 'Verser par carte bancaire' : 'Payer par carte bancaire'}
+      />
 
       <section className={styles.hero} aria-labelledby="card-payment-title">
         <div className={styles.heroCopy}>
@@ -81,12 +112,32 @@ export function BankCardPage() {
         </div>
       </section>
 
+      {savingsDone ? (
+        <InlineAlert
+          tone="success"
+          title="Versement transmis à NanoPay"
+          action={
+            <Button size="sm" variant="secondary" onClick={() => navigate(`/savings/${savingsId}`)}>
+              Voir mon épargne
+            </Button>
+          }
+        >
+          Votre versement de{' '}
+          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanoPay.
+        </InlineAlert>
+      ) : null}
+
       {payment ? (
         <InlineAlert tone="success" title="Paiement transmis à NanoPay">
           La confirmation finale dépend du partenaire bancaire. Statut reçu : {payment.status}.
         </InlineAlert>
       ) : null}
-      {error ? <InlineAlert tone="danger" title="Paiement impossible">{error}</InlineAlert> : null}
+
+      {error ? (
+        <InlineAlert tone="danger" title={isSavingsPayment ? 'Versement impossible' : 'Paiement impossible'}>
+          {error}
+        </InlineAlert>
+      ) : null}
 
       <div className={styles.layout}>
         <section className={styles.cardPreview} aria-label="Aperçu de la carte">
@@ -104,6 +155,11 @@ export function BankCardPage() {
 
         <section className={styles.formPanel} aria-labelledby="card-details-title">
           <Section title="Informations de carte">
+            {isSavingsPayment && savingsAmountValid ? (
+              <p className={styles.formRecap}>
+                Montant du versement : <MoneyAmount amount={savingsAmount} currency={savingsCurrency} />
+              </p>
+            ) : null}
             <div className={styles.fields}>
               <Input
                 label="Numéro de carte"
@@ -112,8 +168,8 @@ export function BankCardPage() {
                 placeholder="4242 4242 4242 4242"
                 value={cardNumber}
                 onChange={(event) => setCardNumber(formatCardNumber(event.target.value))}
-                disabled={isSubmitting || Boolean(payment)}
-                error={error && !payment ? error : undefined}
+                disabled={isSubmitting || isDone}
+                error={error && !isDone ? error : undefined}
               />
               <Input
                 label="Nom sur la carte"
@@ -121,7 +177,7 @@ export function BankCardPage() {
                 placeholder="Aminata Kone"
                 value={cardholderName}
                 onChange={(event) => setCardholderName(event.target.value.toUpperCase())}
-                disabled={isSubmitting || Boolean(payment)}
+                disabled={isSubmitting || isDone}
               />
               <div className={styles.compactFields}>
                 <Input
@@ -132,7 +188,7 @@ export function BankCardPage() {
                   maxLength={2}
                   value={expiryMonth}
                   onChange={(event) => setExpiryMonth(event.target.value.replace(/\D/g, '').slice(0, 2))}
-                  disabled={isSubmitting || Boolean(payment)}
+                  disabled={isSubmitting || isDone}
                 />
                 <Input
                   label="Année"
@@ -142,7 +198,7 @@ export function BankCardPage() {
                   maxLength={2}
                   value={expiryYear}
                   onChange={(event) => setExpiryYear(event.target.value.replace(/\D/g, '').slice(0, 2))}
-                  disabled={isSubmitting || Boolean(payment)}
+                  disabled={isSubmitting || isDone}
                 />
                 <Input
                   label="CVV"
@@ -153,7 +209,7 @@ export function BankCardPage() {
                   maxLength={4}
                   value={cvv}
                   onChange={(event) => setCvv(event.target.value.replace(/\D/g, '').slice(0, 4))}
-                  disabled={isSubmitting || Boolean(payment)}
+                  disabled={isSubmitting || isDone}
                 />
               </div>
             </div>
@@ -165,17 +221,23 @@ export function BankCardPage() {
               size="lg"
               fullWidth
               loading={isSubmitting}
-              disabled={Boolean(payment)}
+              disabled={isDone || (isSavingsPayment && !savingsAmountValid)}
               trailingIcon={<Icon name="arrow-right" size={18} />}
               onClick={() => void submitPayment()}
             >
-              {payment ? 'Paiement en attente de confirmation' : 'Payer en toute sécurité'}
+              {savingsDone
+                ? 'Versement en attente de confirmation'
+                : payment
+                  ? 'Paiement en attente de confirmation'
+                  : isSavingsPayment
+                    ? 'Verser en toute sécurité'
+                    : 'Payer en toute sécurité'}
             </Button>
           </div>
         </section>
       </div>
 
-      <button type="button" className={styles.backAction} onClick={() => navigate('/payment-mode')}>
+      <button type="button" className={styles.backAction} onClick={() => navigate(methodPath)}>
         Modifier le mode de paiement
       </button>
     </div>

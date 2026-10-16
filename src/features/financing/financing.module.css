@@ -17,11 +17,13 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* Voile directionnel : icone + titre en haut, actions en bas.
+     Le centre reste degage pour que l'image de fond reste lisible. */
   background: linear-gradient(
     180deg,
-    rgba(10, 10, 10, 0.2) 0%,
-    rgba(10, 10, 10, 0.5) 50%,
-    rgba(10, 10, 10, 0.85) 100%
+    rgba(10, 10, 10, 0.36) 0%,
+    rgba(10, 10, 10, 0.17) 44%,
+    rgba(10, 10, 10, 0.76) 100%
   );
 }
 
@@ -341,7 +343,7 @@
 
 .savingsMeta {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0;
   margin-top: var(--np-space-4);
   border-top: 1px solid var(--np-border-base);
@@ -466,29 +468,62 @@
 
   .savingsCard {
     grid-template-columns: 1fr;
-    gap: var(--np-space-4);
+    gap: var(--np-space-3);
+    padding: var(--np-space-3);
+  }
+
+  .savingsTitle {
+    font-size: clamp(16px, 4vw, 18px);
+  }
+
+  .savingsRef {
+    display: none;
+  }
+
+  .savingsProgress {
+    margin-top: var(--np-space-2);
   }
 
   .savingsSide {
     align-items: flex-start;
     text-align: left;
     border-inline-start: 0;
-    border-top: 1px solid var(--np-border-base);
-    padding: var(--np-space-4) 0 0;
+    border-top: 1px dashed var(--np-border-base);
+    padding: var(--np-space-3) 0 0;
     border-radius: 0;
   }
 
   .savingsSideHeader {
-    max-width: 280px;
+    max-width: 100%;
+    justify-content: space-between;
+  }
+
+  .savingsSidePercent {
+    display: none;
+  }
+
+  .savingsSideCaption {
+    display: none;
   }
 
   .savingsSideProgress {
-    max-width: 280px;
+    display: none;
+  }
+
+  .savingsSideAction {
+    margin-top: var(--np-space-2);
+    align-self: flex-end;
+    font-size: var(--np-type-caption-size);
+    padding: var(--np-space-1) var(--np-space-2);
+    border-radius: var(--np-radius-full);
+    background: color-mix(in srgb, var(--np-color-moon-900) 60%, transparent);
   }
 
   .savingsMeta {
-    grid-template-columns: 1fr;
-    gap: var(--np-space-3);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--np-space-2);
+    margin-top: var(--np-space-3);
+    padding-top: var(--np-space-2);
   }
 
   .savingsMeta > span,
@@ -498,6 +533,12 @@
 
   .savingsMeta > span + span {
     border-inline-start: 0;
+  }
+
+  .savingsMeta > span {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
   }
 }
 
@@ -916,8 +957,9 @@
     gap: var(--np-space-3);
   }
 
-.nextStep {
-  align-items: flex-start;
+  .nextStep {
+    align-items: flex-start;
+  }
 }
 
 /* ==========================================================================
@@ -927,6 +969,13 @@
 .paymentModePage {
   min-height: 100vh;
   background: var(--np-bg-page);
+}
+
+.contributionPanel {
+  display: grid;
+  gap: var(--np-space-3);
+  width: 100%;
+  max-width: 440px;
 }
 
 .paymentModeHeader {
@@ -1242,5 +1291,4 @@
   .continueButton {
     border: 2px solid currentColor;
   }
-}
 }
