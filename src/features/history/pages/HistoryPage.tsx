@@ -87,7 +87,7 @@ export function HistoryPage() {
           <EmptyState
             icon="clock"
             title="Aucune opération"
-            description={<Text muted>Les opérations apparaîtront ici dès qu’elles seront enregistrées par NanoPay.</Text>}
+            description={<Text muted>Les opérations apparaîtront ici dès qu’elles seront enregistrées par NanaPay.</Text>}
           />
         ) : (
           <div className={styles.list}>

@@ -1,7 +1,7 @@
-# NanoPay — Sécurité Frontend
+# NanaPay — Sécurité Frontend
 
 > Version : 0.2
-> Portée : sécurité de l'application frontend NanoPay.
+> Portée : sécurité de l'application frontend NanaPay.
 > Principe directeur : **le frontend est un environnement non fiable. Le backend est l'unique autorité de vérité, de permission et de fonds.**
 > Le frontend applique des protections de **prévention UX** ; le backend applique la **décision de sécurité**.
 

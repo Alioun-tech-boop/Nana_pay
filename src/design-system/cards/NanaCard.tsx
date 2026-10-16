@@ -34,7 +34,7 @@ export interface NanaCardProps {
 }
 
 /**
- * Fondation unique de toutes les cartes NanoPay.
+ * Fondation unique de toutes les cartes NanaPay.
  * Les variantes (elevated, interactive, photo, compte, statistique,
  * transaction, sécurité, objectif) composent cette surface.
  */

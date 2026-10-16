@@ -555,7 +555,7 @@ export const mockNotifications: Notification[] = [
   {
     id: 'ntf_05',
     type: 'SYSTEM',
-    title: 'Bienvenue sur NanoPay',
+    title: 'Bienvenue sur NanaPay',
     body: 'Découvrez le financement progressif en toute confiance.',
     read: false,
     createdAt: daysAgo(9),

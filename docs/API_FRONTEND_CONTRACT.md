@@ -1,4 +1,4 @@
-# NanoPay — Contrat d'API Frontend
+# NanaPay — Contrat d'API Frontend
 
 Document de référence de la couche API frontend.
 

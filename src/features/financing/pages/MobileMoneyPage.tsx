@@ -103,7 +103,7 @@ export function MobileMoneyPage() {
         <div className={styles.heroCopy}>
           <span className={styles.heroKicker}>Paiement instantané</span>
           <h2 id="mobile-money-title">Choisissez votre opérateur</h2>
-          <p>Une expérience simple, sécurisée et confirmée par NanoPay.</p>
+          <p>Une expérience simple, sécurisée et confirmée par NanaPay.</p>
         </div>
         <div className={styles.heroSignal} aria-hidden="true">
           <Icon name="lock" size={20} />
@@ -114,7 +114,7 @@ export function MobileMoneyPage() {
       {savingsDone ? (
         <InlineAlert
           tone="success"
-          title="Versement transmis à NanoPay"
+          title="Versement transmis à NanaPay"
           action={
             <Button size="sm" variant="secondary" onClick={() => navigate(`/savings/${savingsId}`)}>
               Voir mon épargne
@@ -122,12 +122,12 @@ export function MobileMoneyPage() {
           }
         >
           Votre versement de{' '}
-          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanoPay.
+          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanaPay.
         </InlineAlert>
       ) : null}
 
       {payment ? (
-        <InlineAlert tone="success" title="Paiement transmis à NanoPay">
+        <InlineAlert tone="success" title="Paiement transmis à NanaPay">
           La confirmation finale dépend du retour de votre opérateur. Statut reçu : {payment.status}.
         </InlineAlert>
       ) : null}
@@ -197,7 +197,7 @@ export function MobileMoneyPage() {
           error={error && !isDone ? error : undefined}
         />
         <div className={styles.formFooter}>
-          <p><Icon name="shield" size={16} /> Le montant et la confirmation sont déterminés par NanoPay.</p>
+          <p><Icon name="shield" size={16} /> Le montant et la confirmation sont déterminés par NanaPay.</p>
           <Button
             className={styles.submitButton}
             size="lg"

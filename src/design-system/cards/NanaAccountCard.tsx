@@ -22,7 +22,7 @@ export interface NanaAccountCardProps {
 }
 
 /**
- * Carte compte / porte-monnaie (Épargne, Coffre NanoPay, Crédit).
+ * Carte compte / porte-monnaie (Épargne, Coffre NanaPay, Crédit).
  * Le solde affiché provient toujours du backend.
  */
 export function NanaAccountCard({

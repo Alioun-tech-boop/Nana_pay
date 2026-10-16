@@ -1,14 +1,14 @@
-# QA Report — NanoPay Frontend
+# QA Report — NanaPay Frontend
 
 Date : 17 septembre 2026
 Statut : **123 tests — tous verts** · `typecheck` et `build` OK
 
 ## 1. Portée
 
-Campagne de QA automatisée sur le frontend NanoPay couvrant :
+Campagne de QA automatisée sur le frontend NanaPay couvrant :
 
 - Couche API (client, transport, cache, erreurs, authentification, idempotence)
-- Flux métier complets via le **mock backend** : marketplace, commande, épargne progressive, crédit bancaire, Coffre NanoPay, QR, retrait, règlement, espaces MERCHANT / BANK / ADMIN
+- Flux métier complets via le **mock backend** : marketplace, commande, épargne progressive, crédit bancaire, Coffre NanaPay, QR, retrait, règlement, espaces MERCHANT / BANK / ADMIN
 - Sécurité applicative : accès non authentifié, token invalide, IDs trafiqués, QR invalide, soumission dupliquée, préconditions financières
 - Hooks : `useRequest` / `useMutation` (états, protection double-clic)
 - Guards : `RequireAuth` / `RequireRole` (URL directe, rôle croisé, redirection)

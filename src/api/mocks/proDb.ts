@@ -22,7 +22,7 @@ export const mockMerchantUser: User = {
   id: 'usr_01HMERCHANT',
   role: 'MERCHANT',
   fullName: 'Ismaël Traoré',
-  email: 'commercant@nanopay.demo',
+  email: 'commercant@NanaPay.demo',
   phone: '+225 07 08 11 22 33',
   merchantId: 'mer_01HPLUS1',
   permissions: [
@@ -38,7 +38,7 @@ export const mockBankUser: User = {
   id: 'usr_01HBANK',
   role: 'BANK',
   fullName: 'Clarisse NGuessan',
-  email: 'banque@nanopay.demo',
+  email: 'banque@NanaPay.demo',
   phone: '+225 27 20 30 40 50',
   merchantId: null,
   permissions: ['bank:read', 'bank:credit:review', 'bank:credit:decide'],
@@ -48,7 +48,7 @@ export const mockAdminUser: User = {
   id: 'usr_01HADMIN',
   role: 'ADMIN',
   fullName: 'Serge Koffi',
-  email: 'admin@nanopay.demo',
+  email: 'admin@NanaPay.demo',
   phone: '+225 07 09 09 09 09',
   merchantId: null,
   permissions: [

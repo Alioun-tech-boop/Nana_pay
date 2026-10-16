@@ -82,7 +82,7 @@ export function OrderQrPage() {
   const stateMeta = QR_STATE_LABELS[state] ?? QR_STATE_LABELS.VALID
 
   const steps: TimelineItemData[] = [
-    { title: 'QR généré par NanoPay', state: qr.isSuccess ? 'done' : 'active' },
+    { title: 'QR généré par NanaPay', state: qr.isSuccess ? 'done' : 'active' },
     { title: 'Le commerçant scanne le QR', state: state === 'VALID' ? 'active' : 'done' },
     {
       title: 'Retrait confirmé par le serveur',
@@ -109,7 +109,7 @@ export function OrderQrPage() {
       ) : !isQrAvailable(data) ? (
         <InlineAlert tone="info" title="QR pas encore disponible">
           <Text muted>
-            Le QR de retrait sera généré par NanoPay lorsque le financement de la commande {data.reference} sera
+            Le QR de retrait sera généré par NanaPay lorsque le financement de la commande {data.reference} sera
             finalisé.
           </Text>
         </InlineAlert>
@@ -127,7 +127,7 @@ export function OrderQrPage() {
               <div className={styles.qrPlaceholder}>
                 <Icon name="qr" size={28} />
                 <Text muted>
-                  Le QR n’est pas disponible pour le moment. NanoPay le génère dès que la commande est prête.
+                  Le QR n’est pas disponible pour le moment. NanaPay le génère dès que la commande est prête.
                 </Text>
                 <Button loading={regenerating} onClick={() => setRegenerateOpen(true)}>
                   Générer le QR
@@ -138,7 +138,7 @@ export function OrderQrPage() {
                 <QRCode
                   value={qr.data.payload}
                   size={216}
-                  label="QR de retrait NanoPay"
+                  label="QR de retrait NanaPay"
                   description={`QR de retrait de la commande ${data.reference}`}
                 />
               </div>
@@ -150,7 +150,7 @@ export function OrderQrPage() {
                     ? 'QR scanné par le commerçant. Le retrait est en cours de validation.'
                     : state === 'EXPIRED'
                       ? 'Ce QR a expiré et n’est plus valide.'
-                      : 'Le retrait a été confirmé par NanoPay.'}
+                      : 'Le retrait a été confirmé par NanaPay.'}
                 </Text>
                 {state === 'EXPIRED' ? (
                   <Button loading={regenerating} onClick={() => setRegenerateOpen(true)}>

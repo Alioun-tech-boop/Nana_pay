@@ -5,11 +5,11 @@ import styles from './authFlow.module.css'
 export function AuthStartPage() {
   return (
     <main className={styles.startPage}>
-      <Link to="/" className={styles.startBrand} aria-label="NanoPay, accueil">
+      <Link to="/" className={styles.startBrand} aria-label="NanaPay, accueil">
         <Logo size={32} />
       </Link>
       <section className={styles.startMain}>
-        <p className={styles.startEyebrow}>NanoPay · espace sécurisé</p>
+        <p className={styles.startEyebrow}>NanaPay · espace sécurisé</p>
         <h1 className={styles.startTitle}>Votre argent. Votre rythme.</h1>
         <p className={styles.startText}>
           Financez vos achats, suivez vos versements et gardez le contrôle de chaque étape.
@@ -24,8 +24,8 @@ export function AuthStartPage() {
         </div>
       </section>
       <footer className={styles.startFooter}>
-        <span>Des paiements clairs, confirmés par NanoPay.</span>
-        <span>© 2026 NanoPay</span>
+        <span>Des paiements clairs, confirmés par NanaPay.</span>
+        <span>© 2026 NanaPay</span>
       </footer>
     </main>
   )

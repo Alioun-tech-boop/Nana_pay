@@ -166,7 +166,7 @@ export function ProductPage() {
       </div>
 
       <p className={styles.financingNote}>
-        Épargne progressive, Coffre NanoPay ou crédit bancaire : le financement est calculé par NanoPay à la création
+        Épargne progressive, Coffre NanaPay ou crédit bancaire : le financement est calculé par NanaPay à la création
         de la commande.
       </p>
     </div>

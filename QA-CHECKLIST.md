@@ -1,4 +1,4 @@
-# NanoPay — Checklist de validation (QA)
+# NanaPay — Checklist de validation (QA)
 
 > Version : 0.1 (PROPOSED)
 > Usage : chaque release passe par ces contrôles avant livraison. À automatiser dans la CI dès que le code existe.

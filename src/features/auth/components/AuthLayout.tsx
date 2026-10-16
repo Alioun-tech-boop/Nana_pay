@@ -32,7 +32,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <Link to="/" className={styles.brand} aria-label="NanoPay, accueil">
+        <Link to="/" className={styles.brand} aria-label="NanaPay, accueil">
           <Logo size={26} />
         </Link>
         <div className={styles.headerNote}>
@@ -48,7 +48,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
           <p className={styles.eyebrow}>Épargne progressive · Coffre · Crédit</p>
           <h2 className={styles.headline}>Achetez maintenant, payez progressivement.</h2>
           <p className={styles.lede}>
-            NanoPay rend vos achats accessibles avec des modes de paiement flexibles,
+            NanaPay rend vos achats accessibles avec des modes de paiement flexibles,
             simples et transparents.
           </p>
           <ul className={styles.assurances}>
@@ -69,7 +69,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
         <main className={styles.stage}>
           <section className={styles.card} aria-labelledby="auth-title">
             <p id="auth-title" className={styles.cardEyebrow}>
-              NanoPay
+              NanaPay
             </p>
             <h1 className={styles.cardTitle}>{title}</h1>
             {subtitle ? <Text muted>{subtitle}</Text> : null}
@@ -79,8 +79,8 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
       </div>
 
       <footer className={styles.footer}>
-        <span>NanoPay · Espace client</span>
-        <span className={styles.footerMuted}>© 2026 NanoPay. Tous droits réservés.</span>
+        <span>NanaPay · Espace client</span>
+        <span className={styles.footerMuted}>© 2026 NanaPay. Tous droits réservés.</span>
       </footer>
     </div>
   )

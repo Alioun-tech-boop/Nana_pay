@@ -207,7 +207,7 @@ export const financingRoutes: MockRoute[] = [
       const order = findOrder(body.orderId)
       if (!order) return businessRule('ORDER_NOT_FOUND', 'Commande introuvable', 'Cette commande n’existe pas.')
       if (order.financingMode !== 'VAULT') {
-        return businessRule('VAULT_NOT_ELIGIBLE', 'Coffre non éligible', 'Cette commande n’est pas liée au coffre NanoPay.')
+        return businessRule('VAULT_NOT_ELIGIBLE', 'Coffre non éligible', 'Cette commande n’est pas liée au coffre NanaPay.')
       }
       if (order.product.price.amount > mockVault.balance.amount) {
         return businessRule('VAULT_BALANCE_INSUFFICIENT', 'Solde insuffisant', 'Le solde du coffre ne couvre pas cette commande.')

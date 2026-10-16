@@ -7,7 +7,7 @@ const SECTIONS = [
     id: 'scope',
     title: '1. Objet et champ d’application',
     body: [
-      'La présente politique explique comment NanoPay collecte, utilise, conserve et protège les données personnelles utilisées dans ses services de paiement, d’épargne progressive, de Coffre NanoPay, de crédit et de marketplace.',
+      'La présente politique explique comment NanaPay collecte, utilise, conserve et protège les données personnelles utilisées dans ses services de paiement, d’épargne progressive, de Coffre NanaPay, de crédit et de marketplace.',
       'Elle s’applique aux clients, visiteurs, commerçants et partenaires qui utilisent nos interfaces, nos API ou nos canaux d’assistance. Les traitements propres à un partenaire financier peuvent être complétés par sa propre politique.',
     ],
   },
@@ -37,7 +37,7 @@ const SECTIONS = [
     id: 'sharing',
     title: '4. Partage et sous-traitants',
     body: [
-      'NanoPay ne vend pas vos données personnelles. Nous les partageons uniquement avec les prestataires nécessaires à la fourniture du service : hébergement, authentification, communication, paiement, vérification, support, prévention de la fraude et partenaires financiers autorisés.',
+      'NanaPay ne vend pas vos données personnelles. Nous les partageons uniquement avec les prestataires nécessaires à la fourniture du service : hébergement, authentification, communication, paiement, vérification, support, prévention de la fraude et partenaires financiers autorisés.',
       'Chaque destinataire reçoit uniquement les données nécessaires à sa mission et doit appliquer des engagements de confidentialité, de sécurité et de conservation adaptés.',
       'Nous pouvons divulguer des informations lorsqu’une loi, une décision de justice ou une demande réglementaire valide l’exige, ou pour protéger les utilisateurs et l’intégrité de la plateforme.',
     ],
@@ -48,7 +48,7 @@ const SECTIONS = [
     body: [
       'Nous appliquons le principe du moindre privilège, des contrôles d’accès, des journaux d’audit, des protections réseau et des mécanismes de détection d’anomalies.',
       'Les opérations sensibles doivent être confirmées par le backend. L’interface ne constitue pas une autorisation financière et ne peut pas modifier seule un solde, un paiement, un crédit ou un retrait.',
-      'Ne partagez jamais votre mot de passe, votre code OTP, vos données de carte ou une clé de sécurité. NanoPay ne vous demandera pas un secret par un canal non vérifié.',
+      'Ne partagez jamais votre mot de passe, votre code OTP, vos données de carte ou une clé de sécurité. NanaPay ne vous demandera pas un secret par un canal non vérifié.',
       'Aucun système connecté à Internet ne garantit un risque nul. Nous vous informerons selon les exigences applicables en cas d’incident présentant un risque pour vos droits.',
     ],
   },
@@ -66,7 +66,7 @@ const SECTIONS = [
     body: [
       'Selon la réglementation applicable, vous pouvez demander l’accès, la rectification, la limitation, la portabilité ou la suppression de vos données, ainsi que vous opposer à certains traitements.',
       'Vous pouvez retirer un consentement lorsque le traitement repose sur celui-ci. Ce retrait ne remet pas en cause les traitements déjà réalisés ni ceux nécessaires à l’exécution d’un contrat ou au respect d’une obligation légale.',
-      'Pour exercer vos droits, contactez le support NanoPay depuis votre espace ou utilisez l’adresse officielle indiquée dans votre contrat. Nous pouvons demander une vérification d’identité avant de traiter la demande.',
+      'Pour exercer vos droits, contactez le support NanaPay depuis votre espace ou utilisez l’adresse officielle indiquée dans votre contrat. Nous pouvons demander une vérification d’identité avant de traiter la demande.',
       'Vous pouvez également introduire une réclamation auprès de l’autorité de protection des données compétente dans votre pays.',
     ],
   },
@@ -74,7 +74,7 @@ const SECTIONS = [
     id: 'cookies',
     title: '8. Cookies et technologies similaires',
     body: [
-      'NanoPay peut utiliser des mécanismes strictement nécessaires à la session, à la sécurité, à la mémorisation des préférences et à la mesure technique du service.',
+      'NanaPay peut utiliser des mécanismes strictement nécessaires à la session, à la sécurité, à la mémorisation des préférences et à la mesure technique du service.',
       'Les technologies non essentielles sont activées selon les choix disponibles dans votre environnement. La désactivation de certaines technologies peut limiter des fonctions, notamment l’authentification ou la sécurité.',
     ],
   },
@@ -82,7 +82,7 @@ const SECTIONS = [
     id: 'children',
     title: '9. Mineurs',
     body: [
-      'Les services financiers NanoPay ne sont pas destinés aux personnes qui ne peuvent pas légalement contracter. Si vous pensez qu’un compte a été créé sans autorisation, contactez immédiatement le support afin que nous puissions prendre les mesures appropriées.',
+      'Les services financiers NanaPay ne sont pas destinés aux personnes qui ne peuvent pas légalement contracter. Si vous pensez qu’un compte a été créé sans autorisation, contactez immédiatement le support afin que nous puissions prendre les mesures appropriées.',
     ],
   },
   {
@@ -103,7 +103,7 @@ export function PrivacyPage() {
         <span className={styles.updated}>Dernière mise à jour : 20 septembre 2026</span>
       </header>
       <section className={styles.hero}>
-        <span className={styles.eyebrow}>NanoPay · confiance et transparence</span>
+        <span className={styles.eyebrow}>NanaPay · confiance et transparence</span>
         <h1>Politique de confidentialité</h1>
         <p>Nous expliquons clairement quelles données sont nécessaires, pourquoi elles sont utilisées et comment vous gardez le contrôle.</p>
       </section>
@@ -121,7 +121,7 @@ export function PrivacyPage() {
           ))}
           <div className={styles.contactBox}>
             <Icon name="shield" size={20} />
-            <div><strong>Une question sur vos données ?</strong><p>Contactez le support depuis votre espace NanoPay et indiquez l’objet de votre demande.</p></div>
+            <div><strong>Une question sur vos données ?</strong><p>Contactez le support depuis votre espace NanaPay et indiquez l’objet de votre demande.</p></div>
           </div>
         </article>
       </div>

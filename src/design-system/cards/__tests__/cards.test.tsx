@@ -136,8 +136,8 @@ describe('Système de cartes premium', () => {
   })
 
   it('NanaAccountCard affiche label, numéro et solde', () => {
-    render(<NanaAccountCard label="Coffre NanoPay" number="•••• 4821" amount={512000} />)
-    expect(screen.getByText('Coffre NanoPay')).toBeInTheDocument()
+    render(<NanaAccountCard label="Coffre NanaPay" number="•••• 4821" amount={512000} />)
+    expect(screen.getByText('Coffre NanaPay')).toBeInTheDocument()
     expect(screen.getByText('•••• 4821')).toBeInTheDocument()
     expect(screen.getByText(/512\s*000/)).toBeInTheDocument()
   })

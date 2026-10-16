@@ -1,4 +1,4 @@
-# NanoPay — L'essentiel de l'architecture (digest)
+# NanaPay — L'essentiel de l'architecture (digest)
 
 > Version : 0.1
 > Rôle de ce document : **lecture minimale obligatoire** avant de toucher au code, quelque soit la tâche.
@@ -44,7 +44,7 @@ Backend
 ## 4. Les trois financements sont distincts
 
 - **Épargne progressive** (SAVINGS) — versements, extension max 2 mois, pénalité 15 % / remboursement 85 % (valeurs backend).
-- **Coffre NanoPay** (VAULT) — salariés éligibles au profil bancaire validé ; jamais un wallet générique.
+- **Coffre NanaPay** (VAULT) — salariés éligibles au profil bancaire validé ; jamais un wallet générique.
 - **Crédit bancaire** (CREDIT) — concepts distincts `CreditProfile`, `CreditRequest`, `Credit` ; le produit précède le financement.
 
 Ne pas fusionner les trois dans un composant « financement générique ».

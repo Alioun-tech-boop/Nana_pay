@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { tokenStyles, themeTokens } from '../index'
 
-describe('design tokens — identité NanoPay', () => {
+describe('design tokens — identité NanaPay', () => {
   it('définit chaque nouvelle valeur une et une seule fois (pas de doublon)', () => {
     const css = tokenStyles()
     const samples = [

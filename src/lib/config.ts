@@ -1,6 +1,6 @@
 export type ApiMode = 'mock' | 'real'
 
-export interface NanoPayConfig {
+export interface NanaPayConfig {
   apiMode: ApiMode
   apiUrl: string
   mockDelayMs: number
@@ -8,7 +8,7 @@ export interface NanoPayConfig {
   locale: string
 }
 
-const DEFAULTS: NanoPayConfig = {
+const DEFAULTS: NanaPayConfig = {
   apiMode: 'mock',
   apiUrl: '',
   mockDelayMs: 250,
@@ -26,7 +26,7 @@ function toPositiveInt(value: string | undefined, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback
 }
 
-export function getConfig(): Readonly<NanoPayConfig> {
+export function getConfig(): Readonly<NanaPayConfig> {
   const env = import.meta.env
   return {
     apiMode: toApiMode(env.VITE_NP_API_MODE as string | undefined),

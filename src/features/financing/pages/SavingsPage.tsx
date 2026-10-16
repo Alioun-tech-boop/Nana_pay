@@ -171,16 +171,16 @@ export function SavingsPage() {
                 </h3>
                 {isReached ? (
                   <p className={styles.nextStepText}>
-                    Votre épargne est complète. NanoPay a généré le QR de retrait à présenter au commerçant.
+                    Votre épargne est complète. NanaPay a généré le QR de retrait à présenter au commerçant.
                   </p>
                 ) : isFailed ? (
                   <p className={styles.nextStepText}>
                     Épargne non aboutie. La pénalité (15 %) et le remboursement (85 %) sont calculés et confirmés
-                    par NanoPay.
+                    par NanaPay.
                   </p>
                 ) : isSuspended ? (
                   <p className={styles.nextStepText}>
-                    Cette épargne est actuellement suspendue. Reportez-vous à NanoPay pour toute information.
+                    Cette épargne est actuellement suspendue. Reportez-vous à NanaPay pour toute information.
                   </p>
                 ) : (
                   <p className={styles.nextStepText}>Cette épargne n’accepte plus de versements.</p>
@@ -236,8 +236,8 @@ export function SavingsPage() {
               <InlineAlert tone="danger" title={statusKey === 'FAILED' ? 'Épargne non aboutie' : 'Épargne remboursée'}>
                 <Text muted>
                   {statusKey === 'FAILED'
-                    ? 'En cas d’échec, la règle applicable est de 15 % de pénalité et 85 % de remboursement. Les montants définitifs sont calculés et confirmés par NanoPay.'
-                    : 'Votre remboursement a été confirmé par NanoPay. Les montants présentés proviennent du backend.'}
+                    ? 'En cas d’échec, la règle applicable est de 15 % de pénalité et 85 % de remboursement. Les montants définitifs sont calculés et confirmés par NanaPay.'
+                    : 'Votre remboursement a été confirmé par NanaPay. Les montants présentés proviennent du backend.'}
                 </Text>
               </InlineAlert>
             </div>
@@ -247,7 +247,7 @@ export function SavingsPage() {
             <div className={styles.alertStack}>
               <InlineAlert tone="warning" title="Épargne prolongée">
                 <Text muted>
-                  Votre épargne a été prolongée. La durée maximale d’extension autorisée est confirmée par NanoPay.
+                  Votre épargne a été prolongée. La durée maximale d’extension autorisée est confirmée par NanaPay.
                 </Text>
               </InlineAlert>
             </div>

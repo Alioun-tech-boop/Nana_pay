@@ -38,7 +38,7 @@ export interface NanaQuickActionProps
 }
 
 /**
- * Action rapide NanoPay : cercle elevated + icône + label, aligné au centre.
+ * Action rapide NanaPay : cercle elevated + icône + label, aligné au centre.
  * Toute navigation, permission et confirmation restent décidées par l'appelant.
  */
 export function NanaQuickAction({

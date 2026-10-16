@@ -31,7 +31,7 @@ function buildSession(role: UserRole): SessionContextValue {
     id: 'usr_01TEST',
     role,
     fullName: 'Test User',
-    email: 'test@nanopay.demo',
+    email: 'test@NanaPay.demo',
     phone: '+225 07 00 00 00 00',
     merchantId: role === 'MERCHANT' ? 'mer_01HPLUS1' : null,
     permissions: role === 'CLIENT' ? [] : [`${role.toLowerCase()}:read`],

@@ -1,10 +1,10 @@
-# NanoPay Frontend — Architecture
+# NanaPay Frontend — Architecture
 
 ## 1. Objectif
 
-Ce document définit l'architecture de référence du frontend NanoPay.
+Ce document définit l'architecture de référence du frontend NanaPay.
 
-NanoPay doit fournir une expérience :
+NanaPay doit fournir une expérience :
 
 - moderne
 - premium

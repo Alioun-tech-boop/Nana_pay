@@ -45,7 +45,7 @@ export function ProfilePage() {
           <section className={styles.identity}>
             <Avatar name={user.fullName} size="lg" tone="brand" />
             <div className={styles.identityMain}>
-              <span className={styles.kicker}>Compte personnel · NanoPay</span>
+              <span className={styles.kicker}>Compte personnel · NanaPay</span>
               <h2 className={styles.name}>{user.fullName}</h2>
               <div className={styles.meta}>
                 <Badge tone="info">{ROLE_LABELS[user.role]}</Badge>
@@ -96,7 +96,7 @@ export function ProfilePage() {
               <ul className={styles.links}>
                 <li><Link to="/history">Historique des opérations</Link></li>
                 <li><Link to="/savings">Épargne progressive</Link></li>
-                <li><Link to="/vault">Coffre NanoPay</Link></li>
+                <li><Link to="/vault">Coffre NanaPay</Link></li>
                 <li><Link to="/credit">Crédit bancaire</Link></li>
               </ul>
             </section>

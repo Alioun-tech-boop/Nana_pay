@@ -1,7 +1,7 @@
-# NanoPay — Design System
+# NanaPay — Design System
 
-> Version : 0.2 (PROPOSED — direction « NanoPay Nuit »)
-> Statut : contrat de conception pour l'identité visuelle NanoPay. À figer (valeurs hex finales) lors de la validation visuelle en Phase 1.
+> Version : 0.2 (PROPOSED — direction « NanaPay Nuit »)
+> Statut : contrat de conception pour l'identité visuelle NanaPay. À figer (valeurs hex finales) lors de la validation visuelle en Phase 1.
 > Principe : **une identité propriétaire, pas un template.** Aucun kit SaaS, aucun dashboard générique, aucune UI « IA ».
 > Chaque valeur est un token CSS (`--np-*`) rendu disponible à l'échelle de l'application.
 >
@@ -13,7 +13,7 @@
 
 ## 1. Positionnement
 
-NanoPay est une **fintech de confiance** : sérieuse, précise, rapide, silencieuse-paisible.
+NanaPay est une **fintech de confiance** : sérieuse, précise, rapide, silencieuse-paisible.
 
 - La confiance se lit dans la **hiérarchie** et la **sobriété**, pas dans la décoration.
 - L'argent est une valeur **calme** : fonds sombres profonds, accents limités, chiffres tabulaires.

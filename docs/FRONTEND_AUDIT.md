@@ -1,4 +1,4 @@
-# NanoPay — Audit Frontend
+# NanaPay — Audit Frontend
 
 > Version : 1.0
 > Date : 2026-09-17
@@ -17,7 +17,7 @@ L'audit complet du repository révèle un état **greenfield (phase 0)** :
 - Il n'y a **ni template SaaS, ni dashboard générique, ni UI générée par IA** à corriger — ce qui est une **opportunité** : l'identité visuelle et l'architecture seront construites from scratch, sans dette héritée.
 - Le **risque principal** n'est donc pas la dette technique **existante** (nulle) mais la **dette contractuelle** : les spécifications (`DESIGN-SYSTEM.md`, `API-CONTRACT.md`, `PRODUCT-FLOW.md`, `SECURITY.md`, `README-FRONTEND.md`, `OPENCODE.md`, `ARCHITECTURE-ESSENTIALS.md`) sont des fichiers vides. Toute décision d'implémentation faite sans ces contrats sera coûteuse à corriger.
 
-**Conclusion :** l'audit est un **audit d'architecture cible et de risque zéro-code**. Il qualifie l'état actuel, définit le socle cible conforme à l'architecture NanoPay, et sécurise les choix avant la première ligne de code. Aucune fonctionnalité hors périmètre NanoPay n'est proposée sans être explicitement marquée `[EXTENSION]`.
+**Conclusion :** l'audit est un **audit d'architecture cible et de risque zéro-code**. Il qualifie l'état actuel, définit le socle cible conforme à l'architecture NanaPay, et sécurise les choix avant la première ligne de code. Aucune fonctionnalité hors périmètre NanaPay n'est proposée sans être explicitement marquée `[EXTENSION]`.
 
 ---
 
@@ -117,7 +117,7 @@ Principes documentés :
 - Backend = source de vérité métier, sécurité et permissions.
 - Exigences produit : moderne, premium, fluide, rapide, sécurisée, accessible, responsive, connectable à un backend réel, cohérente entre **Client, Commerçant, Banque, Admin**.
 
-### A.3 Périmètre produit NanoPay (rappel — source : mission, non couverte par le code)
+### A.3 Périmètre produit NanaPay (rappel — source : mission, non couverte par le code)
 
 Chaîne de commande centrale unique :
 **Client → Produit → Commande → Épargne / Coffre / Crédit → Financement → QR → Commerçant → Retrait → Paiement commerçant.**
@@ -244,7 +244,7 @@ Routing            : React Router v7 (data loaders pour le rôle/guard + chargem
 State serveur      : TanStack Query (cache d'API typé, invalidation, retry borné)
 State client brut  : Zustand ou context minimaux (UI shell, session en mémoire)
 Formulaires        : React Hook Form + Zod (validation UX côté client UNIQUEMENT — la règle métier reste backend)
-UI                 : Design system propriétaire NanoPay (section J) — composants maison, pas de template
+UI                 : Design system propriétaire NanaPay (section J) — composants maison, pas de template
 CSS                : CSS Modules + Design Tokens (custom properties), zéro framework CSS obscur
 API client         : OpenAPI (spec contract-first) + client généré (types compilés) + interceptor
 Tests              : Vitest (unit) + React Testing Library (composants) + Playwright (e2e des 4 rôles + parcours QR)
@@ -282,7 +282,7 @@ Correspondance couches `ARCHITECTURE.md` :
 | API Client | `shared/api-client` (`core/api`) |
 | Backend | — (externe) |
 
-### H.3 Découplage des domaines (le flux central NanoPay)
+### H.3 Découplage des domaines (le flux central NanaPay)
 
 | Domaine | Responsabilité frontend (uniquement) | Source de vérité |
 |---|---|---|
@@ -362,7 +362,7 @@ N'étant pas **refactoring** mais **construction**, le plan est un **plan de mis
 
 ## J. Design system cible
 
-Identité propriétaire « NanoPay » — positionnement : **fintech de confiance, sombre et précise**. Pas de template, pas de kit générique.
+Identité propriétaire « NanaPay » — positionnement : **fintech de confiance, sombre et précise**. Pas de template, pas de kit générique.
 
 ### J.1 Principes
 - **L'argent est silencieux-paisible** : fonds clairs et sobres, accents limités.
@@ -407,9 +407,9 @@ Identité propriétaire « NanoPay » — positionnement : **fintech de confianc
 4. **Statuts normalisés** : enum de statuts fournie par le backend, mappée 1:1 par `StatusPill`.
 5. **Erreurs structurées** : `{ code, title, detail, field? }` — pas de messages bruts en anglais dans l'UI, mapping vers texte localisé côté UI.
 
-### K.2 Contrat minimal (pré-projet) — regroupé par domaine du flux NanoPay
+### K.2 Contrat minimal (pré-projet) — regroupé par domaine du flux NanaPay
 
-> Chaque endpoint ci-dessous est **hypothèse de contrat à valider dans `API-CONTRACT.md`** (rien n'est codé). Aucun endpoint n'est requis pour exister hors des domaines NanoPay.
+> Chaque endpoint ci-dessous est **hypothèse de contrat à valider dans `API-CONTRACT.md`** (rien n'est codé). Aucun endpoint n'est requis pour exister hors des domaines NanaPay.
 
 | Domaine | Opérations attendues |
 |---|---|
@@ -490,7 +490,7 @@ Validation de **non-régression** et de **conformité** avant livraison — à t
 | F (perf) | Contraintes actées | À vérifier en CI (Lighthouse, bundle) |
 | G (a11y) | Contraintes actées | À vérifier en CI (axe, clavier) |
 
-## Annexe 2 — Fonctionnalités proposées au-delà du périmètre NanoPay documenté
+## Annexe 2 — Fonctionnalités proposées au-delà du périmètre NanaPay documenté
 
 Aucune fonctionnalité produit nouvelle n'est proposée. Les seules extensions identifiées sont **techniques**, nécessaires à un frontend de production et non couvertes par la mission :
 

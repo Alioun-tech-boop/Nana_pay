@@ -39,7 +39,7 @@ const CLIENT_PAGE_TITLES: Record<string, string> = {
   purchases: 'Mes achats',
   history: 'Historique',
   savings: 'Épargne progressive',
-  vault: 'Coffre NanoPay',
+  vault: 'Coffre NanaPay',
   credit: 'Crédit bancaire',
   orders: 'Commande',
   profile: 'Profil',
@@ -50,7 +50,7 @@ function clientNavigation(extras: RoleNavExtras): RoleNavigation {
   const cartBadge = extras.cartCount > 0 ? String(extras.cartCount) : undefined
   const unreadBadge = extras.unreadCount > 0 ? String(extras.unreadCount) : undefined
   return {
-    subtitle: 'NanoPay · Espace client',
+    subtitle: 'NanaPay · Espace client',
     pageTitles: CLIENT_PAGE_TITLES,
     items: [
       { id: 'dashboard', label: 'Tableau de bord', icon: 'home', group: 'Découvrir' },
@@ -60,7 +60,7 @@ function clientNavigation(extras: RoleNavExtras): RoleNavigation {
       { id: 'cart', label: 'Panier', icon: 'wallet', group: 'Ma commande', badge: cartBadge },
       { id: 'history', label: 'Historique', icon: 'clock', group: 'Ma commande' },
       { id: 'savings', label: 'Épargne progressive', icon: 'coins', group: 'Financement' },
-      { id: 'vault', label: 'Coffre NanoPay', icon: 'vault', group: 'Financement' },
+      { id: 'vault', label: 'Coffre NanaPay', icon: 'vault', group: 'Financement' },
       { id: 'credit', label: 'Crédit bancaire', icon: 'bank', group: 'Financement' },
       { id: 'notifications', label: 'Notifications', icon: 'alert', group: 'Compte', badge: unreadBadge },
       { id: 'profile', label: 'Profil', icon: 'user', group: 'Compte' },
@@ -69,7 +69,7 @@ function clientNavigation(extras: RoleNavExtras): RoleNavigation {
       { id: 'dashboard', label: 'Accueil', icon: 'home' },
       { id: 'marketplace', label: 'Marketplace', icon: 'shop' },
       { id: 'cart', label: 'Panier', icon: 'wallet', badge: cartBadge },
-      { id: 'purchases', label: 'Achats', icon: 'receipt' },
+      { id: 'purchases', label: 'Mes achats', icon: 'receipt' },
       { id: 'menu', label: 'Plus', icon: 'more' },
     ],
   }
@@ -77,7 +77,7 @@ function clientNavigation(extras: RoleNavExtras): RoleNavigation {
 
 function merchantNavigation(): RoleNavigation {
   return {
-    subtitle: 'NanoPay · Espace commerçant',
+    subtitle: 'NanaPay · Espace commerçant',
     pageTitles: {
       dashboard: 'Tableau de bord',
       orders: 'Commandes',
@@ -110,7 +110,7 @@ function merchantNavigation(): RoleNavigation {
 
 function bankNavigation(): RoleNavigation {
   return {
-    subtitle: 'NanoPay · Espace banque',
+    subtitle: 'NanaPay · Espace banque',
     pageTitles: {
       dashboard: 'Tableau de bord',
       requests: 'Demandes de crédit',
@@ -143,7 +143,7 @@ function bankNavigation(): RoleNavigation {
 
 function adminNavigation(): RoleNavigation {
   return {
-    subtitle: 'NanoPay · Supervision',
+    subtitle: 'NanaPay · Supervision',
     pageTitles: {
       dashboard: 'Tableau de bord',
       clients: 'Clients',

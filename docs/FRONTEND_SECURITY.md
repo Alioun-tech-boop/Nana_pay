@@ -1,4 +1,4 @@
-# NanoPay — Audit de sécurité Frontend
+# NanaPay — Audit de sécurité Frontend
 
 > Version : 0.1
 > Réalisé par : revue de sécurité du frontend (réf. `AGENTS.md` §29, `SECURITY.md`).

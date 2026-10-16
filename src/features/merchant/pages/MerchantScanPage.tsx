@@ -123,7 +123,7 @@ export function MerchantScanPage() {
               </div>
 
               {settled ? (
-                <InlineAlert tone="success" title="Règlement enregistré par NanoPay." />
+                <InlineAlert tone="success" title="Règlement enregistré par NanaPay." />
               ) : result.merchantAuthorized ? (
                 <>
                   <InlineAlert tone="success" title="QR valide — retrait autorisé par le backend.">

@@ -215,7 +215,7 @@ export function MerchantProductFormPage() {
         <Switch
           checked={form.financingEligible}
           onCheckedChange={update('financingEligible')}
-          label="Éligible au financement NanoPay"
+          label="Éligible au financement NanaPay"
         />
 
         <div className={styles.formActions}>

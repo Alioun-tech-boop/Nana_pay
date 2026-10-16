@@ -1,4 +1,4 @@
-# NanoPay — Parcours Produit (Product Flows)
+# NanaPay — Parcours Produit (Product Flows)
 
 > Version : 0.1 (PROPOSED)
 > Objectif : définir les parcours utilisateur par rôle, alignés sur **une commande centrale unique** :
@@ -36,7 +36,7 @@ Correspondance visuelle (côté Client / Commerçant / Banque / Admin) : `OrderT
    - Financement proposé **si le produit y est éligible** (backend).
 3. **Création de commande** : sélection du mode de financement :
    - `SAVINGS` (Épargne progressive) — **peut être différée/étendue** (max 2 mois, règles backend).
-   - `VAULT` (Coffre NanoPay) — réservé aux salariés éligibles (décision backend).
+   - `VAULT` (Coffre NanaPay) — réservé aux salariés éligibles (décision backend).
    - `CREDIT` (Crédit bancaire) — le produit passe avant le financement ; jamais de crédit « flottant » déconnecté d'une commande.
 4. **Confirmation de création** : `ConfirmDialog` avec référence `NP-YYYY-NNNNNNNN`, produit, montant, méthode. Bouton `disabled` pendant l'appel + `Idempotency-Key`.
 
@@ -44,11 +44,11 @@ Correspondance visuelle (côté Client / Commerçant / Banque / Admin) : `OrderT
 1. Vue de l'épargne : cible, épargné, progression %, échéance — **valeurs backend**. Il n'y a **pas de versement planifié** : le client verse librement.
 2. Versement d'un **montant libre** (minimum **1 000 F CFA**, plafonné au reste à atteindre) :
    - `ConfirmPayment` → POST → statut **asynchrone** (202).
-   - L'UI **ne considère pas un succès Mobile Money comme un paiement NanoPay confirmé** : elle interroge le backend et n'affiche `Confirmé` que sur confirmation backend.
+   - L'UI **ne considère pas un succès Mobile Money comme un paiement NanaPay confirmé** : elle interroge le backend et n'affiche `Confirmé` que sur confirmation backend.
 3. Échec de versement → rejet/refus affiché (jamais d'erreur technique brute).
 4. Extension d'épargne : le bouton/date limite vient du backend (max 2 mois) ; l'UI n'invente pas les durées.
 
-### 2.3 Coffre NanoPay
+### 2.3 Coffre NanaPay
 1. Vue coffre : solde, plan (prélèvement mensuel + somme visée), historique, éligibilité (backend).
 2. **Le client choisit** le montant prélevé chaque mois sur son salaire et la **somme visée** ; le backend valide et confirme les termes. Le coffre est alimenté **uniquement par prélèvement salaire**, jusqu'à atteindre la somme visée — pas de rechargement manuel.
 3. Affectation du coffre à une commande éligible : confirmation + `Idempotency-Key`.

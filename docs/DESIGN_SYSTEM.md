@@ -1,10 +1,10 @@
-# NanoPay — Design System (implémentation)
+# NanaPay — Design System (implémentation)
 
 > Statut : **implémentation** — source de vérité visuelle du frontend.
-> Auteur : direction artistique NanoPay (langage « NanoPay Nuit » — fintech premium sombre).
+> Auteur : direction artistique NanaPay (langage « NanaPay Nuit » — fintech premium sombre).
 > Docs/  — ce document remplace les valeurs indicatives de `DESIGN-SYSTEM.md` (racine) quand elles divergent : le code et ce document font foi.
 
-NanoPay partage **un seul langage visuel** pour les 4 rôles (Client, Commerçant, Banque, Admin).
+NanaPay partage **un seul langage visuel** pour les 4 rôles (Client, Commerçant, Banque, Admin).
 Le rôle est exprimé par la **navigation** et le **contexte**, jamais par un re-design.
 
 ---
@@ -17,7 +17,7 @@ Le rôle est exprimé par la **navigation** et le **contexte**, jamais par un re
 - Les états financiers viennent **du backend** : le design system affiche, il ne décide pas.
 - Accessibilité non négociable : focus visible, contraste, labels, `aria` ; jamais d'information par la couleur seule.
 
-### Interdits (identité « NanoPay Nuit »)
+### Interdits (identité « NanaPay Nuit »)
 
 - Dégradés décoratifs **aléatoires**, blobs, esthétique « dashboard IA » (violet, glow partout), glassmorphism hors chrome sticky.
 - Ombres colorées ; le relief vient des **surfaces** (contraste `night`/`moon` en alpha) et de **halos blancs discrets** réservés aux tokens `--np-surface-hero`/`hero-strong` et aux pages publiques.
@@ -169,7 +169,7 @@ Règle : titres massifs et fluides ; `display-2` réservé aux héros (solde, mo
 ## 5. Icônes & logo
 
 - `Icon` : `name` (47 icônes, tracé stroke 1.5 SVG inline), `size` (px, défaut 20), `title` (accessibilité), props SVG. Liste : `iconNames`.
-- `Logo` / `LogoMark` : « puce nano » propriétaire + wordmark « NanoPay » (le mot « Pay » en couleur de marque). Ne jamais remplacer par une autre marque.
+- `Logo` / `LogoMark` : « puce nano » propriétaire + wordmark « NanaPay » (le mot « Pay » en couleur de marque). Ne jamais remplacer par une autre marque.
 - Les icônes sont toujours reprises dans le même tracé (pas de mélange de familles/épaisseurs).
 
 ---

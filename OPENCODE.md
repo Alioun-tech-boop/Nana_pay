@@ -1,10 +1,10 @@
 # OPENCODE.md
 
-# NanoPay — OpenCode Development Instructions
+# NanaPay — OpenCode Development Instructions
 
 ## 1. Mission
 
-You are OpenCode, an AI coding agent responsible for developing the NanoPay frontend.
+You are OpenCode, an AI coding agent responsible for developing the NanaPay frontend.
 
 Your objective is to produce a frontend that is:
 
@@ -17,7 +17,7 @@ Your objective is to produce a frontend that is:
 - maintainable
 - production-ready
 
-NanoPay is a financial platform connecting:
+NanaPay is a financial platform connecting:
 
 ```text
 CLIENT
@@ -169,7 +169,7 @@ If a frontend calculation conflicts with backend financial values:
 BACKEND WINS
 7. Central Order Architecture
 
-NanoPay revolves around one central order.
+NanaPay revolves around one central order.
 
 The order connects:
 
@@ -224,10 +224,10 @@ Order
 Eligibility
 9. Financing Modes
 
-NanoPay has three financing mechanisms:
+NanaPay has three financing mechanisms:
 
 Épargne progressive
-Coffre NanoPay
+Coffre NanaPay
 Crédit bancaire
 
 Keep their flows distinct.
@@ -250,7 +250,7 @@ MERCHANT
 WITHDRAWAL
  ↓
 DELIVERY
-9.2 Coffre NanoPay
+9.2 Coffre NanaPay
 
 The Coffre is intended for eligible employees whose bank credit profile has already been validated.
 
@@ -341,7 +341,7 @@ Example:
 250 000 XOF
 12. Payment Flow
 
-Do not consider a Mobile Money success screen as final NanoPay confirmation.
+Do not consider a Mobile Money success screen as final NanaPay confirmation.
 
 The conceptual flow is:
 
@@ -349,7 +349,7 @@ Mobile Money
  ↓
 Payment Infrastructure
  ↓
-NanoPay / Financial Partner
+NanaPay / Financial Partner
  ↓
 Validation
  ↓
@@ -499,7 +499,7 @@ Never let mock data silently replace production API calls.
 
 19. Authentication
 
-NanoPay roles:
+NanaPay roles:
 
 CLIENT
 MERCHANT
@@ -776,9 +776,9 @@ Motion
 
 Do not create random one-off styles when a design-system primitive exists.
 
-32. NanoPay Visual Identity
+32. NanaPay Visual Identity
 
-NanoPay should feel:
+NanaPay should feel:
 
 Premium
 Modern
@@ -824,7 +824,7 @@ Distinctive layouts
 Logos
 Exact visual systems
 
-NanoPay must have its own identity.
+NanaPay must have its own identity.
 
 34. Responsive Design
 
@@ -1337,7 +1337,7 @@ Every implementation decision should preserve this architecture:
                        ▼
                       USER
 
-The goal is not merely to make NanoPay functional.
+The goal is not merely to make NanaPay functional.
 
 The goal is to make it:
 

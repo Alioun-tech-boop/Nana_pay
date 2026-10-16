@@ -42,7 +42,7 @@ export function VaultPage() {
   if (vault.isError) {
     return (
       <div className={viewStyles.page}>
-        <PageHeader title="Coffre NanoPay" />
+        <PageHeader title="Coffre NanaPay" />
         <ErrorState
           title="Coffre indisponible"
           description={toUserMessage(vault.error)}
@@ -104,7 +104,7 @@ export function VaultPage() {
 
   return (
     <div className={viewStyles.page}>
-      <PageHeader title="Coffre NanoPay" />
+      <PageHeader title="Coffre NanaPay" />
 
       {vault.isLoading || !data ? (
         <section className={viewStyles.surface}>
@@ -162,7 +162,7 @@ export function VaultPage() {
             <div className={styles.alertStack}>
               <InlineAlert tone="success" title="Plan coffre enregistré">
                 <Text muted>
-                  Le prélèvement mensuel sera effectué sur votre salaire jusqu’à atteindre la somme visée. NanoPay
+                  Le prélèvement mensuel sera effectué sur votre salaire jusqu’à atteindre la somme visée. NanaPay
                   confirme les termes définitifs.
                 </Text>
               </InlineAlert>

@@ -408,7 +408,7 @@ export function DashboardPage() {
           ) : (
             <span className={styles.balanceValue}>—</span>
           )}
-          <p className={styles.balanceCaption}>Coffre NanoPay · solde confirmé par NanoPay</p>
+          <p className={styles.balanceCaption}>Coffre NanaPay · solde confirmé par NanaPay</p>
         </div>
 
         <Button

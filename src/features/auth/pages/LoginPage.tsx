@@ -44,7 +44,7 @@ export function LoginPage() {
   return (
     <AuthLayout
       title="Connexion"
-      subtitle="Accédez à votre espace client NanoPay."
+      subtitle="Accédez à votre espace client NanaPay."
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {sessionExpired ? (
@@ -83,9 +83,9 @@ export function LoginPage() {
         <InlineAlert tone="info">
           <Text muted>
             Démo : <code className={styles.demoCode}>ada.doumbia@example.com</code>,{' '}
-            <code className={styles.demoCode}>commercant@nanopay.demo</code>,{' '}
-            <code className={styles.demoCode}>banque@nanopay.demo</code> ou{' '}
-            <code className={styles.demoCode}>admin@nanopay.demo</code> — mot de passe{' '}
+            <code className={styles.demoCode}>commercant@NanaPay.demo</code>,{' '}
+            <code className={styles.demoCode}>banque@NanaPay.demo</code> ou{' '}
+            <code className={styles.demoCode}>admin@NanaPay.demo</code> — mot de passe{' '}
             <code className={styles.demoCode}>correct</code>.
           </Text>
         </InlineAlert>
@@ -101,7 +101,7 @@ interface FeaturePoint {
 
 const FEATURES: FeaturePoint[] = [
   { icon: 'shield', label: 'Identifiants sécurisés' },
-  { icon: 'vault', label: 'Coffre NanoPay' },
+  { icon: 'vault', label: 'Coffre NanaPay' },
   { icon: 'check-circle', label: 'Paiements confirmés' },
 ]
 

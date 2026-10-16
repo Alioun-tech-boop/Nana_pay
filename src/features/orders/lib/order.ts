@@ -4,7 +4,7 @@ import { ORDER_LIFECYCLE } from '../../../lib/status'
 
 export const FINANCING_MODE_LABELS: Record<FinancingMode, string> = {
   SAVINGS: 'Épargne progressive',
-  VAULT: 'Coffre NanoPay',
+  VAULT: 'Coffre NanaPay',
   CREDIT: 'Crédit bancaire',
 }
 

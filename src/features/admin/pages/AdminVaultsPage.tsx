@@ -59,7 +59,7 @@ export function AdminVaultsPage() {
       searchable={(row) => row.clientFullName}
       searchPlaceholder="Rechercher un client…"
       emptyTitle="Aucun coffre"
-      emptyDescription="Les coffres NanoPay apparaîtront ici."
+      emptyDescription="Les coffres NanaPay apparaîtront ici."
     />
   )
 }

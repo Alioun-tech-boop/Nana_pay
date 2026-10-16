@@ -35,7 +35,7 @@ const MODE_OPTIONS: Array<{ value: FinancingMode; title: string; note: string }>
   },
   {
     value: 'VAULT',
-    title: 'Coffre NanoPay',
+    title: 'Coffre NanaPay',
     note: 'Le coffre alimenté par votre employeur finance immédiatement la commande (selon éligibilité).',
   },
   {
@@ -118,12 +118,24 @@ export function CheckoutPage() {
           title: 'Épargne démarrée',
           description: started.length === 1 ? `Votre épargne est en cours.` : `${started.length} épargnes sont en cours.`,
         })
+        const firstOrder = orders[0]?.order
+        if (firstOrder) {
+          navigate(`/orders/${firstOrder.id}/qr`)
+        } else {
+          navigate('/purchases')
+        }
       } else if (mode === 'VAULT') {
         for (const { order } of orders) {
           await vaultService.useVault({ orderId: order.id, idempotencyKey: `np-vault-${order.id}` })
         }
         setStep('done')
-        toast({ tone: 'success', title: 'Coffre utilisé', description: 'Vos commandes sont financées par le coffre NanoPay.' })
+        toast({ tone: 'success', title: 'Coffre utilisé', description: 'Vos commandes sont financées par le coffre NanaPay.' })
+        const firstOrder = orders[0]?.order
+        if (firstOrder) {
+          navigate(`/orders/${firstOrder.id}/qr`)
+        } else {
+          navigate('/purchases')
+        }
       } else {
         for (const { order } of orders) {
           await creditService.requestCredit({
@@ -134,6 +146,12 @@ export function CheckoutPage() {
         }
         setStep('done')
         toast({ tone: 'success', title: 'Demande de crédit envoyée', description: 'La banque analyse votre demande.' })
+        const firstOrder = orders[0]?.order
+        if (firstOrder) {
+          navigate(`/orders/${firstOrder.id}/qr`)
+        } else {
+          navigate('/purchases')
+        }
       }
     } catch (caught) {
       setError(toUserMessage(caught))
@@ -254,7 +272,7 @@ export function CheckoutPage() {
               <div className={styles.financePanel}>
                 <h2 className={styles.blockTitle}>Montant mensuel suggéré</h2>
                 <p className={styles.panelNote}>
-                  Ajustez le versement mensuel de chaque épargne. La durée et l’échéance sont recalculées par NanoPay.
+                  Ajustez le versement mensuel de chaque épargne. La durée et l’échéance sont recalculées par NanaPay.
                 </p>
                 <div className={styles.contributions}>
                   {orders.map(({ order }) => {
@@ -354,7 +372,7 @@ export function CheckoutPage() {
                     <Text muted>
                       {orders.length} commande{orders.length > 1 ? 's' : ''} pour un total de{' '}
                       <MoneyAmount amount={totalAmount} currency={totalCurrency} /> sera financée depuis votre
-                      coffre NanoPay. Cette action est irréversible.
+                      coffre NanaPay. Cette action est irréversible.
                     </Text>
                   }
                 />
@@ -375,7 +393,7 @@ export function CheckoutPage() {
             {mode === 'SAVINGS'
               ? 'Votre épargne est en cours'
               : mode === 'VAULT'
-                ? 'Coffre NanoPay utilisé'
+                ? 'Coffre NanaPay utilisé'
                 : 'Demande de crédit envoyée'}
           </h2>
           <p className={styles.doneNote}>

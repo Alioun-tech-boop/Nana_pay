@@ -13,7 +13,7 @@ const MODES: Array<{ icon: IconName; title: string; text: string; tone: string }
   },
   {
     icon: 'vault',
-    title: 'Coffre NanoPay',
+    title: 'Coffre NanaPay',
     text: 'Un coffre alimenté par votre employeur pour financer vos achats en toute simplicité.',
     tone: 'cyan',
   },
@@ -34,7 +34,7 @@ export function LandingPage() {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <Link to="/" className={styles.brand} aria-label="NanoPay, accueil">
+        <Link to="/" className={styles.brand} aria-label="NanaPay, accueil">
           <Logo size={26} />
         </Link>
         <nav className={styles.headerNav} aria-label="Navigation d’accueil">
@@ -58,7 +58,7 @@ export function LandingPage() {
             <span className={styles.headlineAccent}>Payez en toute confiance.</span>
           </h1>
           <p className={styles.lede}>
-            NanoPay vous permet de financer vos achats auprès de boutiques vérifiées,
+            NanaPay vous permet de financer vos achats auprès de boutiques vérifiées,
             de suivre votre épargne et de retirer vos produits avec un simple QR code.
           </p>
           <div className={styles.heroActions}>
@@ -111,8 +111,8 @@ export function LandingPage() {
           <Logo size={20} />
         </Link>
         <div className={styles.footerMeta}>
-          <span>Espace client NanoPay</span>
-          <span className={styles.footerMuted}>© 2026 NanoPay. Tous droits réservés.</span>
+          <span>Espace client NanaPay</span>
+          <span className={styles.footerMuted}>© 2026 NanaPay. Tous droits réservés.</span>
         </div>
       </footer>
     </div>

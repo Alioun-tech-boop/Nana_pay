@@ -36,7 +36,7 @@ export function MerchantOrderDetailPage() {
     {
       onSuccess: () => {
         setConfirmOpen(false)
-        setFeedback('Règlement confirmé par NanoPay pour cette commande.')
+        setFeedback('Règlement confirmé par NanaPay pour cette commande.')
         void order.refresh()
       },
     },
@@ -163,7 +163,7 @@ export function MerchantOrderDetailPage() {
       </div>
 
       <Text muted>
-        Le règlement n’est possible qu’après confirmation du retrait par NanoPay. Cette page reflète
+        Le règlement n’est possible qu’après confirmation du retrait par NanaPay. Cette page reflète
         l’état transmis par le backend.
       </Text>
 

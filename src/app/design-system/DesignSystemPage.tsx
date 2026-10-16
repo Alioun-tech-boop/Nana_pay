@@ -224,7 +224,7 @@ export function DesignSystemPage() {
       <header className={styles.head}>
         <h2 className={styles.headTitle}>Design System</h2>
         <p className={styles.headDescription}>
-          Composants de référence NanoPay. Interface premium, précise et accessible, avec le backend comme source
+          Composants de référence NanaPay. Interface premium, précise et accessible, avec le backend comme source
           de vérité. Cette page est un banc d’essai visuel : elle ne contient aucune logique métier.
         </p>
       </header>
@@ -239,7 +239,7 @@ export function DesignSystemPage() {
         </Stack>
       </Showcase>
 
-      <Showcase title="Identité NanoPay Nuit" description="Noir profond, surfaces anthracite et hiérarchie des montants">
+      <Showcase title="Identité NanaPay Nuit" description="Noir profond, surfaces anthracite et hiérarchie des montants">
         <div className={styles.identityPanel}>
           <p className={styles.identityEyebrow}>Épargne progressive · Coffre · Crédit bancaire</p>
           <h2 className={styles.identityHeadline}>
@@ -279,7 +279,7 @@ export function DesignSystemPage() {
               <span className={styles.domainDot} aria-hidden="true" />Épargne progressive
             </span>
             <span className={`${styles.domainChip} ${styles['domainChip--vault']}`}>
-              <span className={styles.domainDot} aria-hidden="true" />Coffre NanoPay
+              <span className={styles.domainDot} aria-hidden="true" />Coffre NanaPay
             </span>
             <span className={`${styles.domainChip} ${styles['domainChip--credit']}`}>
               <span className={styles.domainDot} aria-hidden="true" />Crédit bancaire
@@ -320,9 +320,9 @@ export function DesignSystemPage() {
 
       <Showcase title="Typographie" description="Échelle type et correspondances">
         <Stack gap={3}>
-          <Heading variant="display">NanoPay, la finance simple et transparente</Heading>
+          <Heading variant="display">NanaPay, la finance simple et transparente</Heading>
           <Heading variant="h1">Épargne progressive jusqu’à 48 mois</Heading>
-          <Heading variant="h2">Coffre NanoPay réservé aux salariés éligibles</Heading>
+          <Heading variant="h2">Coffre NanaPay réservé aux salariés éligibles</Heading>
           <Heading variant="h3">Crédit bancaire après analyse du dossier</Heading>
           <Divider />
           <Text>Texte courant — les montants sont toujours affichés en clair.</Text>
@@ -399,7 +399,7 @@ export function DesignSystemPage() {
             onChange={setPlan}
             options={[
               { value: 'progressive', label: 'Épargne progressive' },
-              { value: 'vault', label: 'Coffre NanoPay' },
+              { value: 'vault', label: 'Coffre NanaPay' },
               { value: 'credit', label: 'Crédit bancaire' },
             ]}
           />
@@ -553,7 +553,7 @@ export function DesignSystemPage() {
           <TransactionRow
             icon="vault"
             iconTone="neutral"
-            title="Coffre NanoPay"
+            title="Coffre NanaPay"
             subtitle="Versement salarié"
             amount={25000}
             timestamp="11 juil. 09:40"
@@ -573,7 +573,7 @@ export function DesignSystemPage() {
         <Divider />
         <div className={styles.grid2}>
           <NanaAccountCard
-            label="Coffre NanoPay"
+            label="Coffre NanaPay"
             number="•••• 4821"
             amount={512000}
             holder="Ada Doumbia"
@@ -799,7 +799,7 @@ export function DesignSystemPage() {
         <div className={styles.grid}>
           <Stack gap={3} align="center">
             <QRCode
-              value="nanopay://withdrawal?order=NP-2026-00001245"
+              value="NanaPay://withdrawal?order=NP-2026-00001245"
               size={208}
               label="Retrait marchand"
               description="QR de démonstration pour le retrait de la commande NP-2026-00001245"

@@ -1,13 +1,13 @@
-# NanoPay — Frontend (Lecture rapide)
+# NanaPay — Frontend (Lecture rapide)
 
 > Version : 0.2
 > **Statut actuel : implémenté en mode mock.** Les quatre espaces (CLIENT, MERCHANT, BANK, ADMIN) sont fonctionnels avec des données de démonstration isolées dans `src/api/mocks/`. Le backend REST n'existe pas encore ; le contrat API reste `[PROPOSED]` (`API-CONTRACT.md`).
 
 ---
 
-## 1. Qu'est-ce que NanoPay Frontend ?
+## 1. Qu'est-ce que NanaPay Frontend ?
 
-L'interface web de la plateforme fintech **NanoPay**, reliant **Client, Commerçant, Banque et Admin**, organisée autour **d'une commande centrale unique** :
+L'interface web de la plateforme fintech **NanaPay**, reliant **Client, Commerçant, Banque et Admin**, organisée autour **d'une commande centrale unique** :
 
 ```text
 Client → Produit → Commande → Épargne/Coffre/Crédit → Financement → QR → Commerçant → Retrait → Paiement commerçant → Livraison
@@ -48,9 +48,9 @@ npm run build
 | Rôle | Identifiant |
 |---|---|
 | Client | `ada.doumbia@example.com` |
-| Commerçant | `commercant@nanopay.demo` |
-| Banque | `banque@nanopay.demo` |
-| Admin | `admin@nanopay.demo` |
+| Commerçant | `commercant@NanaPay.demo` |
+| Banque | `banque@NanaPay.demo` |
+| Admin | `admin@NanaPay.demo` |
 
 ---
 
@@ -64,7 +64,7 @@ npm run build
 | Routing | `react-router-dom` (BrowserRouter + `Route`/`Outlet`) |
 | Data/fetch | Couches service + hooks `useRequest` / `useMutation` (pas de TanStack Query) |
 | Formulaires | Formulaires natifs React + validation UX (pas de RHF/Zod) |
-| UI | Design system propriétaire NanoPay (`src/design-system/`) |
+| UI | Design system propriétaire NanaPay (`src/design-system/`) |
 | CSS | Tokens CSS variables (`--np-*`) + CSS modules |
 | API | Client central `src/api/client.ts` → transport `mock` ou `real` |
 | Tests | Aucun framework installé (Vérification : `typecheck` + `build`) |

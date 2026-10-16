@@ -124,7 +124,7 @@ export function NotificationsPage() {
           title={tab === 'unread' ? 'Aucune notification non lue' : 'Aucune notification'}
           description={
             <Text muted>
-              Vous serez informé ici dès qu’un paiement, un financement ou un retrait est confirmé par NanoPay.
+              Vous serez informé ici dès qu’un paiement, un financement ou un retrait est confirmé par NanaPay.
             </Text>
           }
         />

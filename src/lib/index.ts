@@ -1,5 +1,5 @@
 export { getConfig, isMockMode, getApiUrl } from './config'
-export type { ApiMode, NanoPayConfig } from './config'
+export type { ApiMode, NanaPayConfig } from './config'
 
 export {
   AppError,

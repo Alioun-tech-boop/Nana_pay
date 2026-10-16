@@ -104,7 +104,7 @@ export function BankCardPage() {
         <div className={styles.heroCopy}>
           <span className={styles.heroKicker}>Paiement international</span>
           <h2 id="card-payment-title">Votre carte, en toute confiance.</h2>
-          <p>Un parcours clair et sécurisé, avec confirmation finale par NanoPay.</p>
+          <p>Un parcours clair et sécurisé, avec confirmation finale par NanaPay.</p>
         </div>
         <div className={styles.heroSignal}>
           <Icon name="lock" size={18} />
@@ -115,7 +115,7 @@ export function BankCardPage() {
       {savingsDone ? (
         <InlineAlert
           tone="success"
-          title="Versement transmis à NanoPay"
+          title="Versement transmis à NanaPay"
           action={
             <Button size="sm" variant="secondary" onClick={() => navigate(`/savings/${savingsId}`)}>
               Voir mon épargne
@@ -123,12 +123,12 @@ export function BankCardPage() {
           }
         >
           Votre versement de{' '}
-          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanoPay.
+          <MoneyAmount amount={savingsAmount} currency={savingsCurrency} /> sera confirmé par NanaPay.
         </InlineAlert>
       ) : null}
 
       {payment ? (
-        <InlineAlert tone="success" title="Paiement transmis à NanoPay">
+        <InlineAlert tone="success" title="Paiement transmis à NanaPay">
           La confirmation finale dépend du partenaire bancaire. Statut reçu : {payment.status}.
         </InlineAlert>
       ) : null}
@@ -142,7 +142,7 @@ export function BankCardPage() {
       <div className={styles.layout}>
         <section className={styles.cardPreview} aria-label="Aperçu de la carte">
           <div className={styles.cardTopline}>
-            <span>NANOPAY</span>
+            <span>NanaPay</span>
             <Icon name="card" size={24} />
           </div>
           <div className={styles.cardChip} aria-hidden="true" />

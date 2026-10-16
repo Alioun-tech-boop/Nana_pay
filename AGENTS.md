@@ -1,10 +1,10 @@
 # AGENTS.md
 
-# NanoPay — Frontend AI Agent Instructions
+# NanaPay — Frontend AI Agent Instructions
 
 ## 1. Mission
 
-You are an AI coding agent working on the NanoPay frontend.
+You are an AI coding agent working on the NanaPay frontend.
 
 Your mission is to build and maintain a:
 
@@ -18,7 +18,7 @@ Your mission is to build and maintain a:
 
 financial interface.
 
-The frontend must make NanoPay's financial operations simple to understand and use without becoming the source of financial truth.
+The frontend must make NanaPay's financial operations simple to understand and use without becoming the source of financial truth.
 
 ```text
 BACKEND = SOURCE OF TRUTH
@@ -153,7 +153,7 @@ Business logic should not be duplicated across components.
 
 7. Central Order Principle
 
-NanoPay is organized around one central order.
+NanaPay is organized around one central order.
 
 Every relevant operation must remain connected to:
 
@@ -195,10 +195,10 @@ The frontend must obtain authoritative product and pricing information from the 
 
 9. Financing Modes
 
-NanoPay has three financing mechanisms:
+NanaPay has three financing mechanisms:
 
 Épargne progressive
-Coffre NanoPay
+Coffre NanaPay
 Crédit bancaire
 
 Do not merge them into one generic financial flow when their business rules differ.
@@ -223,7 +223,7 @@ WITHDRAWAL
 DELIVERY
 Vault
 
-The Coffre NanoPay is intended for eligible employees whose bank credit profile has already been validated.
+The Coffre NanaPay is intended for eligible employees whose bank credit profile has already been validated.
 
 Do not represent it as a generic unrestricted wallet.
 
@@ -304,7 +304,7 @@ These values must come from the backend.
 
 13. Payment Rules
 
-The frontend must never assume that a Mobile Money interface returning success means NanoPay has confirmed the payment.
+The frontend must never assume that a Mobile Money interface returning success means NanaPay has confirmed the payment.
 
 Conceptually:
 
@@ -312,7 +312,7 @@ Mobile Money
  ↓
 Payment Infrastructure
  ↓
-NanoPay / Financial Partner
+NanaPay / Financial Partner
  ↓
 Validation
  ↓
@@ -421,7 +421,7 @@ If the backend provides different enum names, synchronize the frontend with the 
 
 18. Authentication
 
-NanoPay has four main roles:
+NanaPay has four main roles:
 
 CLIENT
 MERCHANT
@@ -740,7 +740,7 @@ A new component should reuse existing primitives whenever possible.
 
 32. Visual Identity
 
-NanoPay must feel like a serious premium financial product.
+NanaPay must feel like a serious premium financial product.
 
 Target qualities:
 
@@ -780,7 +780,7 @@ Spotify
 
 Do not copy their branding, layouts, proprietary assets, or distinctive visual identity.
 
-NanoPay needs its own visual identity.
+NanaPay needs its own visual identity.
 
 34. Responsive Design
 
@@ -907,7 +907,7 @@ Never use stale cached financial information when the operation requires current
 
 39. Routing
 
-Routes must reflect NanoPay's domain structure.
+Routes must reflect NanaPay's domain structure.
 
 Examples may include:
 
@@ -1259,12 +1259,12 @@ Use consistent terminology with the business architecture.
 
 57. Business Terminology
 
-Respect NanoPay terminology.
+Respect NanaPay terminology.
 
 Use:
 
 Épargne progressive
-Coffre NanoPay
+Coffre NanaPay
 Crédit bancaire
 CreditProfile
 CreditRequest
@@ -1361,7 +1361,7 @@ Before completing a task, verify:
 
 Before considering the work complete, ask:
 
-Does this respect the NanoPay architecture?
+Does this respect the NanaPay architecture?
 
 Does the backend remain the source of truth?
 
@@ -1410,7 +1410,7 @@ Always remember:
                 ▼
               USER
 
-The frontend exists to make NanoPay's complex financial system understandable, usable and trustworthy.
+The frontend exists to make NanaPay's complex financial system understandable, usable and trustworthy.
 
 BACKEND = TRUTH
 FRONTEND = EXPERIENCE

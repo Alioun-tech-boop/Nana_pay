@@ -1,6 +1,6 @@
-# Performance — NanoPay Frontend
+# Performance — NanaPay Frontend
 
-Ce document décrit les règles de performance du frontend NanoPay et les mesures mises en œuvre.
+Ce document décrit les règles de performance du frontend NanaPay et les mesures mises en œuvre.
 
 ## 1. Principe
 

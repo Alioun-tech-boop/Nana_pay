@@ -1,4 +1,4 @@
-# NanoPay — Contrat API Frontend
+# NanaPay — Contrat API Frontend
 
 > Version : 0.1 (PROPOSED — à valider par le backend)
 > Statut : **Contrat cible, non implémenté. Aucun endpoint n'existe encore.**
@@ -186,7 +186,7 @@ COMPLETED
 Règles :
 - `reference` = identifiant unique central affiché dans l'UI (`NP-YYYY-NNNNNNNN`).
 - Les **totaux, soldes, pénalités, intérêts** sont calculés par le backend et renvoyés ; le frontend ne les calcule jamais.
-- `financingMode` ∈ `SAVINGS  VAULT  CREDIT` (Épargne progressive, Coffre NanoPay, Crédit bancaire).
+- `financingMode` ∈ `SAVINGS  VAULT  CREDIT` (Épargne progressive, Coffre NanaPay, Crédit bancaire).
 
 ---
 
@@ -222,7 +222,7 @@ Règles :
 
 Règles métier (affichées, jamais calculées) : extension max **2 mois**, pénalité **15 %**, remboursement **85 %** — valeurs fournies par le backend.
 
-### 6.2 Coffre NanoPay
+### 6.2 Coffre NanaPay
 
 | Endpoint | Méthode | Réponse |
 |---|---|---|
