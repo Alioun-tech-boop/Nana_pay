@@ -75,7 +75,7 @@ Copiez `backend/.env.example` vers `backend/.env` (déjà fait) puis renseignez 
 | `REDIS_URL` | Rate limiting / sessions | `redis://localhost:6379` |
 | `JWT_PRIVATE_KEY` / `JWT_PUBLIC_KEY` | Signature RS256 (PEM, `\n` échappés) | généré |
 | `HMAC_SECRET` | Signature QR / webhooks (≥ 32 car.) | généré |
-| `CORS_ORIGINS` | Origines front autorisées | `http://localhost:5173` |
+| `CORS_ORIGINS` | Origines front autorisées | `https://moonlit-phoenix-2de61d.netlify.app` |
 
 ---
 
@@ -86,7 +86,7 @@ Copiez `backend/.env.example` vers `backend/.env` (déjà fait) puis renseignez 
 3. Renseignez les variables marquées `sync: false` dans le dashboard :
    - `DATABASE_URL`, `DIRECT_DATABASE_URL` → copiez depuis `backend/.env`
    - `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `HMAC_SECRET` → copiez depuis `backend/.env`
-   - `CORS_ORIGINS` → l'URL du frontend déployé (ex. `https://nanapay.netlify.app`)
+   - `CORS_ORIGINS` → `https://moonlit-phoenix-2de61d.netlify.app`
    - `REDIS_URL` → URL Redis managée (ex. Upstash)
 4. Déployez. Le healthcheck doit répondre : `https://<service>.onrender.com/healthz`
 
@@ -97,6 +97,9 @@ Copiez `backend/.env.example` vers `backend/.env` (déjà fait) puis renseignez 
 ## 6. Connexion du frontend
 
 Le frontend appelle `${VITE_NP_API_URL}${path}` (ex. `/auth/login`).
+
+> **Frontend actuel déployé :** `https://moonlit-phoenix-2de61d.netlify.app`
+> **Backend à déployer :** `https://<service>.onrender.com`
 
 ### Développement (proxy Vite)
 
