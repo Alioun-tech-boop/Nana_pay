@@ -6,6 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
+    proxy: {
+      // En développement, /api est redirigé vers le backend NestJS local.
+      // Évite les problèmes de CORS et garde une URL de base identique en dev/prod.
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     rollupOptions: {

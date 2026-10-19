@@ -1,0 +1,662 @@
+// prisma/schema.prisma
+// NanaPay Backend - Ultra-Secure Production Schema
+// Monnaie: BigInt minor units (XOF: FCFA). Jamais de float pour calculs critiques.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // Pooler transaction (6543) - runtime applicatif
+  directUrl = env("DIRECT_DATABASE_URL") // Pooler session (5432) - migrations Prisma
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Role {
+  CLIENT
+  MERCHANT
+  BANK
+  ADMIN
+  SUPER_ADMIN // Break-glass, MFA renforcé, double approbation
+}
+
+enum OrderStatus {
+  CART
+  ORDER_CREATED
+  FINANCING_IN_PROGRESS
+  FINANCED
+  READY_TO_DELIVER
+  QR_GENERATED
+  QR_SCANNED
+  WITHDRAWAL_CONFIRMED
+  DELIVERED
+  MERCHANT_PAID
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum FinancingMode {
+  SAVINGS // Épargne progressive
+  VAULT // Coffre NanaPay
+  CREDIT // Crédit bancaire
+}
+
+enum SavingsStatus {
+  IN_PROGRESS
+  EXTENDED
+  REACHED
+  CANCELLED
+  FAILED
+}
+
+enum CreditStatus {
+  REQUESTED
+  UNDER_REVIEW
+  APPROVED
+  REFUSED
+  DISBURSED
+  REPAYING
+  COMPLETED
+  DEFAULTED
+}
+
+enum PaymentMethod {
+  MOBILE_MONEY
+  CARD
+  VAULT
+  SAVINGS
+  CREDIT
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum QRState {
+  VALID
+  SCANNED
+  WITHDRAWN
+  SETTLED
+  EXPIRED
+  REVOKED
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  TRANSFER
+  REFUND
+  FEE
+  PENALTY
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  MFA_ENROLLED
+  MFA_VERIFIED
+  ORDER_CREATED
+  ORDER_CANCELLED
+  PAYMENT_INITIATED
+  PAYMENT_CONFIRMED
+  PAYMENT_REFUNDED
+  SAVINGS_STARTED
+  SAVINGS_PAID
+  SAVINGS_CANCELLED
+  VAULT_PLAN_CONFIGURED
+  VAULT_USED
+  CREDIT_REQUESTED
+  CREDIT_APPROVED
+  CREDIT_REFUSED
+  QR_GENERATED
+  QR_SCANNED
+  WITHDRAWAL_CONFIRMED
+  MERCHANT_PAID
+  DELIVERY_CONFIRMED
+  ADMIN_ACTION
+  BREAK_GLASS_ACCESS
+  PERMISSION_DENIED
+  SECURITY_EVENT
+}
+
+// ============================================================================
+// USERS & AUTH
+// ============================================================================
+
+model User {
+  id               String     @id @default(uuid())
+  email            String     @unique @db.Citext
+  phone            String?    @unique
+  passwordHash     String // Argon2id
+  firstName        String
+  lastName         String
+  roles            Role[]     @default([CLIENT])
+  status           UserStatus @default(ACTIVE)
+  mfaEnabled       Boolean    @default(false)
+  mfaSecret        String? // TOTP secret (encrypted at rest AES-256-GCM)
+  emailVerified    Boolean    @default(false)
+  phoneVerified    Boolean    @default(false)
+  failedLoginCount Int        @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+  lastLoginIp      String?    @db.Inet
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  deletedAt        DateTime? // Soft delete (RGPD)
+
+  // Relations
+  sessions       Session[]
+  orders         Order[]
+  savings        Savings[]
+  vault          Vault?
+  creditProfile  CreditProfile?
+  creditRequests CreditRequest[]
+  payments       Payment[]
+  auditEvents    AuditEvent[]
+  merchant       Merchant?
+  notifications  Notification[]
+
+  @@index([email])
+  @@index([phone])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
+  DELETED
+}
+
+model Session {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash  String // Hashed refresh token (never store plaintext)
+  refreshTokenJti   String    @unique // JWT ID for reuse detection
+  deviceFingerprint String? // User-Agent + IP hash
+  ipAddress         String?   @db.Inet
+  userAgent         String?   @db.Text
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  revokedReason     String?
+  replacedByJti     String? // Rotation chain
+
+  @@index([userId])
+  @@index([refreshTokenJti])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+// ============================================================================
+// ORDERS (Central Entity)
+// ============================================================================
+
+model Order {
+  id            String        @id @default(uuid())
+  reference     String        @unique // NP-2026-00001245
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  merchantId    String
+  merchant      Merchant      @relation(fields: [merchantId], references: [id])
+  productId     String
+  product       Product       @relation(fields: [productId], references: [id])
+  quantity      Int           @default(1)
+  status        OrderStatus   @default(ORDER_CREATED)
+  financingMode FinancingMode
+  totalPrice    BigInt // Minor units (backend authoritative)
+  currency      String        @db.Char(3)
+  version       Int           @default(1) // Optimistic locking
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  savings       Savings?
+  vaultUsage    VaultUsage?
+  creditRequest CreditRequest?
+  payments      Payment[]
+  qrCodes       QRCode[]
+  withdrawals   Withdrawal[]
+
+  @@index([userId])
+  @@index([merchantId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([reference])
+}
+
+// ============================================================================
+// MERCHANTS & PRODUCTS
+// ============================================================================
+
+model Merchant {
+  id             String         @id @default(uuid())
+  userId         String         @unique
+  user           User           @relation(fields: [userId], references: [id])
+  storeName      String
+  storeSlug      String         @unique
+  status         MerchantStatus @default(PENDING)
+  commissionRate Int            @default(0) // Basis points (e.g., 250 = 2.5%)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  products    Product[]
+  orders      Order[]
+  withdrawals Withdrawal[]
+  settlements MerchantSettlement[]
+
+  @@index([status])
+  @@index([storeSlug])
+}
+
+enum MerchantStatus {
+  PENDING
+  VALIDATED
+  SUSPENDED
+  REJECTED
+}
+
+model Product {
+  id          String    @id @default(uuid())
+  merchantId  String
+  merchant    Merchant  @relation(fields: [merchantId], references: [id])
+  name        String
+  description String?   @db.Text
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  price       BigInt // Minor units
+  currency    String    @db.Char(3)
+  stock       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  orders Order[]
+
+  @@index([merchantId])
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+// ============================================================================
+// SAVINGS (Épargne Progressive)
+// ============================================================================
+
+model Savings {
+  id                 String        @id @default(uuid())
+  orderId            String        @unique
+  order              Order         @relation(fields: [orderId], references: [id])
+  userId             String
+  user               User          @relation(fields: [userId], references: [id])
+  targetAmount       BigInt // Minor units
+  savedAmount        BigInt        @default(0) // Minor units
+  currency           String        @db.Char(3)
+  monthlyTarget      BigInt? // Suggestion (backend-calculated)
+  status             SavingsStatus @default(IN_PROGRESS)
+  startedAt          DateTime      @default(now())
+  deadline           DateTime?
+  cancelledAt        DateTime?
+  cancellationReason String?
+  version            Int           @default(1) // Optimistic locking
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  payments       SavingsPayment[]
+  directPayments Payment[] // Paiements (module Payment) rattachés à cette épargne
+  extension      SavingsExtension?
+
+  @@index([userId])
+  @@index([status])
+  @@index([deadline])
+}
+
+model SavingsPayment {
+  id             String        @id @default(uuid())
+  savingsId      String
+  savings        Savings       @relation(fields: [savingsId], references: [id])
+  amount         BigInt // Minor units
+  currency       String        @db.Char(3)
+  method         PaymentMethod
+  status         PaymentStatus @default(CONFIRMED)
+  idempotencyKey String        @unique
+  providerRef    String? // Référence Mobile Money / Carte
+  paidAt         DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+
+  @@index([savingsId])
+  @@index([idempotencyKey])
+  @@index([paidAt])
+}
+
+model SavingsExtension {
+  id          String   @id @default(uuid())
+  savingsId   String   @unique
+  savings     Savings  @relation(fields: [savingsId], references: [id])
+  months      Int // Max 2
+  newDeadline DateTime
+  reason      String?
+  grantedAt   DateTime @default(now())
+  grantedBy   String // Admin/Bank userId
+}
+
+// ============================================================================
+// VAULT (Coffre NanaPay)
+// ============================================================================
+
+model Vault {
+  id                   String    @id @default(uuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id])
+  balance              BigInt    @default(0) // Minor units
+  targetAmount         BigInt? // Somme visée (client-defined)
+  monthlyContribution  BigInt? // Prélèvement mensuel (client-defined)
+  eligible             Boolean   @default(false)
+  eligibilityCheckedAt DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  transactions VaultTransaction[]
+  planHistory  VaultPlanHistory[]
+  usages       VaultUsage[]
+
+  @@index([userId])
+  @@index([eligible])
+}
+
+model VaultTransaction {
+  id           String          @id @default(uuid())
+  vaultId      String
+  vault        Vault           @relation(fields: [vaultId], references: [id])
+  type         TransactionType
+  amount       BigInt // Minor units
+  currency     String          @db.Char(3)
+  balanceAfter BigInt // Minor units (snapshot)
+  reference    String? // Order ref, etc.
+  description  String?
+  createdAt    DateTime        @default(now())
+
+  @@index([vaultId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+model VaultPlanHistory {
+  id             String   @id @default(uuid())
+  vaultId        String
+  vault          Vault    @relation(fields: [vaultId], references: [id])
+  monthlyAmount  BigInt // Minor units
+  targetAmount   BigInt // Minor units
+  idempotencyKey String   @unique
+  configuredAt   DateTime @default(now())
+  configuredBy   String // userId
+
+  @@index([vaultId])
+  @@index([idempotencyKey])
+  @@index([configuredAt])
+}
+
+model VaultUsage {
+  id             String   @id @default(uuid())
+  vaultId        String
+  vault          Vault    @relation(fields: [vaultId], references: [id])
+  orderId        String   @unique
+  order          Order    @relation(fields: [orderId], references: [id])
+  amount         BigInt // Minor units
+  idempotencyKey String   @unique
+  usedAt         DateTime @default(now())
+
+  @@index([vaultId])
+  @@index([orderId])
+}
+
+// ============================================================================
+// CREDIT (Crédit Bancaire)
+// ============================================================================
+
+model CreditProfile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  score       Int? // Backend-calculated
+  maxAmount   BigInt? // Minor units
+  status      String    @default("PENDING")
+  validatedAt DateTime?
+  validatedBy String? // Bank userId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CreditRequest {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  orderId        String       @unique
+  order          Order        @relation(fields: [orderId], references: [id])
+  amount         BigInt // Minor units
+  currency       String       @db.Char(3)
+  termMonths     Int
+  status         CreditStatus @default(REQUESTED)
+  reviewedBy     String? // Bank userId
+  reviewedAt     DateTime?
+  decisionReason String?
+  idempotencyKey String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  credit Credit?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Credit {
+  id           String        @id @default(uuid())
+  requestId    String        @unique
+  request      CreditRequest @relation(fields: [requestId], references: [id])
+  principal    BigInt // Minor units
+  interestRate Int // Basis points (e.g., 500 = 5.00%)
+  totalAmount  BigInt // Minor units (backend-calculated)
+  termMonths   Int
+  status       CreditStatus  @default(DISBURSED)
+  disbursedAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  repayments CreditRepayment[]
+}
+
+model CreditRepayment {
+  id        String   @id @default(uuid())
+  creditId  String
+  credit    Credit   @relation(fields: [creditId], references: [id])
+  amount    BigInt // Minor units
+  paidAt    DateTime @default(now())
+  reference String?
+
+  @@index([creditId])
+  @@index([paidAt])
+}
+
+// ============================================================================
+// PAYMENTS
+// ============================================================================
+
+model Payment {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  orderId        String?
+  order          Order?        @relation(fields: [orderId], references: [id])
+  savingsId      String?
+  savings        Savings?      @relation(fields: [savingsId], references: [id])
+  amount         BigInt // Minor units
+  currency       String        @db.Char(3)
+  method         PaymentMethod
+  status         PaymentStatus @default(PENDING)
+  provider       String? // Mobile Money provider
+  providerRef    String? // External reference
+  idempotencyKey String        @unique
+  initiatedAt    DateTime      @default(now())
+  confirmedAt    DateTime?
+  failedAt       DateTime?
+  failureReason  String?
+  webhookPayload Json? // Raw payload (sanitized)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([savingsId])
+  @@index([idempotencyKey])
+  @@index([status])
+  @@index([initiatedAt])
+}
+
+// ============================================================================
+// QR & WITHDRAWAL
+// ============================================================================
+
+model QRCode {
+  id         String    @id @default(uuid())
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id])
+  payload    String // Signed JWT (short-lived, one-time)
+  state      QRState   @default(VALID)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  consumedBy String? // Merchant userId
+  createdAt  DateTime  @default(now())
+
+  @@index([orderId])
+  @@index([state])
+  @@index([expiresAt])
+}
+
+model Withdrawal {
+  id             String    @id @default(uuid())
+  orderId        String
+  order          Order     @relation(fields: [orderId], references: [id])
+  merchantId     String
+  merchant       Merchant  @relation(fields: [merchantId], references: [id])
+  amount         BigInt // Minor units
+  currency       String    @db.Char(3)
+  status         String    @default("PENDING")
+  confirmedAt    DateTime?
+  confirmedBy    String? // Merchant userId
+  idempotencyKey String    @unique
+  createdAt      DateTime  @default(now())
+
+  settlement MerchantSettlement?
+
+  @@index([orderId])
+  @@index([merchantId])
+  @@index([status])
+}
+
+model MerchantSettlement {
+  id           String     @id @default(uuid())
+  merchantId   String
+  merchant     Merchant   @relation(fields: [merchantId], references: [id])
+  withdrawalId String     @unique
+  withdrawal   Withdrawal @relation(fields: [withdrawalId], references: [id])
+  amount       BigInt // Minor units
+  commission   BigInt // Minor units (platform fee)
+  netAmount    BigInt // Minor units
+  currency     String     @db.Char(3)
+  status       String     @default("PENDING")
+  settledAt    DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([merchantId])
+  @@index([status])
+}
+
+// ============================================================================
+// AUDIT (Append-Only, Immutable)
+// ============================================================================
+
+model AuditEvent {
+  id            String      @id @default(uuid())
+  action        AuditAction
+  actorId       String?
+  actor         User?       @relation(fields: [actorId], references: [id])
+  actorRole     Role?
+  targetType    String? // "Order", "Payment", etc.
+  targetId      String?
+  ipAddress     String?     @db.Inet
+  userAgent     String?     @db.Text
+  correlationId String?
+  metadata      Json? // Sanitized (no secrets/PII)
+  previousHash  String? // Hash-chain (tamper-evident)
+  hash          String // SHA-256 of (previousHash + data)
+  createdAt     DateTime    @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([correlationId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// IDEMPOTENCY STORE
+// ============================================================================
+
+model IdempotencyRecord {
+  id             String   @id @default(uuid())
+  key            String
+  endpoint       String
+  userId         String
+  requestHash    String // SHA-256 of request body
+  responseStatus Int
+  responseBody   Json
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@unique([key, endpoint, userId])
+  @@index([expiresAt])
+  @@index([userId])
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  message   String    @db.Text
+  read      Boolean   @default(false)
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+}

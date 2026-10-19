@@ -1,0 +1,68 @@
+# =============================================================================
+# NanaPay Backend - Blueprint Render
+# Déploiement : Render > New > Blueprint > sélectionner ce dépôt
+# Les variables "sync: false" doivent être renseignées dans le dashboard Render.
+# =============================================================================
+services:
+  - type: web
+    name: nanapay-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: frankfurt # le plus proche de Supabase eu-west-1
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: API_PREFIX
+        value: api
+
+      # --- Supabase (secrets, à saisir dans le dashboard) ---
+      - key: DATABASE_URL # pooler transaction 6543
+        sync: false
+      - key: DIRECT_DATABASE_URL # pooler session 5432 (migrations)
+        sync: false
+
+      # --- Redis (rate limiting / sessions) ---
+      - key: REDIS_URL
+        sync: false
+
+      # --- JWT RS256 (secrets PEM, à saisir dans le dashboard) ---
+      - key: JWT_PRIVATE_KEY
+        sync: false
+      - key: JWT_PUBLIC_KEY
+        sync: false
+      - key: JWT_ACCESS_TTL
+        value: 15m
+      - key: JWT_REFRESH_TTL
+        value: 7d
+
+      # --- Argon2id ---
+      - key: ARGON2_MEMORY
+        value: "65536"
+      - key: ARGON2_TIME
+        value: "3"
+      - key: ARGON2_PARALLELISM
+        value: "1"
+
+      # --- CORS : origine du frontend déployé (ex: https://nanapay.netlify.app) ---
+      - key: CORS_ORIGINS
+        sync: false
+
+      # --- Rate limiting ---
+      - key: RATE_LIMIT_TTL
+        value: "60"
+      - key: RATE_LIMIT_MAX
+        value: "100"
+
+      # --- HMAC (signature QR / webhooks) ---
+      - key: HMAC_SECRET
+        sync: false
+
+      # --- MFA ---
+      - key: MFA_ISSUER
+        value: NanaPay
