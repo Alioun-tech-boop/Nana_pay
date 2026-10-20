@@ -5,11 +5,13 @@
 # =============================================================================
 services:
   - type: web
-    name: nanapay-backend
+    # Nom reel du service deploye (le nom "nanapay-backend" est deja pris sur
+    # Render par un autre compte). Service id : srv-dbbbqu3bc2fs73aka2i0
+    name: nanapay-api
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter
+    plan: free # plan des autres services du workspace
     region: frankfurt # le plus proche de Supabase eu-west-1
     healthCheckPath: /healthz
     autoDeploy: true

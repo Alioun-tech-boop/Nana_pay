@@ -81,14 +81,28 @@ Copiez `backend/.env.example` vers `backend/.env` (déjà fait) puis renseignez 
 
 ## 5. Déploiement Render (Blueprint)
 
+> **État (2026-10-20) : service déployé et configuré.**
+> - Service : `nanapay-api` → `https://nanapay-api.onrender.com`
+> - Service id : `srv-dbbbqu3bc2fs73aka2i0` · region `frankfurt` · plan `free` · `rootDir=backend`
+> - Healthcheck Render : `/healthz`
+> - Les 7 variables `sync: false` **sont déjà injectées** (via l'API Render).
+>
+> ⚠️ Le nom `nanapay-backend` est occupé sur Render par un **autre compte** :
+> `https://nanapay-backend.onrender.com` ne sert **pas** ce projet (empreinte
+> `/health` + `{code,message,requestId}`). Ne jamais y pointer le frontend.
+
+Pour recréer le service manuellement :
+
 1. **Render → New → Blueprint**, sélectionnez le dépôt.
-2. Render lit `backend/render.yaml` et crée le service `nanapay-backend` (Docker, `frankfurt`, healthcheck `/healthz`).
+2. Render lit `backend/render.yaml` et crée le service `nanapay-api` (Docker, `frankfurt`, healthcheck `/healthz`).
 3. Renseignez les variables marquées `sync: false` dans le dashboard :
    - `DATABASE_URL`, `DIRECT_DATABASE_URL` → copiez depuis `backend/.env`
    - `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY`, `HMAC_SECRET` → copiez depuis `backend/.env`
    - `CORS_ORIGINS` → `https://moonlit-phoenix-2de61d.netlify.app`
    - `REDIS_URL` → URL Redis managée (ex. Upstash)
-4. Déployez. Le healthcheck doit répondre : `https://<service>.onrender.com/healthz`
+     (`REDIS_URL` est une variable obligatoire mais **aucune connexion n'est
+     ouverte** : le rate limiting est en mémoire.)
+4. Déployez. Le healthcheck doit répondre : `https://nanapay-api.onrender.com/healthz`
 
 > ⚠️ Supabase bloque parfois les connexions directes hors pooler. Utilisez bien le **pooler** (6543 / 5432).
 

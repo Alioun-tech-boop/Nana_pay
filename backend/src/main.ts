@@ -1,6 +1,5 @@
 // src/main.ts
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -39,7 +38,14 @@ async function bootstrap() {
     origin: origins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Idempotency-Key', 'X-Trace-Id'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      // En-tete reellement envoye par le frontend (voir src/api/client.ts)
+      'Idempotency-Key',
+      'X-Idempotency-Key',
+      'X-Trace-Id',
+    ],
     exposedHeaders: ['X-Trace-Id'],
     maxAge: 86400,
   });
@@ -49,13 +55,9 @@ async function bootstrap() {
     exclude: ['healthz'],
   });
 
-  // Global pipes, filters, interceptors
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-    transformOptions: { enableImplicitConversion: false },
-  }));
+  // Global filters, interceptors.
+  // Pas de ValidationPipe global : il exigerait class-validator, qui n'est pas
+  // utilise (tous les DTO sont des schémas Zod validés par ZodValidationPipe).
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
