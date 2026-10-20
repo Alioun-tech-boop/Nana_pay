@@ -32,7 +32,7 @@ function buildEntries(): HistoryEntry[] {
         title: 'Versement épargne progressive',
         amount: payment.amount,
         direction: 'IN',
-        date: payment.date,
+        date: payment.paidAt,
         reference: null,
       })
     }

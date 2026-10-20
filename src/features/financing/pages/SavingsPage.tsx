@@ -60,7 +60,8 @@ export function SavingsPage() {
   const remaining = data ? Math.max(0, data.targetAmount.amount - data.savedAmount.amount) : 0
 
   const payments = [...(history.data?.items ?? [])].reverse()
-  const daysLeft = data ? daysBetween(todayISO(), data.deadline) : 0
+  // `deadline` est optionnel : sans échéance, il n'y a pas de compte à rebours.
+  const daysLeft = data?.deadline ? daysBetween(todayISO(), data.deadline) : 0
 
   const amountValue = Number(amountInput)
   const amountError =
@@ -219,7 +220,7 @@ export function SavingsPage() {
                           <span className={styles.timelinePlus}>+</span>
                           <MoneyAmount amount={payment.amount.amount} currency={payment.amount.currency} />
                         </span>
-                        <span className={styles.timelineDate}>{formatDate(payment.date)}</span>
+                        <span className={styles.timelineDate}>{formatDate(payment.paidAt)}</span>
                       </span>
                       <span className={styles.timelinePill}>
                         <StatusPill tone={paymentStatus.tone} label={label} />
@@ -260,12 +261,18 @@ export function SavingsPage() {
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Échéance</span>
-              <span className={styles.infoValue}>{formatDate(data.deadline)}</span>
+              <span className={styles.infoValue}>
+                {data.deadline ? formatDate(data.deadline) : 'Non définie'}
+              </span>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoLabel}>Mois restants</span>
               <span className={styles.infoValue}>
-                {data.remainingMonths > 0 ? `${data.remainingMonths} mois` : 'Terminée'}
+                {data.remainingMonths === null
+                  ? '—'
+                  : data.remainingMonths > 0
+                    ? `${data.remainingMonths} mois`
+                    : 'Terminée'}
               </span>
             </div>
             <div className={styles.infoItem}>

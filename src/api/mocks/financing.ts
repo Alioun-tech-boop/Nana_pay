@@ -20,7 +20,7 @@ import {
   secondsAgo,
 } from './helpers'
 import type { MockRoute } from './types'
-import type { Order } from '../../types'
+import type { Order, Savings } from '../../types'
 
 function findOrder(orderId: string): Order | undefined {
   return mockOrders.find((order) => order.id === orderId)
@@ -51,7 +51,7 @@ export const financingRoutes: MockRoute[] = [
     pattern: '/savings/:id/history',
     handler: (ctx) => {
       const entries = mockSavingsPayments[ctx.params.id] ?? []
-      const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date))
+      const sorted = [...entries].sort((a, b) => b.paidAt.localeCompare(a.paidAt))
       return ok(paginate(sorted, 1, 50))
     },
   },
@@ -81,7 +81,7 @@ export const financingRoutes: MockRoute[] = [
       if (order.financingMode !== 'SAVINGS') {
         return businessRule('SAVINGS_NOT_ELIGIBLE', 'Épargne non éligible', 'Cette commande ne peut pas être financée par épargne progressive.')
       }
-      const item = {
+      const item: Savings = {
         id: `sav_01HGEN${mockSavings.length}`,
         orderId: order.id,
         orderReference: order.reference,
@@ -89,10 +89,17 @@ export const financingRoutes: MockRoute[] = [
         savedAmount: { amount: 0, currency: order.product.price.currency },
         progressPercent: 0,
         remainingMonths: 12,
+        monthlyTarget: order.product.price,
         maxExtensionMonths: 2,
+        penaltyPercent: null,
+        refundPercent: null,
         startedAt: daysAhead(0),
         deadline: daysAhead(365),
-        status: 'IN_PROGRESS' as const,
+        cancelledAt: null,
+        cancellationReason: null,
+        status: 'IN_PROGRESS',
+        createdAt: daysAhead(0),
+        updatedAt: daysAhead(0),
       }
       mockSavings.push(item)
       mockSavingsPayments[item.id] = []
@@ -140,8 +147,10 @@ export const financingRoutes: MockRoute[] = [
       history.unshift({
         id: `spy_gen_${Date.now()}`,
         amount: { amount, currency: savings.targetAmount.currency },
-        date: secondsAgo(0).slice(0, 10),
+        method: body.method === 'CARD' ? 'CARD' : 'MOBILE_MONEY',
         status: 'CONFIRMED',
+        providerRef: null,
+        paidAt: secondsAgo(0),
       })
       mockSavingsPayments[savings.id] = history
       return accepted({ accepted: true })

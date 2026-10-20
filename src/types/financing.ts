@@ -1,4 +1,5 @@
 import type { Money, ServerDate } from './common'
+import type { PaymentMethod } from './payment'
 
 export const SAVINGS_STATUSES = [
   'IN_PROGRESS',
@@ -18,8 +19,11 @@ export type SavingsPaymentStatus = (typeof SAVINGS_PAYMENT_STATUSES)[number]
 export interface SavingsPayment {
   id: string
   amount: Money
-  date: ServerDate
+  method: PaymentMethod
   status: SavingsPaymentStatus
+  /** Référence fournisseur (Mobile Money / carte), si disponible. */
+  providerRef: string | null
+  paidAt: ServerDate
 }
 
 export interface Savings {
@@ -28,12 +32,25 @@ export interface Savings {
   orderReference: string
   targetAmount: Money
   savedAmount: Money
+  /** Progression en %, calculée par le backend — jamais recalculée côté client. */
   progressPercent: number
-  remainingMonths: number
+  /** Mois restants avant échéance. `null` si aucune échéance n'est fixée. */
+  remainingMonths: number | null
+  /** Suggestion de versement mensuel (indicative, fournie par le backend). */
+  monthlyTarget: Money | null
+  /** Extension maximale autorisée, en mois (2). Valeur métier backend. */
   maxExtensionMonths: number
+  /** Pénalité en % — renseignée uniquement si l'épargne a échoué (15). */
+  penaltyPercent: number | null
+  /** Part remboursée en % — renseignée uniquement si l'épargne a échoué (85). */
+  refundPercent: number | null
   startedAt: ServerDate
-  deadline: ServerDate
+  deadline: ServerDate | null
+  cancelledAt: ServerDate | null
+  cancellationReason: string | null
   status: SavingsStatus
+  createdAt: ServerDate
+  updatedAt: ServerDate
 }
 
 export interface StartSavingsRequest {

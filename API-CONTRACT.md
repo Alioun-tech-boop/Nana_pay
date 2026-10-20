@@ -236,10 +236,11 @@ Règles :
 
 | Endpoint | Méthode | Réponse |
 |---|---|---|
-| `GET /savings` | `[PROPOSED]` | `{ items: Savings[], pagination }` |
-| `GET /savings/:id` | `[PROPOSED]` | `Savings` |
-| `POST /savings/start` | `[PROPOSED]` | `201 Savings` (lié à une commande) — requiert `Idempotency-Key` |
-| `POST /savings/:id/payment` | `[PROPOSED]` | `202` — versement d'un **montant libre** ; status asynchrone vérifié via `GET /savings/:id` |
+| `GET /savings` | ✅ implémenté | `{ items: Savings[], pagination }` — filtre `status` optionnel |
+| `GET /savings/:id` | ✅ implémenté | `Savings` |
+| `GET /savings/:id/history` | ✅ implémenté | `{ items: SavingsPayment[], pagination }` |
+| `POST /savings/start` | ✅ implémenté | `201 Savings` (lié à une commande) — requiert `Idempotency-Key` |
+| `POST /savings/:id/payment` | ✅ implémenté | `202 Savings` — versement d'un **montant libre** ; état relu via `GET /savings/:id` |
 
 ```json
 {
@@ -250,15 +251,27 @@ Règles :
   "savedAmount": { "amount": 85000, "currency": "XOF" },
   "progressPercent": 34,
   "remainingMonths": 6,
+  "monthlyTarget": { "amount": 41666, "currency": "XOF" },
   "maxExtensionMonths": 2,
-  "deadline": "2027-03-01",
+  "penaltyPercent": null,
+  "refundPercent": null,
+  "startedAt": "2026-01-01T00:00:00.000Z",
+  "deadline": "2026-07-01T00:00:00.000Z",
+  "cancelledAt": null,
+  "cancellationReason": null,
   "status": "IN_PROGRESS"
 }
 ```
 
+`progressPercent` et `remainingMonths` sont **calculés par le backend** et affichés tels quels : le frontend ne les recalcule jamais. `remainingMonths` vaut `null` si aucune échéance n'est fixée ; `deadline` et `cancelledAt` peuvent être `null`.
+
+`penaltyPercent` / `refundPercent` ne sont renseignés (15 / 85) **que** lorsque l'épargne a échoué (`status = FAILED`) : ils décrivent une conséquence financière réelle et ne doivent pas être affichés à titre préventif.
+
 `POST /savings/:id/payment` — corps : `{ "amount": 5000, "method": "MOBILE_MONEY" | "CARD" }`. Le client choisit **librement** le montant de chaque versement. Règles **validées par le backend** : montant entier, **minimum 1 000 F CFA**, et **plafonné au reste à atteindre** (`targetAmount − savedAmount`). Le front affiche ces règles mais ne les applique pas comme source de vérité. Il n'existe **pas** de versement planifié : l'épargne est alimentée à la demande jusqu'à l'objectif.
 
 Règles métier (affichées, jamais calculées) : extension max **2 mois**, pénalité **15 %**, remboursement **85 %** — valeurs fournies par le backend.
+
+**Garanties backend** : un versement qui atteint l'objectif passe l'épargne en `REACHED` ; un verrou optimiste (`version`) empêche deux versements concurrents de se perdre (le perdant reçoit `409`) ; chaque lecture est scopée au `userId` du jeton.
 
 ### 6.2 Coffre NanaPay
 
