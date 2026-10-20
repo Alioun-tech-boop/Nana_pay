@@ -54,7 +54,14 @@ export function NotificationsPage() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [markingAll, setMarkingAll] = useState(false)
 
-  const notifications = useRequest(() => notificationService.getNotifications({ pageSize: 50 }), { deps: [] })
+  // Module Notifications pas encore implémenté côté backend : `GET /notifications`
+  // renvoie 404 (voir API-CONTRACT.md). On l'annonce comme « rien à afficher »
+  // plutôt que comme une panne, ce qui reste conforme à la réalité — il n'y a
+  // effectivement aucune notification à consulter aujourd'hui.
+  const notifications = useRequest(() => notificationService.getNotifications({ pageSize: 50 }), {
+    deps: [],
+    optional: true,
+  })
 
   const items = useMemo(() => notifications.data?.items ?? [], [notifications.data])
   const unreadCount = items.filter((item) => !item.read).length

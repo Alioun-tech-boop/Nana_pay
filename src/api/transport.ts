@@ -20,6 +20,11 @@ export interface TransportRequest {
 export interface TransportResult {
   status: number
   data: unknown
+  /**
+   * En-têtes de réponse utiles à la couche client (ex. `Retry-After` sur un
+   * 429). Optionnel : les transports de test et le mock n'ont pas à le fournir.
+   */
+  headers?: Record<string, string>
 }
 
 export interface Transport {

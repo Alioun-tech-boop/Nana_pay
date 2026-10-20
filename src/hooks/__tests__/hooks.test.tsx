@@ -62,6 +62,53 @@ describe('useRequest', () => {
     expect(result.current.isIdle).toBe(true)
     expect(request).not.toHaveBeenCalled()
   })
+
+  it('treats a 404 as "unavailable" (not an error) when optional', async () => {
+    const request = vi.fn(async () => {
+      throw new AppError({ kind: 'not-found', status: 404 })
+    })
+    const onError = vi.fn()
+    const { result } = renderHook(() => useRequest(request, { deps: [], optional: true, onError }))
+
+    await act(async () => {
+      await result.current.execute()
+    })
+
+    expect(result.current.isUnavailable).toBe(true)
+    expect(result.current.isError).toBe(false)
+    expect(result.current.error).toBeNull()
+    expect(result.current.data).toBeUndefined()
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('still reports real failures when optional', async () => {
+    const request = vi.fn(async () => {
+      throw new AppError({ kind: 'server', status: 500 })
+    })
+    const { result } = renderHook(() => useRequest(request, { deps: [], optional: true }))
+
+    await act(async () => {
+      await result.current.execute()
+    })
+
+    expect(result.current.isError).toBe(true)
+    expect(result.current.isUnavailable).toBe(false)
+    expect(result.current.error?.kind).toBe('server')
+  })
+
+  it('reports a 404 as an error when not optional', async () => {
+    const request = vi.fn(async () => {
+      throw new AppError({ kind: 'not-found', status: 404 })
+    })
+    const { result } = renderHook(() => useRequest(request, { deps: [] }))
+
+    await act(async () => {
+      await result.current.execute()
+    })
+
+    expect(result.current.isError).toBe(true)
+    expect(result.current.isUnavailable).toBe(false)
+  })
 })
 
 describe('useMutation', () => {

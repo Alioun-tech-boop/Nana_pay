@@ -13,6 +13,7 @@ import { api } from '../../api'
 import type { RefreshOutcome } from '../../api/client'
 import { useToast } from '../../design-system'
 import { isMockMode } from '../../lib/config'
+import { clearStoredRefreshToken, saveRefreshToken } from '../../lib/session-storage'
 import { authService, type LoginInput } from '../../services/authService'
 import type { Session } from '../../types'
 
@@ -53,6 +54,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     tokenRef.current = null
     refreshTokenRef.current = null
     refreshInFlightRef.current = null
+    clearStoredRefreshToken()
     api.clearCache()
     setSession(null)
     setStatus('unauthenticated')
@@ -69,6 +71,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const response = await authService.refresh(refreshToken)
         tokenRef.current = response.accessToken
         refreshTokenRef.current = response.refreshToken
+        saveRefreshToken(response.refreshToken)
         setSession((current) => (current ? buildSession(response.accessToken, response.refreshToken, current.user) : current))
         return 'refreshed'
       } catch {
@@ -107,14 +110,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    // La session est restaurée à partir du refresh token stocké, qui est le
+    // seul secret capable de rouvrir une session (AGENTS.md §49 et §51 : l'état
+    // financier ne doit jamais reposer uniquement sur le stockage navigateur).
+    // Si aucun refresh token n'est disponible, il n'y a rien à restaurer — donc
+    // aucune requête, et donc aucun 401 inutile.
     setStatus('loading')
     authService
-      .me()
-      .then((user) => {
+      .restoreSession(handleAuthenticationFailure)
+      .then((restored) => {
         if (cancelled) return
-        const restored = buildSession('', '', user)
-        tokenRef.current = null
-        refreshTokenRef.current = null
+        if (!restored) {
+          setStatus('unauthenticated')
+          return
+        }
+        tokenRef.current = restored.accessToken
+        refreshTokenRef.current = restored.refreshToken
+        saveRefreshToken(restored.refreshToken)
+        // Les réponses obtenues AVANT l'établissement de la session ont pu être
+        // mises en cache anonymement (le catalogue public accepte les requêtes
+        // sans jeton). Les rejouer après connexion renverrait des données
+        // d'avant-connexion : on vide le cache à la restauration.
+        api.clearCache()
         setSession(restored)
         setStatus('authenticated')
       })
@@ -135,6 +152,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       api.clearCache()
       tokenRef.current = response.accessToken
       refreshTokenRef.current = response.refreshToken
+      saveRefreshToken(response.refreshToken)
       setSession(response)
       setStatus('authenticated')
     } catch (error) {

@@ -444,9 +444,9 @@ Double-clic, refresh, retry réseau : l'UI désactive l'action (`disabled` + loa
 |---|---|
 | Prix produit, total, pénalités, intérêts, remboursement | Backend |
 | Progression épargne, solde coffre, montant crédit | Backend |
-| Statsssfs commande, QR, retrait, règlement | Backend |
+| Statut commande, QR, retrait, règlement | Backend |
 | Éligibilité (épargne/coffre/crédit) | Backend |
-| Linites (deadline, extension 2 mois) | Backend |
+| Limites (deadline, extension 2 mois) | Backend |
 
 Aucune valeur de cette colonne n'est lue dans `localStorage`, un état React ou un calcul local.
 
@@ -457,3 +457,24 @@ Aucune valeur de cette colonne n'est lue dans `localStorage`, un état React ou 
 - Ce document doit être aligné avec les schémas **OpenAPI 3.1** du backend si disponibles.
 - Statut `[PROPOSED]` → `[CONFIRMED]` uniquement après validation backend.
 - Toute évolution du contrat est évaluée en revue d'architecture avant implémentation frontend.
+
+---
+
+## 14. Endpoints appelés mais non implémentés
+
+Ces routes sont utilisées par le frontend mais **n'existent pas encore** dans le
+backend. Elles renvoient une erreur de forme standard (`404 NOT_FOUND`). Elles ne
+sont **pas simulées** : le frontend les traite explicitement comme des
+fonctionnalités indisponibles (`AGENTS.md` §21).
+
+| Endpoint | Statut | Comportement frontend |
+|---|---|---|
+| `POST /auth/verify` | ⛔ non implémenté | `VerifyPage.tsx` affiche un état « bientôt disponible » et propose de se connecter. |
+| `GET /notifications` | ⛔ non implémenté | `NotificationsPage.tsx` affiche une liste vide normale (« aucune notification »). Dépendance du module Notifications + canal de diffusion. |
+| `GET /notifications/summary` | ⛔ non implémenté | Badge de non-lus de `AppShell.tsx` forcé à `0` (`useRequest({ optional: true })`). |
+| `POST /notifications/:id/read` | ⛔ non implémenté | Action indisponible tant que le module n'existe pas. |
+| `POST /notifications/read-all` | ⛔ non implémenté | Action indisponible tant que le module n'existe pas. |
+
+**Règle** : aucun de ces endpoints ne doit être remplacé par une donnée inventée.
+Le jour où le backend les expose, le frontend n'a qu'à retirer l'option
+`optional: true` — aucun autre changement n'est nécessaire.

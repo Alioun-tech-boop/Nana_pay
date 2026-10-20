@@ -4,6 +4,7 @@ import {
   isAbortedError,
   isAppError,
   mapStatusKind,
+  parseRetryAfter,
   toApiErrorBody,
   toAppError,
 } from '../lib/errors'
@@ -39,15 +40,27 @@ export interface Refresher {
 export interface ApiClient {
   request<T>(config: RequestConfig): Promise<T>
   setTokenProvider: (provider: () => string | null) => void
+  /** Jeton courant du fournisseur (lecture seule, jamais persisté). */
+  currentAccessToken: () => string | null
+  /**
+   * Installe un jeton ponctuel qui prime sur le fournisseur, puis le retire en
+   * passant `null`. Utilisé pendant la restauration de session : l'access token
+   * fraîchement obtenu n'est pas encore dans le fournisseur (le `SessionProvider`
+   * n'a pas fini de s'initialiser), or `/auth/me` doit le recevoir.
+   */
+  setRestoredAccessToken: (token: string | null) => void
   setRefreshProvider: (provider: Refresher) => void
   setAuthenticationFailureHandler: (handler: (requestId: string) => void) => void
   setTransportForTests: (transport: Transport) => void
   isMockMode: () => boolean
   invalidateCache: (pathPrefix: string) => void
   clearCache: () => void
+  /** Remet le client dans son état initial (tests uniquement). */
+  resetForTests: () => void
 }
 
 let tokenProvider: () => string | null = () => null
+let restoredAccessToken: string | null = null
 let refreshProvider: Refresher = async () => 'failed'
 let authenticationFailureHandler: (requestId: string) => void = () => {}
 let activeTransport: Transport | null = null
@@ -83,7 +96,12 @@ function resolveTransport(): Transport {
   return apiMode === 'real' ? realTransport : mockTransport
 }
 
-function buildError(status: number, data: unknown, requestId: string): AppError {
+function buildError(
+  status: number,
+  data: unknown,
+  requestId: string,
+  responseHeaders?: Record<string, string>,
+): AppError {
   const payload = toApiErrorBody(data)
   return new AppError({
     kind: mapStatusKind(status),
@@ -92,6 +110,7 @@ function buildError(status: number, data: unknown, requestId: string): AppError 
     title: payload?.title ?? null,
     detail: payload?.detail ?? null,
     field: payload?.field ?? null,
+    retryAfterSeconds: parseRetryAfter(responseHeaders?.['retry-after']),
     requestId,
   })
 }
@@ -127,10 +146,12 @@ export const api: ApiClient = {
       if (config.idempotencyKey) {
         headers['Idempotency-Key'] = config.idempotencyKey
       }
-      if (config.auth !== false) {
-        const token = tokenProvider()
-        if (token) headers['Authorization'] = `Bearer ${token}`
-      }
+      // Le jeton est TOUJOURS joint s'il existe, y compris pour `auth: false`.
+      // `auth: false` décrit le comportement en cas de 401 (pas de tentative de
+      // rafraîchissement, pas de déconnexion globale), pas la présence du jeton :
+      // charger un endpoint public en étant connecté doit rester possible.
+      const token = restoredAccessToken ?? tokenProvider()
+      if (token) headers['Authorization'] = `Bearer ${token}`
       return headers
     }
 
@@ -165,7 +186,7 @@ export const api: ApiClient = {
           if (outcome === 'refreshed') continue
         }
 
-        const error = buildError(result.status, result.data, requestId)
+        const error = buildError(result.status, result.data, requestId, result.headers)
         if (error.kind === 'unauthorized' && config.auth !== false) {
           authenticationFailureHandler(requestId)
         }
@@ -185,6 +206,14 @@ export const api: ApiClient = {
 
   setTokenProvider(provider) {
     tokenProvider = provider
+  },
+
+  currentAccessToken() {
+    return restoredAccessToken ?? tokenProvider()
+  },
+
+  setRestoredAccessToken(token) {
+    restoredAccessToken = token
   },
 
   setRefreshProvider(provider) {
@@ -211,6 +240,16 @@ export const api: ApiClient = {
   },
 
   clearCache() {
+    getCache.clear()
+  },
+
+  /** À utiliser au changement de session : un jeton orphelin ne doit pas survivre. */
+  resetForTests() {
+    tokenProvider = () => null
+    restoredAccessToken = null
+    refreshProvider = async () => 'failed'
+    authenticationFailureHandler = () => {}
+    activeTransport = null
     getCache.clear()
   },
 }

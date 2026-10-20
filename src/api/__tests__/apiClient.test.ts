@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { api } from '../client'
-import { AbortedError, AppError } from '../../lib/errors'
+import { AbortedError, AppError, parseRetryAfter, toUserMessage } from '../../lib/errors'
 import type { Transport } from '../transport'
 
 function fakeTransport(status: number, body: unknown = {}): Transport {
@@ -13,6 +13,15 @@ function fakeTransport(status: number, body: unknown = {}): Transport {
 
 function errorTransport(status: number, body: unknown = { code: 'ERR', title: 'E', detail: '' }): Transport {
   return fakeTransport(status, body)
+}
+
+/** Transport qui renvoie aussi des en-têtes de réponse (ex. `Retry-After`). */
+function headerTransport(status: number, headers: Record<string, string>): Transport {
+  return {
+    async send() {
+      return { status, data: { code: 'RATE_LIMITED', title: 'Trop de requêtes', detail: '' }, headers }
+    },
+  }
 }
 
 function throwTransport(error: unknown): Transport {
@@ -63,6 +72,63 @@ describe('api.client', () => {
       const error = (await api.request({ method: 'GET', path: '/x' }).catch((e) => e)) as AppError
       expect(error).toBeInstanceOf(AppError)
       expect(error.kind).toBe('network')
+    })
+  })
+
+  describe('rate limit', () => {
+    it('exposes Retry-After, so the user is told when to retry', async () => {
+      api.setTransportForTests(headerTransport(429, { 'retry-after': '30' }))
+      const error = (await api.request({ method: 'GET', path: '/x' }).catch((e) => e)) as AppError
+      expect(error.kind).toBe('rate-limit')
+      expect(error.retryAfterSeconds).toBe(30)
+      expect(toUserMessage(error)).toContain('30 secondes')
+    })
+
+    it('accepts an HTTP-date Retry-After and never displays a negative delay', async () => {
+      const future = new Date(Date.now() + 10_000).toUTCString()
+      expect(parseRetryAfter(future)).toBeGreaterThan(0)
+      const past = new Date(Date.now() - 60_000).toUTCString()
+      expect(parseRetryAfter(past)).toBe(0)
+      expect(parseRetryAfter(null)).toBeNull()
+      expect(parseRetryAfter('pas-une-date')).toBeNull()
+    })
+
+    it('falls back to a generic message when the delay is unhelpful', async () => {
+      api.setTransportForTests(headerTransport(429, {}))
+      const error = (await api.request({ method: 'GET', path: '/x' }).catch((e) => e)) as AppError
+      expect(error.retryAfterSeconds).toBeNull()
+      expect(toUserMessage(error)).toMatch(/Trop de tentatives/)
+    })
+  })
+
+  describe('user-facing messages', () => {
+    it('never shows a raw technical route error to the user', async () => {
+      api.setTransportForTests(
+        fakeTransport(404, {
+          statusCode: 404,
+          code: 'NOT_FOUND',
+          title: 'Ressource introuvable',
+          detail: 'Cannot POST /api/auth/verify',
+          field: null,
+        }),
+      )
+      const error = (await api.request({ method: 'POST', path: '/x' }).catch((e) => e)) as AppError
+      expect(toUserMessage(error)).not.toMatch(/Cannot POST/)
+      // Le `title` du backend est déjà rédigé pour l'utilisateur : on le garde.
+      expect(toUserMessage(error)).toBe('Ressource introuvable')
+    })
+
+    it('keeps a business detail written for the user', async () => {
+      api.setTransportForTests(
+        fakeTransport(422, {
+          code: 'INSUFFICIENT_SAVINGS',
+          title: 'Épargne insuffisante',
+          detail: 'Il manque 25 000 XOF pour débloquer le retrait.',
+          field: null,
+        }),
+      )
+      const error = (await api.request({ method: 'POST', path: '/x' }).catch((e) => e)) as AppError
+      expect(toUserMessage(error)).toBe('Il manque 25 000 XOF pour débloquer le retrait.')
     })
   })
 
@@ -220,7 +286,7 @@ describe('api.client', () => {
       expect(receivedHeaders['Authorization']).toBe('Bearer my-jwt')
     })
 
-    it('omits Authorization when auth=false', async () => {
+    it('keeps Authorization on auth=false requests (public routes while signed in)', async () => {
       let receivedHeaders: Record<string, string> = {}
       api.setTransportForTests({
         async send(req) {
@@ -229,7 +295,37 @@ describe('api.client', () => {
         },
       })
       await api.request({ method: 'GET', path: '/x', auth: false })
+      expect(receivedHeaders['Authorization']).toBe('Bearer test-token')
+    })
+
+    it('omits Authorization when no token is available', async () => {
+      let receivedHeaders: Record<string, string> = {}
+      api.setTransportForTests({
+        async send(req) {
+          receivedHeaders = req.headers
+          return { status: 200, data: null }
+        },
+      })
+      api.setTokenProvider(() => null)
+      await api.request({ method: 'GET', path: '/x' })
       expect(receivedHeaders['Authorization']).toBeUndefined()
+    })
+
+    it('auth=false does not refresh or sign the user out on 401', async () => {
+      let refreshCalls = 0
+      let failureCalls = 0
+      api.setRefreshProvider(async () => {
+        refreshCalls += 1
+        return 'refreshed'
+      })
+      api.setAuthenticationFailureHandler(() => {
+        failureCalls += 1
+      })
+      api.setTransportForTests(errorTransport(401, { code: 'UNAUTHORIZED', title: 'Non authentifié', detail: '' }))
+      const error = (await api.request({ method: 'GET', path: '/x', auth: false }).catch((e) => e)) as AppError
+      expect(error.kind).toBe('unauthorized')
+      expect(refreshCalls).toBe(0)
+      expect(failureCalls).toBe(0)
     })
   })
 })

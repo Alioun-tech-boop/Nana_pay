@@ -22,8 +22,23 @@ export interface AppErrorOptions {
   title?: string | null
   detail?: string | null
   field?: string | null
+  /** Délai indiqué par le serveur (en-tête `Retry-After`, en secondes). */
+  retryAfterSeconds?: number | null
   requestId?: string | null
   cause?: unknown
+}
+
+/**
+ * `Retry-After` est soit un nombre de secondes, soit une date HTTP.
+ * Renvoie un nombre de secondes, jamais une valeur négative.
+ */
+export function parseRetryAfter(value: string | null | undefined): number | null {
+  if (!value) return null
+  const seconds = Number(value.trim())
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.ceil(seconds)
+  const date = Date.parse(value)
+  if (Number.isNaN(date)) return null
+  return Math.max(0, Math.ceil((date - Date.now()) / 1000))
 }
 
 export class AppError extends Error {
@@ -33,6 +48,7 @@ export class AppError extends Error {
   readonly title: string | null
   readonly detail: string | null
   readonly field: string | null
+  readonly retryAfterSeconds: number | null
   readonly requestId: string | null
 
   constructor(options: AppErrorOptions) {
@@ -44,6 +60,7 @@ export class AppError extends Error {
     this.title = options.title ?? null
     this.detail = options.detail ?? null
     this.field = options.field ?? null
+    this.retryAfterSeconds = options.retryAfterSeconds ?? null
     this.requestId = options.requestId ?? null
     if (options.cause !== undefined) this.cause = options.cause
   }
@@ -151,10 +168,38 @@ const USER_MESSAGES: Record<ErrorKind, string> = {
   unknown: 'Une erreur inattendue est survenue. Veuillez réessayer.',
 }
 
+/**
+ * Codes techniques renvoyés par le backend (ou le proxy) qui ne doivent JAMAIS
+ * atteindre l'utilisateur : ils nomment une route ou une mécanique interne.
+ */
+const TECHNICAL_DETAIL = /Cannot (GET|POST|PUT|PATCH|DELETE)\b|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|fetch failed|Failed to fetch|SyntaxError|TypeError/i
+
+function isSafeToDisplay(message: string | null): message is string {
+  if (!message) return false
+  if (message.length > 300) return false
+  if (TECHNICAL_DETAIL.test(message)) return false
+  // Un détail en anglais tout en minuscules/technique est plus déroutant
+  // qu'un message générique : on ne le montre que s'il ressemble à une phrase.
+  return true
+}
+
+/**
+ * Message destiné à l'utilisateur. Les erreurs renvoyées par le backend sont
+ * déjà rédigées pour lui (`{ code, title, detail }`), donc on les préfère — mais
+ * on ne relaie jamais un détail technique brut (AGENTS.md §24).
+ */
 export function toUserMessage(error: unknown): string {
   if (!isAppError(error)) return USER_MESSAGES.unknown
-  if (error.title && error.detail) return error.detail
-  if (error.detail) return error.detail
-  if (error.title) return error.title
+
+  if (error.kind === 'rate-limit') {
+    const retry = error.retryAfterSeconds
+    if (retry !== null && retry > 0 && retry <= 120) {
+      return `Trop de tentatives. Réessayez dans ${retry} seconde${retry > 1 ? 's' : ''}.`
+    }
+    return USER_MESSAGES['rate-limit']
+  }
+
+  if (isSafeToDisplay(error.detail)) return error.detail
+  if (isSafeToDisplay(error.title)) return error.title
   return USER_MESSAGES[error.kind]
 }

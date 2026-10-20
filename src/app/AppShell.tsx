@@ -19,9 +19,15 @@ export function AppShell() {
   const role: UserRole = session?.user.role ?? 'CLIENT'
   const isClient = role === 'CLIENT'
 
+  // Le badge de notifications est purement indicatif. Le module Notifications
+  // n'étant pas encore implémenté côté backend (`GET /notifications/summary`
+  // renvoie 404, voir API-CONTRACT.md), la requête est marquée `optional` : on
+  // affiche « aucun non-lu » au lieu d'une erreur, et aucune erreur n'est
+  // remontée à l'utilisateur.
   const summary = useRequest(() => notificationService.getSummary(), {
     enabled: isClient,
     deps: [],
+    optional: true,
   })
   const unreadCount = summary.data?.unread ?? 0
 

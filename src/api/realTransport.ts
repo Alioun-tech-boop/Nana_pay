@@ -50,7 +50,14 @@ export const realTransport: Transport = {
         redirect: 'error',
       })
       const data = await readBody(response)
-      return { status: response.status, data }
+      return {
+        status: response.status,
+        data,
+        headers: {
+          'retry-after': response.headers.get('retry-after') ?? '',
+          'x-request-id': response.headers.get('x-request-id') ?? '',
+        },
+      }
     } catch (error) {
       if (request.signal?.aborted) throw new AbortedError()
       if (timedOut) {
