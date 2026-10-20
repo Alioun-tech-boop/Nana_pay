@@ -89,6 +89,19 @@ Paramètres : `?page=1&pageSize=25`. Tri/ﬁltres par domaine (`sortBy`, `status
 | `POST /auth/logout` | `[PROPOSED]` | `{ refreshToken }` | `204` | Invalidation côté backend |
 | `GET /auth/me` | `[PROPOSED]` | — | `{ user }` | Rôle, permissions, profil minimal |
 
+**Statut d'implémentation (backend `nanapay-api`, 2026-10-20)**
+
+| Endpoint | État | Note |
+|---|---|---|
+| `POST /auth/register` | ✅ implémenté | Corps réel du frontend : `{firstName,lastName,birthDate,contact,contactType,email,phone,password}` ; les champs vides sont ignorés. Réponse `{id,fullName,email,phone,status}`. |
+| `POST /auth/login` | ✅ implémenté | `identifier` = email **ou** téléphone (l'ancien champ `email` reste toléré). |
+| `POST /auth/refresh` | ✅ implémenté | Rotation : l'ancienne session est révoquée. |
+| `POST /auth/logout` | ✅ implémenté | `204`. |
+| `GET /auth/me` | ✅ implémenté | `{ user }`. |
+| `POST /auth/verify` | ⛔ **non implémenté** | Utilisé par `VerifyPage.tsx` après inscription. Nécessite une **table d'OTP** + un canal de diffusion (SMS/email), absents du schéma. Non simulé volontairement → renvoie `404 NOT_FOUND`. |
+
+`password` : minimum **8 caractères** (UI d'inscription livrée + NIST SP 800-63B).
+
 ### 3.1 Contrat utilisateur (`[PROPOSED]`)
 
 ```json
@@ -106,6 +119,8 @@ Paramètres : `?page=1&pageSize=25`. Tri/ﬁltres par domaine (`sortBy`, `status
 Règles :
 - `role` ∈ `CLIENT  MERCHANT  BANK  ADMIN` ([CONFIRMED] — rôle défini par l'architecture produit).
 - `permissions` : **menu et actions exacts retournés par le backend**. L'UI masque ce qui n'est pas permis ; le backend reste l'autorité.
+- Implémentation : table `role → permissions` dans `backend/src/auth/auth.mapper.ts` (`ROLE_PERMISSIONS`), évaluée côté serveur — le front ne la fournit jamais.
+- `merchantId` : renseigné uniquement si l'utilisateur possède une boutique (`User.merchant`).
 - Le frontend **ne stocke jamais** les jetons dans `localStorage`/`sessionStorage` (contrainte `SECURITY.md`).
 
 ---
@@ -136,6 +151,19 @@ Règles :
 
 Règles : le prix affiché provient **toujours** de ce contrat. Aucun calcul de prix côté frontend.
 
+**Statut d'implémentation (backend `nanapay-api`, 2026-10-20)**
+
+| Endpoint | État | Note |
+|---|---|---|
+| `GET /products` | ✅ implémenté | Filtres `q`, `categoryId`, `merchantId`. **Public** (pas de jeton requis) : le marketplace se parcourt sans compte. |
+| `GET /products/:id` | ✅ implémenté | Public. |
+| `GET /categories` | ✅ implémenté | Public. |
+
+Différences avec le schéma ci-dessus :
+- les identifiants sont des **UUID**, pas de préfixe `prd_`/`mer_` ;
+- `price`/`stock` utilisent le format `{ amount, currency }` / `{ available, quantity }` du contrat ;
+- seuls les commerçants `VALIDATED` apparaissent — un compte commerçant `PENDING` n'est jamais exposé.
+
 ---
 
 ## 5. Domaine Commande (noyau central)
@@ -148,6 +176,16 @@ Règles : le prix affiché provient **toujours** de ce contrat. Aucun calcul de 
 | `GET /orders` | `[PROPOSED]` | `page`, `pageSize`, `status` | `{ items: Order[], pagination }` |
 | `GET /orders/:id` | `[PROPOSED]` | — | `Order` |
 | `GET /orders/:id/status` | `[PROPOSED]` | — | `{ status, at }` |
+
+**Statut d'implémentation (backend `nanapay-api`, 2026-10-20)**
+
+Les 4 endpoints sont ✅ **implémentés** et vérifiés en réel. Points de contrat :
+
+- `POST /orders` exige l'en-tête **`Idempotency-Key`** (8–128 car. `[A-Za-z0-9._:-]`, TTL 24 h) → `400 IDEMPOTENCY_KEY_REQUIRED` sinon.
+- Rejeu de la **même clé** → la **même commande** (le stock n'est décrémenté qu'une fois). Même clé avec un **corps différent** → `409 CONFLICT`.
+- Le corps réel est `{ productId, financingMode, quantity }` : le **total n'est jamais envoyé par le client**, le backend applique son propre prix × quantité.
+- Toutes les lectures sont **scopées par utilisateur** : un `orderId` dans l'URL ne prouve rien.
+- Référence de commande : `NP-<année>-<8 chiffres>` (ex. `NP-2026-00000001`).
 
 ### Cycle de vie de commande (`[CONFIRMED]` — imposé par l'architecture produit)
 

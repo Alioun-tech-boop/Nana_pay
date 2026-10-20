@@ -1,13 +1,25 @@
 // src/auth/auth.mapper.ts
 import type { Role } from '@prisma/client';
 
-export type UserRole = 'CLIENT' | 'MERCHANT' | 'BANK' | 'ADMIN';
+export type UserRole = 'CLIENT' | 'MERCHANT' | 'BANK' | 'ADMIN' | 'SUPER_ADMIN';
 
 /**
  * Permissions renvoyees par le backend (API-CONTRACT.md §3.1).
  * Le front n'affiche que ce qui est autorise ; le backend reste l'autorite
  * (voir RolesGuard). Les listes decrivent les actions minimales par role.
  */
+const ADMIN_PERMISSIONS = [
+  'profile:read',
+  'users:read',
+  'users:update',
+  'merchants:read',
+  'merchants:validate',
+  'products:read',
+  'orders:read',
+  'credits:read',
+  'audit:read',
+] as const;
+
 export const ROLE_PERMISSIONS: Record<UserRole, readonly string[]> = {
   CLIENT: [
     'profile:read',
@@ -29,17 +41,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly string[]> = {
     'settlements:read',
   ],
   BANK: ['profile:read', 'users:read', 'credits:read', 'credits:decide'],
-  ADMIN: [
-    'profile:read',
-    'users:read',
-    'users:update',
-    'merchants:read',
-    'merchants:validate',
-    'products:read',
-    'orders:read',
-    'credits:read',
-    'audit:read',
-  ],
+  ADMIN: ADMIN_PERMISSIONS,
+  // Break-glass (cf. schema.prisma). Identique a ADMIN pour l'instant : le MFA
+  // renforce et la double approbation annonces dans le schema ne sont pas encore
+  // implementes. Ne pas le laisser retomber en CLIENT silencieusement.
+  SUPER_ADMIN: ADMIN_PERMISSIONS,
 };
 
 /** Contrat utilisateur — aucun champ financier autorise ici. */

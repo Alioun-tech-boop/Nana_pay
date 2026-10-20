@@ -112,8 +112,8 @@ Pour recréer le service manuellement :
 
 Le frontend appelle `${VITE_NP_API_URL}${path}` (ex. `/auth/login`).
 
-> **Frontend actuel déployé :** `https://moonlit-phoenix-2de61d.netlify.app`
-> **Backend à déployer :** `https://<service>.onrender.com`
+> **Frontend déployé :** `https://moonlit-phoenix-2de61d.netlify.app`
+> **Backend déployé :** `https://nanapay-api.onrender.com` (`srv-dbbbqu3bc2fs73aka2i0`)
 
 ### Développement (proxy Vite)
 
@@ -126,12 +126,7 @@ VITE_NP_API_URL=/api
 
 ### Production
 
-```dotenv
-VITE_NP_API_MODE=real
-VITE_NP_API_URL=https://<service>.onrender.com/api
-```
-
-**Option recommandée — proxy Netlify (même origine, aucun CORS) :**
+**Option retenue — proxy Netlify (même origine, aucun CORS) :**
 
 `netlify.toml` :
 
@@ -143,7 +138,7 @@ VITE_NP_API_URL=https://<service>.onrender.com/api
 # Proxy /api vers le backend Render (doit précéder le fallback SPA)
 [[redirects]]
   from = "/api/*"
-  to = "https://<service>.onrender.com/api/:splat"
+  to = "https://nanapay-api.onrender.com/api/:splat"
   status = 200
   force = true
 
@@ -153,11 +148,58 @@ VITE_NP_API_URL=https://<service>.onrender.com/api
   status = 200
 ```
 
-Avec cette option, `CORS_ORIGINS` peut rester limité au domaine Netlify.
+Le préfixe `/api` vient du proxy, pas du code applicatif : le backend utilise
+`setGlobalPrefix('api')` et le healthcheck Render reste sur `/healthz`.
 
-> ⚠️ **Le backend n'implémente aujourd'hui que l'authentification.**
-> En mode `real`, seules les routes `/api/auth/*` répondent ; le reste renverra `404`.
-> Laissez `VITE_NP_API_MODE=mock` tant que les modules métier ne sont pas développés.
+Avec cette option, `CORS_ORIGINS` peut rester limité au domaine Netlify. Le
+backend accepte néanmoins `Idempotency-Key` dans ses en-têtes CORS, au cas où
+le frontend serait pointé directement sur Render (cross-origin).
+
+### Couverture réelle (2026-10-20)
+
+| Module | État | Routes |
+|---|---|---|
+| Auth | ✅ | `/api/auth/register`, `/login`, `/refresh`, `/logout`, `/me` |
+| Catalogue | ✅ **public** | `/api/products`, `/products/:id`, `/categories` |
+| Commandes | ✅ | `/api/orders` (POST/GET), `/orders/:id`, `/orders/:id/status` |
+| `/api/auth/verify` | ⛔ | Utilisé par l'écran `VerifyPage` après inscription — nécessite une table d'OTP + un canal de diffusion. **Non simulé.** |
+| Épargne, Coffre, Crédit, Paiements, QR, Retraits, Marchand, Banque, Admin | ⛔ | Pas encore de routes — renvoient `404` en mode `real`. |
+
+Voir `API-CONTRACT.md` §3/§4/§5 pour le détail de chaque contrat.
+
+---
+
+## 7. Vérification avant chaque déploiement
+
+```bash
+cd backend
+npm run build
+npm run smoke          # npm run smoke -- <chemin/.env>
+```
+
+`scripts/smoke-bootstrap.mjs` démarre `dist/main.js` contre une base
+**volontairement injoignable** et vérifie que l'application valide l'environnement,
+résout tous les modules, enregistre toutes les routes et atteint l'écoute HTTP.
+Il ne touche à aucune base de données et sort par `0` (sain) ou `1` (régression).
+
+C'est indispensable : plusieurs pannes de déploiement (« class-validator missing »,
+`JwtService` non résoluble, `server.set is not a function`) ne se produisent
+qu'en mode production et sont invisibles en `start:dev` et en `npm test`.
+
+### Tests réels contre le service déployé
+
+Vérifié le 2026-10-20 sur `https://nanapay-api.onrender.com` :
+
+- `GET /healthz` → `200 {"status":"ok","database":"up"}`
+- `POST /api/auth/register` → `201` (inscription par email **et** par téléphone)
+- `POST /api/auth/login` → `200 {accessToken, refreshToken, user}` — `identifier` = email ou téléphone
+- `POST /api/auth/refresh` → `200` pour un compte `PENDING_VERIFICATION`
+- `GET /api/auth/me` → `200 {user}` ; sans jeton → `401`
+- `GET /api/products` → `200` **sans jeton**
+- `POST /api/orders` sans `Idempotency-Key` → `400 IDEMPOTENCY_KEY_REQUIRED`
+- `POST /api/orders` ×2 avec la **même clé** → **même commande**, stock décrémenté **une seule fois**
+- même clé, corps différent → `409 CONFLICT`
+- préflight `OPTIONS` → `204` avec `Access-Control-Allow-Headers: …, Idempotency-Key`
 
 ---
 
