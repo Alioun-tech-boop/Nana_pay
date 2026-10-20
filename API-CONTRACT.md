@@ -233,6 +233,9 @@ Règles :
 - `financing` est `null` tant qu'aucun financement n'existe, puis renseigné avec
   l'identifiant, le statut et le montant réellement épargné/engagé. C'est le lien
   commande → financement que l'UI affiche (« Montant financé », « Statut du financement »).
+  Renseigné pour **chaque mode implémenté** : épargne (`status` = statut de l'épargne,
+  `amount` = montant épargné) et coffre (`status` = `FINANCED`, `amount` = montant débité
+  du coffre). Une commande financée par le coffre ne doit jamais apparaître comme non financée.
 
 ---
 

@@ -51,9 +51,11 @@ export const ORDER_INCLUDE = {
   merchant: { select: { id: true, storeName: true } },
   product: { select: { id: true, name: true, price: true, currency: true } },
   payments: { orderBy: { initiatedAt: 'desc' as const } },
-  // L'épargne est la seule source de financement implémentée à ce jour ; les
-  // autres modes seront ajoutés ici au fur et à mesure.
+  // Chaque mode de financement implémenté doit apparaître ici : sans cela une
+  // commande financée par le coffre s'afficherait comme « non financée »
+  // (`AGENTS.md` §7 : une commande reste reliée à son financement réel).
   savings: { select: { id: true, status: true, savedAmount: true, currency: true } },
+  vaultUsage: { select: { id: true, amount: true, usedAt: true } },
 } satisfies Prisma.OrderInclude;
 
 export type OrderWithRelations = Prisma.OrderGetPayload<{ include: typeof ORDER_INCLUDE }>;
@@ -77,17 +79,31 @@ export function toOrderDto(order: OrderWithRelations): OrderDto {
   const payment = order.payments.length > 0 ? order.payments[0] : null;
 
   // Le financement reflète l'état réel enregistré : jamais une valeur inventée.
-  const financing =
-    order.savings !== null && order.savings !== undefined
-      ? {
-          id: order.savings.id,
-          status: order.savings.status,
-          amount: toMoney(order.savings.savedAmount, order.savings.currency) as {
-            amount: number;
-            currency: string;
-          },
-        }
-      : null;
+  // Deux modes sont implémentés aujourd'hui (épargne, coffre) ; chacun alimente
+  // le même champ `financing` côté contrat.
+  let financing: OrderDto['financing'] = null;
+
+  if (order.savings !== null && order.savings !== undefined) {
+    financing = {
+      id: order.savings.id,
+      status: order.savings.status,
+      amount: toMoney(order.savings.savedAmount, order.savings.currency) as {
+        amount: number;
+        currency: string;
+      },
+    };
+  } else if (order.vaultUsage !== null && order.vaultUsage !== undefined) {
+    // Le coffre n'a pas de statut de financement propre : un usage signifie que
+    // la commande a été financée en totalité, une fois pour toutes.
+    financing = {
+      id: order.vaultUsage.id,
+      status: 'FINANCED',
+      amount: toMoney(order.vaultUsage.amount, order.currency) as {
+        amount: number;
+        currency: string;
+      },
+    };
+  }
 
   return {
     id: order.id,
