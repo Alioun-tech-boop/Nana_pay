@@ -32,9 +32,16 @@ export function ProductPage() {
   const item = product.data
   const currentMerchantId = item?.merchantId ?? ''
 
+  // `GET /merchants/:id` n'est pas encore implémenté (voir API-CONTRACT.md §14) :
+  // le 404 devient un état « indisponible », pas une erreur. La fiche produit
+  // reste utilisable, seul le bloc boutique est neutre.
   const merchant = useRequest(
     () => marketplaceService.getMerchant(currentMerchantId),
-    { enabled: currentMerchantId.length > 0 && product.isSuccess, deps: [currentMerchantId, product.isSuccess] },
+    {
+      enabled: currentMerchantId.length > 0 && product.isSuccess,
+      deps: [currentMerchantId, product.isSuccess],
+      optional: true,
+    },
   )
 
   const available = item ? item.stock.available && item.status === 'ACTIVE' : false

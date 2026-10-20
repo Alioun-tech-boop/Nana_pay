@@ -10,10 +10,15 @@ import viewStyles from '../../../components/client/view.module.css'
 const heroImage = '/assets/wakefield-market.jpeg'
 
 export function BoutiquesPage() {
+  // `GET /merchants` n'est pas encore implémenté (API-CONTRACT.md §14) : le 404
+  // devient un état « indisponible », pas une erreur technique. Aucune boutique
+  // n'est inventée en attendant.
   const merchants = useRequest(() => marketplaceService.getMerchants({ pageSize: 30 }), {
     deps: [],
+    optional: true,
   })
   const merchantCount = merchants.data?.items.length ?? 0
+  const unavailable = merchants.isUnavailable
   const empty = merchants.isSuccess && !merchants.isLoading && merchantCount === 0
 
   return (
@@ -36,6 +41,12 @@ export function BoutiquesPage() {
           title="Les boutiques n'ont pas pu être chargées"
           description={toUserMessage(merchants.error as Error)}
           onRetry={() => void merchants.refresh()}
+        />
+      ) : unavailable ? (
+        <EmptyState
+          icon="shop"
+          title="Les boutiques arrivent bientôt"
+          description="Cette section sera disponible prochainement. Les produits restent accessibles depuis la marketplace."
         />
       ) : empty ? (
         <EmptyState

@@ -23,13 +23,15 @@ export function SearchPage() {
       }),
     { deps: [applied.current] },
   )
+  // Les boutiques ne sont pas encore implémentées (API-CONTRACT.md §14) : leur
+  // 404 ne doit pas faire échouer la recherche de produits, qui, elle, marche.
   const merchants = useRequest(
     () =>
       marketplaceService.getMerchants({
         q: applied.current || undefined,
         pageSize: 40,
       }),
-    { deps: [applied.current] },
+    { deps: [applied.current], optional: true },
   )
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export function SearchPage() {
   const error = products.error ?? merchants.error
   const productCount = products.data?.items.length ?? 0
   const merchantCount = merchants.data?.items.length ?? 0
+  const merchantsUnavailable = merchants.isUnavailable
   const searching = applied.current.length > 0
   const isBrowseMode = applied.current.length === 0
 
@@ -76,9 +79,11 @@ export function SearchPage() {
           <Section title={`Tous les produits (${productCount})`}>
             <ProductShelf products={products.data?.items ?? []} loading={products.isLoading} skeletonCount={6} />
           </Section>
-          <Section title={`Toutes les boutiques (${merchantCount})`}>
-            <MerchantShelf merchants={merchants.data?.items ?? []} loading={merchants.isLoading} skeletonCount={3} />
-          </Section>
+          {merchantsUnavailable ? null : (
+            <Section title={`Toutes les boutiques (${merchantCount})`}>
+              <MerchantShelf merchants={merchants.data?.items ?? []} loading={merchants.isLoading} skeletonCount={3} />
+            </Section>
+          )}
         </>
       ) : searching && !loading && productCount === 0 && merchantCount === 0 ? (
         <EmptyState
@@ -86,7 +91,8 @@ export function SearchPage() {
           title="Aucun résultat"
           description={
             <Text muted>
-              Aucun produit ou boutique ne correspond à «&nbsp;{applied.current}&nbsp;». Essayez un autre terme.
+              Aucun produit{merchantsUnavailable ? '' : ' ou boutique'} ne correspond à
+              «&nbsp;{applied.current}&nbsp;». Essayez un autre terme.
             </Text>
           }
         />
@@ -95,9 +101,11 @@ export function SearchPage() {
           <Section title={`Produits (${productCount})`}>
             <ProductShelf products={products.data?.items ?? []} loading={products.isLoading} skeletonCount={6} />
           </Section>
-          <Section title={`Boutiques (${merchantCount})`}>
-            <MerchantShelf merchants={merchants.data?.items ?? []} loading={merchants.isLoading} skeletonCount={3} />
-          </Section>
+          {merchantsUnavailable ? null : (
+            <Section title={`Boutiques (${merchantCount})`}>
+              <MerchantShelf merchants={merchants.data?.items ?? []} loading={merchants.isLoading} skeletonCount={3} />
+            </Section>
+          )}
         </>
       ) : (
         <EmptyState

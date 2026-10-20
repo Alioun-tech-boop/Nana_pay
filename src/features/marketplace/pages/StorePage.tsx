@@ -10,14 +10,29 @@ import viewStyles from '../../../components/client/view.module.css'
 export function StorePage() {
   const { merchantId = '' } = useParams()
 
+  // `GET /merchants/:id` n'est pas encore implémenté (API-CONTRACT.md §14) : le
+  // 404 devient un état « indisponible » honnête, pas une erreur technique.
   const merchant = useRequest(
     () => marketplaceService.getMerchant(merchantId),
-    { deps: [merchantId] },
+    { deps: [merchantId], optional: true },
   )
   const products = useRequest(
     () => marketplaceService.getMerchantProducts(merchantId, { pageSize: 48 }),
     { deps: [merchantId] },
   )
+
+  if (merchant.isUnavailable) {
+    return (
+      <div className={viewStyles.page}>
+        <PageHeader title="Boutique" />
+        <EmptyState
+          icon="shop"
+          title="Boutique bientôt disponible"
+          description="Les fiches boutique seront accessibles prochainement. En attendant, retrouvez tous les produits dans la marketplace."
+        />
+      </div>
+    )
+  }
 
   if (merchant.isError) {
     return (
