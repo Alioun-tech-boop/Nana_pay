@@ -112,16 +112,18 @@ export class AuthService {
           data: { failedLoginCount: { increment: 1 } },
         });
       }
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Identifiant ou mot de passe incorrect.');
     }
 
     // Account lockout check
     if (user.lockedUntil && user.lockedUntil > new Date()) {
-      throw new UnauthorizedException('Account temporarily locked');
+      throw new UnauthorizedException(
+        'Compte temporairement bloqué après trop de tentatives. Réessayez plus tard.',
+      );
     }
 
     if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
-      throw new UnauthorizedException('Account suspended');
+      throw new UnauthorizedException('Ce compte est suspendu.');
     }
 
     // MFA : aucun flux MFA n'est expose au client pour l'instant. On refuse
@@ -159,11 +161,11 @@ export class AuthService {
         algorithms: ['RS256'],
       });
     } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Session invalide. Veuillez vous reconnecter.');
     }
 
     if (payload.type !== 'refresh' || !payload.jti || !payload.sub) {
-      throw new UnauthorizedException('Invalid token type');
+      throw new UnauthorizedException('Session invalide. Veuillez vous reconnecter.');
     }
 
     const session = await this.prisma.session.findUnique({
@@ -178,7 +180,7 @@ export class AuthService {
           data: { revokedAt: new Date(), revokedReason: 'reuse_detected' },
         });
       }
-      throw new UnauthorizedException('Refresh token revoked or expired');
+      throw new UnauthorizedException('Session expirée. Veuillez vous reconnecter.');
     }
 
     // Device fingerprint check (optional strict mode)
@@ -193,7 +195,7 @@ export class AuthService {
     // seuls SUSPENDED/BANNED (et le soft-delete) y sont opposes. Sans cela un
     // compte nouveau est deconnecte des l'expiration de l'access token.
     if (!user || user.deletedAt || user.status === 'SUSPENDED' || user.status === 'BANNED') {
-      throw new UnauthorizedException('User inactive');
+      throw new UnauthorizedException('Ce compte n’est plus actif.');
     }
 
     return this.issueTokens(user.id, user.roles, 'refresh', ip, userAgent, session.id);
@@ -219,7 +221,7 @@ export class AuthService {
   /** Contrat API-CONTRACT.md §3 : `GET /auth/me` -> `{ user }`. */
   async me(userId: string): Promise<{ user: ContractUser }> {
     if (!userId) {
-      throw new UnauthorizedException('Not authenticated');
+      throw new UnauthorizedException('Authentification requise.');
     }
     return { user: await this.loadContractUser(userId) };
   }
@@ -242,7 +244,7 @@ export class AuthService {
       },
     });
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('Compte introuvable.');
     }
     return toContractUser(user);
   }

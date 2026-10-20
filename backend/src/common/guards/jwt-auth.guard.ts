@@ -24,7 +24,7 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid authorization header');
+      throw new UnauthorizedException('Authentification requise.');
     }
 
     const token = authHeader.substring(7);
@@ -37,13 +37,13 @@ export class JwtAuthGuard implements CanActivate {
       });
 
       if (payload.type !== 'access') {
-        throw new UnauthorizedException('Invalid token type');
+        throw new UnauthorizedException('Authentification requise.');
       }
 
       request.user = { id: payload.sub, roles: payload.roles };
       return true;
     } catch {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException('Session expirée. Veuillez vous reconnecter.');
     }
   }
 }
