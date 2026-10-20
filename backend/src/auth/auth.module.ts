@@ -11,6 +11,7 @@ import { Argon2Service, CryptoService } from '../common/crypto';
   imports: [
     PrismaModule,
     JwtModule.registerAsync({
+      global: true, // requis : JwtAuthGuard est un APP_GUARD au niveau d'AppModule
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         publicKey: config.get<string>('JWT_PUBLIC_KEY'),

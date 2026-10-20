@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Argon2Service, CryptoService } from '../common/crypto';
 import { LoginDto, LoginDtoSchema } from './dto/login.dto';
 import { RegisterDto, RegisterDtoSchema } from './dto/register.dto';
+import { ContractUser, toContractUser } from './auth.mapper';
 import { z } from 'zod';
 
 export interface TokenPair {
@@ -24,45 +25,79 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<{ user: any; tokens: TokenPair }> {
+  async register(dto: RegisterDto): Promise<{
+    id: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    status: 'PENDING_VERIFICATION';
+  }> {
     const parsed = RegisterDtoSchema.parse(dto);
 
-    const existing = await this.prisma.user.findUnique({ where: { email: parsed.email } });
-    if (existing) {
-      throw new ConflictException('Email already registered');
+    if (parsed.email) {
+      const existing = await this.prisma.user.findUnique({
+        where: { email: parsed.email },
+        select: { id: true },
+      });
+      if (existing) throw new ConflictException('Un compte existe deja avec cet email.');
+    }
+    if (parsed.phone) {
+      const existing = await this.prisma.user.findFirst({
+        where: { phone: parsed.phone },
+        select: { id: true },
+      });
+      if (existing) throw new ConflictException('Un compte existe deja avec ce numero.');
     }
 
     const passwordHash = await this.argon2.hash(parsed.password);
 
     const user = await this.prisma.user.create({
       data: {
-        email: parsed.email,
+        // Inscription par telephone : le compte n'a pas d'email.
+        email: parsed.email ?? null,
         passwordHash,
         firstName: parsed.firstName,
         lastName: parsed.lastName,
-        phone: parsed.phone,
+        phone: parsed.phone ?? null,
         roles: ['CLIENT'],
         status: 'PENDING_VERIFICATION',
       },
       select: {
         id: true,
-        email: true,
         firstName: true,
         lastName: true,
-        roles: true,
+        email: true,
+        phone: true,
         status: true,
       },
     });
 
-    const tokens = await this.issueTokens(user.id, user.roles, 'register');
-
-    return { user, tokens };
+    return {
+      id: user.id,
+      fullName: `${user.firstName} ${user.lastName}`.trim(),
+      email: user.email ?? '',
+      phone: user.phone ?? '',
+      status: 'PENDING_VERIFICATION',
+    };
   }
 
-  async login(dto: LoginDto, ip?: string, userAgent?: string): Promise<{ user: any; tokens: TokenPair; mfaRequired?: boolean }> {
+  async login(
+    dto: LoginDto,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<{ accessToken: string; refreshToken: string; user: ContractUser }> {
     const parsed = LoginDtoSchema.parse(dto);
 
-    const user = await this.prisma.user.findUnique({ where: { email: parsed.email } });
+    // Contrat API-CONTRACT.md §3 : `identifier` = email OU numero de telephone.
+    const identifier = (parsed.identifier ?? parsed.email ?? '').trim();
+    const phoneCandidate = identifier.replace(/[\s().-]/g, '');
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        deletedAt: null,
+        OR: [{ email: identifier }, { phone: identifier }, { phone: phoneCandidate }],
+      },
+    });
 
     // Constant-time-ish: always run verify even if user not found (prevent user enumeration)
     const dummyHash = '$argon2id$v=19$m=65536,t=3,p=1$AAAAAAAAAAAAAAAAAAAAAA$AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
@@ -89,9 +124,10 @@ export class AuthService {
       throw new UnauthorizedException('Account suspended');
     }
 
-    // MFA check
+    // MFA : aucun flux MFA n'est expose au client pour l'instant. On refuse
+    // explicitement plutot que de renvoyer une session incomplète.
     if (user.mfaEnabled && !parsed.mfaCode) {
-      return { user: { id: user.id, email: user.email }, tokens: null as any, mfaRequired: true };
+      throw new UnauthorizedException('Code de verification a 6 chiffres requis.');
     }
 
     // Reset failed login count
@@ -107,16 +143,11 @@ export class AuthService {
 
     const tokens = await this.issueTokens(user.id, user.roles, 'login', ip, userAgent);
 
+    // Contrat : `{ accessToken, refreshToken, user }` (pas d'enveloppe `tokens`).
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roles: user.roles,
-        status: user.status,
-      },
-      tokens,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: await this.loadContractUser(user.id),
     };
   }
 
@@ -182,30 +213,35 @@ export class AuthService {
     }
   }
 
-  async me(userId: string) {
+  /** Contrat API-CONTRACT.md §3 : `GET /auth/me` -> `{ user }`. */
+  async me(userId: string): Promise<{ user: ContractUser }> {
     if (!userId) {
       throw new UnauthorizedException('Not authenticated');
     }
+    return { user: await this.loadContractUser(userId) };
+  }
+
+  /**
+   * Contrat utilisateur (API-CONTRACT.md §3.1) : profil minimal, aucun champ
+   * financier. `permissions` est evalue par le backend (l'UI ne fait que masquer).
+   */
+  private async loadContractUser(userId: string): Promise<ContractUser> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
         email: true,
+        phone: true,
         firstName: true,
         lastName: true,
-        phone: true,
         roles: true,
-        status: true,
-        mfaEnabled: true,
-        emailVerified: true,
-        phoneVerified: true,
-        createdAt: true,
+        merchant: { select: { id: true } },
       },
     });
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return user;
+    return toContractUser(user);
   }
 
   private async issueTokens(

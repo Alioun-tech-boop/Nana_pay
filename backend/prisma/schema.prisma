@@ -136,7 +136,8 @@ enum AuditAction {
 
 model User {
   id               String     @id @default(uuid())
-  email            String     @unique @db.Citext
+  // Nullable : inscription par telephone uniquement (le frontend envoie email: '').
+  email            String?    @unique @db.Citext
   phone            String?    @unique
   passwordHash     String // Argon2id
   firstName        String

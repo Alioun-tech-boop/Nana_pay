@@ -29,8 +29,8 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Body('refreshToken') refreshToken: string, @Req() req: Request) {
-    const tokens = await this.authService.refresh(refreshToken, req.ip, req.headers['user-agent']);
-    return { tokens };
+    // Contrat API-CONTRACT.md §3 : `{ accessToken, refreshToken }` (pas d'enveloppe).
+    return this.authService.refresh(refreshToken, req.ip, req.headers['user-agent']);
   }
 
   @Public()
