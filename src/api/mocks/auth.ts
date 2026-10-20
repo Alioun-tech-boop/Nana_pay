@@ -118,7 +118,8 @@ export const authRoutes: MockRoute[] = [
       if (!hasAccessToken(ctx)) {
         return unauthorized('Non authentifié.')
       }
-      return ok(mockUser)
+      // Même enveloppe que le backend réel (API-CONTRACT.md §3) : `{ user }`.
+      return ok({ user: mockUser })
     },
   },
 ]

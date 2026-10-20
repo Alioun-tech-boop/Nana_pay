@@ -89,7 +89,7 @@ describe('session restoration on app start', () => {
           return { status: 200, data: { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' } }
         }
         if (request.path === '/auth/me' && request.headers['Authorization'] === 'Bearer fresh-access') {
-          return { status: 200, data: USER }
+          return { status: 200, data: { user: USER } }
         }
         return { status: 401, data: { code: 'UNAUTHORIZED', title: 'Non authentifié', detail: '' } }
       },
@@ -114,7 +114,7 @@ describe('session restoration on app start', () => {
         if (request.path === '/auth/refresh') {
           return { status: 200, data: { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' } }
         }
-        if (request.path === '/auth/me') return { status: 200, data: USER }
+        if (request.path === '/auth/me') return { status: 200, data: { user: USER } }
         return { status: 200, data: null }
       },
     })

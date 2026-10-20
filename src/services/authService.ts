@@ -75,8 +75,19 @@ export const authService = {
     })
   },
 
-  me(): Promise<User> {
-    return api.request<User>({
+  /**
+   * Profil de l'utilisateur connecté.
+   *
+   * `API-CONTRACT.md` §3 : le backend renvoie `{ user }`, pas l'utilisateur nu —
+   * comme `login` et `refresh`. On déballe donc l'enveloppe ici, au seul endroit
+   * qui connaît la forme du transport : les appelants manipulent un `User`.
+   *
+   * Ne pas le faire laissait `session.user` valoir `{ user: {...} }` après un
+   * rechargement : `role` devenait `undefined` et toutes les gardes de rôle
+   * (`RequireRole`) échouaient silencieusement.
+   */
+  async me(): Promise<User> {
+    const response = await api.request<{ user: User }>({
       method: 'GET',
       path: '/auth/me',
       // La restauration de session au chargement ne doit PAS déclencher le
@@ -85,6 +96,7 @@ export const authService = {
       // /login avec « Session expirée » (voir restoreSession).
       auth: false,
     })
+    return response.user
   },
 
   /**

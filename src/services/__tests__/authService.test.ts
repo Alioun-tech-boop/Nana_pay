@@ -84,7 +84,7 @@ describe('authService.restoreSession', () => {
           data: { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' } satisfies RefreshResponse,
         }
       }
-      if (call.authorization === 'Bearer fresh-access') return { status: 200, data: USER }
+      if (call.authorization === 'Bearer fresh-access') return { status: 200, data: { user: USER } }
       return { status: 401, data: { code: 'UNAUTHORIZED', title: 'Non authentifié', detail: '' } }
     })
     api.setTransportForTests(transport)
@@ -123,7 +123,7 @@ describe('authService.restoreSession', () => {
           data: { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' } satisfies RefreshResponse,
         }
       }
-      if (call.authorization === 'Bearer fresh-access') return { status: 200, data: USER }
+      if (call.authorization === 'Bearer fresh-access') return { status: 200, data: { user: USER } }
       return { status: 401, data: { code: 'UNAUTHORIZED', title: 'Non authentifié', detail: '' } }
     })
     api.setTransportForTests(transport)
@@ -168,5 +168,48 @@ describe('authService.restoreSession', () => {
     // Le token est toujours stocké : c'est à l'appelant (clearSession) de
     // décider de l'effacer, sinon une panne réseau déconnecterait l'utilisateur.
     expect(readStoredRefreshToken()).toBe('some-refresh-token')
+  })
+})
+
+describe('authService.me', () => {
+  beforeEach(() => {
+    api.resetForTests()
+    resetAuthServiceForTests()
+    clearStoredRefreshToken()
+  })
+
+  afterEach(() => {
+    api.resetForTests()
+    resetAuthServiceForTests()
+    clearStoredRefreshToken()
+    vi.restoreAllMocks()
+  })
+
+  /**
+   * `API-CONTRACT.md` §3 : `/auth/me` répond `{ user }`, comme `login` et
+   * `refresh`. Ne pas déballer l'enveloppe faisait valoir à `session.user` la
+   * valeur `{ user: {...} }` après un rechargement : `role` devenait `undefined`
+   * et toutes les gardes de rôle échouaient sans message.
+   */
+  it('unwraps the { user } envelope so callers receive a plain User', async () => {
+    const { transport } = recordingTransport(() => ({ status: 200, data: { user: USER } }))
+    api.setTransportForTests(transport)
+
+    const user = await authService.me()
+
+    expect(user).toEqual(USER)
+    expect(user.role).toBe('CLIENT')
+    expect(user.permissions).toEqual([])
+    expect((user as unknown as { user?: unknown }).user).toBeUndefined()
+  })
+
+  it('does not silently invent a user when the backend refuses', async () => {
+    const { transport } = recordingTransport(() => ({
+      status: 401,
+      data: { code: 'UNAUTHORIZED', title: 'Non authentifié', detail: '' },
+    }))
+    api.setTransportForTests(transport)
+
+    await expect(authService.me()).rejects.toThrow()
   })
 })
