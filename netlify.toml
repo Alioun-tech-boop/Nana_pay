@@ -27,6 +27,16 @@
   status = 200
   force = true
 
+# Les assets sont servis tels quels : un fichier manquant doit renvoyer 404.
+# Sans cette regle, le fallback SPA plus bas repondait 200 avec du HTML, ce qui
+# masquait silencieusement toute reference d'asset cassee (un bundle inexistant
+# ressemblait a un succes). Regler ici n'est pas une optimisation : c'est ce qui
+# rend une panne detectable.
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 404
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
