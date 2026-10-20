@@ -4,19 +4,33 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Mode réel : le backend est la source de vérité (le mock ne sert plus qu'au dev).
-  VITE_NP_API_MODE = "real"
-  # Les chemins frontend n'ont pas de préfixe (/auth/login) et le backend
-  # utilise setGlobalPrefix('api') : le préfixe est ajouté ici via le proxy.
-  VITE_NP_API_URL = "/api"
+  # ---------------------------------------------------------------------------
+  # ⚠️ MODE MOCK TEMPORAIRE (2026-10-20)
+  # Le backend NanaPay n'est PAS encore déployé sur Render. Le nom d'hôte
+  # nanapay-backend.onrender.com est occupé par un AUTRE serveur (empreinte
+  # différente : /health au lieu de /healthz, format d'erreur {code,message,requestId}).
+  # Passer en "real" enverait les identifiants à ce serveur : c'est donc bloqué.
+  #
+  # POUR ACTIVER LE RÉEL après déploiement, deux lignes :
+  #   1) VITE_NP_API_MODE = "real"
+  #   2) réactiver le redirect [[redirects]] /api ci-dessous, en pointant vers
+  #      l'URL RÉELLE du service NanaPay (à confirmer dans le dashboard Render).
+  # ---------------------------------------------------------------------------
+  VITE_NP_API_MODE = "mock"
 
-# Proxy /api -> backend Render.
-# AVANT le fallback SPA et avec force=true, sinon la règle "/*" intercepte.
-[[redirects]]
-  from = "/api/*"
-  to = "https://nanapay-backend.onrender.com/api/:splat"
-  status = 200
-  force = true
+  # Les chemins frontend n'ont pas de préfixe (/auth/login) et le backend utilise
+  # setGlobalPrefix('api') : le proxy ci-dessous ajoute /api en le préfixant.
+  # VITE_NP_API_URL = "/api"
+
+# ---------------------------------------------------------------------------
+# PROXY /api -> backend Render (DÉSACTIVÉ tant que l'URL réelle n'est pas vérifiée)
+# Il doit rester AVANT la règle "/*" et être forcé, sinon le fallback SPA l'intercepte.
+# ---------------------------------------------------------------------------
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://SERVICE-RENDER-A-CONFIRMER.onrender.com/api/:splat"
+#   status = 200
+#   force = true
 
 [[redirects]]
   from = "/*"
