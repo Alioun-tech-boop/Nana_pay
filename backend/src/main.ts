@@ -61,9 +61,9 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  // Trust proxy (behind reverse proxy)
-  const server = app.getHttpServer();
-  server.set('trust proxy', 1);
+  // Trust proxy (behind the Render reverse proxy) — c'est un réglage Express,
+  // donc sur l'instance Express (getHttpAdapter), pas sur le serveur Node.
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
 
   const port = config.get<number>('PORT', 3000);
   await app.listen(port, '0.0.0.0');
