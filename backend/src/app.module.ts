@@ -9,6 +9,7 @@ import { CatalogModule } from './catalog/catalog.module';
 import { OrdersModule } from './orders/orders.module';
 import { SavingsModule } from './savings/savings.module';
 import { VaultModule } from './vault/vault.module';
+import { CreditModule } from './credit/credit.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
@@ -26,7 +27,8 @@ import { APP_GUARD } from '@nestjs/core';
     OrdersModule,
     SavingsModule,
     VaultModule,
-    // TODO: CreditModule, PaymentsModule, QRModule, AuditModule
+    CreditModule,
+    // TODO: PaymentsModule, QRModule, AuditModule
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

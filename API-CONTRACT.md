@@ -318,16 +318,50 @@ Contrainte : le Coffre est réservé aux **salariés éligibles** dont le profil
 
 ### 6.3 Crédit bancaire
 
+**Espace client — ✅ implémenté.**
+
 | Endpoint | Méthode | Réponse |
 |---|---|---|
-| `GET /credit/eligibility` | `[PROPOSED]` | `{ eligible, reasons[] }` |
-| `POST /credit/request` | `[PROPOSED]` | `201 CreditRequest` — requiert `Idempotency-Key` |
-| `GET /credit/requests/:id` | `[PROPOSED]` | `CreditRequest` |
-| `GET /credit` | `[PROPOSED]` | `Credit` (crédit décaissé) |
-| `POST /credit/accept` / `reject` | `[PROPOSED]` | Banque — décision |
-| `GET /credit/requests` | `[PROPOSED]` | Banque — file d'analyse |
+| `GET /credit/eligibility` | ✅ | `{ eligible, reasons[] }` |
+| `GET /credit/profile` | ✅ | `CreditProfile` \| `null` |
+| `GET /credit` | ✅ | `Credit` \| `null` (crédit décaissé) |
+| `GET /credit/requests` | ✅ | `Paginated<CreditRequest>` |
+| `GET /credit/requests/:id` | ✅ | `CreditRequest` |
+| `POST /credit/request` | ✅ | `201 CreditRequest` — requiert `Idempotency-Key` |
 
-Concepts **distincts** : `CreditProfile` (profil), `CreditRequest` (demande), `Credit` (crédit accordé). Ne pas les fusionner.
+**Espace Banque — `[PROPOSED]`** (analyse, décision, portefeuille) : `POST /credit/accept` / `reject`, file d'analyse banque. Aucune décision d'octroi n'existe côté client : elle appartient à la banque.
+
+Concepts **distincts** : `CreditProfile` (profil, validé par la banque), `CreditRequest` (demande, créée par le client pour **une** commande), `Credit` (crédit décaissé, porte le remboursement). Ne pas les fusionner.
+
+```json
+// GET /credit/eligibility
+{ "eligible": false, "reasons": ["Votre profil bancaire est encore en cours de validation."] }
+
+// CreditRequest
+{
+  "id": "cre_...",
+  "orderId": "ord_...",
+  "orderReference": "NP-2026-00001245",
+  "requestedAmount": { "amount": 45000, "currency": "XOF" },
+  "termMonths": 12,
+  "ratePercent": 7,
+  "totalRepayment": { "amount": 48150, "currency": "XOF" },
+  "status": "IN_REVIEW",
+  "decisionReason": null,
+  "createdAt": "2026-10-20T...",
+  "updatedAt": "2026-10-20T..."
+}
+```
+
+`POST /credit/request` — corps : `{ "orderId": "ord_...", "termMonths": 12 }`. **Le client ne transmet aucun montant** : le montant demandé est celui de la commande, relu en base. Le **taux** et le **total à rembourser** sont calculés par le backend.
+
+`status` d'une demande : le contrat expose quatre états — `IN_REVIEW`, `APPROVED`, `REFUSED`, `CANCELLED`. La table `CreditRequest` utilise l'énumération complète du cycle de vie (`REQUESTED`, `UNDER_REVIEW`, `APPROVED`, `REFUSED`, `DISBURSED`, `REPAYING`, `COMPLETED`, `DEFAULTED`) ; la **traduction est faite par le backend** (`credit.mapper.ts`), seul endroit où elle existe. Les états postérieurs à un accord restent `APPROVED` : l'état de remboursement est porté par `Credit` (`GET /credit`).
+
+**Règles configurables (`backend/src/credit/credit.config.ts`).** Le contrat ne fixait ni barème ni critères : ils sont regroupés dans un fichier nommé et documenté comme **valeurs par défaut provisoires**, jamais enfouis dans une transaction. Barème de taux actuel : `5 %` (≤ 6 mois), `7 %` (≤ 12), `9 %` (≤ 18), `11 %` (≤ 24). Durées acceptées : **3 à 24 mois**. Éligibilité : le **profil bancaire doit être validé** (`creditProfile.status = VALIDATED` **et** `validatedAt` non nul).
+
+> **Gap documenté — données salariales absentes du schéma.** `CreditProfile` ne contient **ni employeur, ni salaire, ni ancienneté**. L'UI Banque (mock) référence ces champs, mais le backend ne peut pas les fournir : `requiresVerifiedSalary` / `minMonthlySalary` sont donc **désactivés par défaut**. Les activer sans ajouter les colonnes correspondantes rendrait **tout le monde inéligible silencieusement**. À traiter lors de l'implémentation de l'espace Banque.
+
+**Garanties backend** : une commande ne donne lieu qu'à **une** demande (`CreditRequest.orderId` unique) — une demande existante est renvoyée telle quelle ; le montant vient de la commande, jamais du corps de la requête ; `Idempotency-Key` obligatoire ; toute lecture est scopée au `userId` du jeton (une demande d'autrui renvoie `404`, pas `403`) ; `remaining` est calculé depuis les remboursements **réellement enregistrés** en base, jamais d'un échéancier théorique.
 
 ---
 

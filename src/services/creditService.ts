@@ -1,6 +1,7 @@
 import { api } from '../api'
 import type {
   Credit,
+  CreditProfile,
   CreditRequest,
   CreditRequestStatus,
   Eligibility,
@@ -24,6 +25,14 @@ export const creditService = {
     return api.request<Eligibility>({
       method: 'GET',
       path: '/credit/eligibility',
+    })
+  },
+
+  /** Dossier bancaire du client ; `null` s'il n'existe pas encore. */
+  getProfile(): Promise<CreditProfile | null> {
+    return api.request<CreditProfile | null>({
+      method: 'GET',
+      path: '/credit/profile',
     })
   },
 

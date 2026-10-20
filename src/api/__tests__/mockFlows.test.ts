@@ -223,6 +223,9 @@ describe('business flows via mock backend', () => {
       })
       expect(request.id).toBeDefined()
       expect(request.status).toBe('IN_REVIEW')
+      // Le taux et le total à rembourser sont calculés par le backend.
+      expect(request.ratePercent).toBe(7)
+      expect(request.totalRepayment.amount).toBeGreaterThan(request.requestedAmount.amount)
     })
 
     it('rejects credit request with invalid term', async () => {
@@ -244,7 +247,10 @@ describe('business flows via mock backend', () => {
     it('fetches active credit', async () => {
       const credit = await creditService.getCredit()
       expect(credit).not.toBeNull()
-      expect(credit?.status).toBe('ACTIVE')
+      // Statut du cycle de vie backend : un crédit en cours est REPAYING.
+      expect(credit?.status).toBe('REPAYING')
+      // Le restant dû vient du backend, jamais d'un calcul d'interface.
+      expect(credit?.remaining.amount).toBe(155000)
     })
 
     it('lists credit requests', async () => {

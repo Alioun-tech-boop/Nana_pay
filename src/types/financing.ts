@@ -104,22 +104,30 @@ export interface Eligibility {
 
 export interface CreditProfile {
   id: string
-  employer: string | null
-  salaryVerified: boolean
+  /** Éligibilité globale décidée par la banque (source de vérité backend). */
   bankProfileValidated: boolean
-  yearsAtWork: number | null
-  monthlySalary: Money | null
+  score: number | null
+  maxAmount: Money | null
+  status: string
+  validatedAt: ServerDate | null
+  createdAt: ServerDate
+  updatedAt: ServerDate
 }
 
 export interface CreditRequest {
   id: string
+  orderId: string
   orderReference: string
-  clientId: string
   requestedAmount: Money
   termMonths: number
+  /** Taux annuel calculé par le backend. */
+  ratePercent: number
+  /** Montant total à rembourser, calculé par le backend. */
+  totalRepayment: Money
   status: CreditRequestStatus
   decisionReason: string | null
   createdAt: ServerDate
+  updatedAt: ServerDate
 }
 
 export interface CreateCreditRequest {
@@ -127,17 +135,22 @@ export interface CreateCreditRequest {
   termMonths: number
 }
 
-export const CREDIT_STATUSES = ['ACTIVE', 'COMPLETED', 'DEFAULTED'] as const
+export const CREDIT_STATUSES = ['ACTIVE', 'DISBURSED', 'REPAYING', 'COMPLETED', 'DEFAULTED'] as const
 
 export type CreditStatus = (typeof CREDIT_STATUSES)[number]
 
 export interface Credit {
   id: string
   reference: string
+  requestId: string
   principal: Money
+  /** Restant dû calculé par le backend depuis les remboursements réels. */
   remaining: Money
   ratePercent: number
-  status: CreditStatus
-  nextDueAt: ServerDate | null
+  totalAmount: Money
+  termMonths: number
+  status: string
+  disbursedAt: ServerDate | null
   createdAt: ServerDate
+  updatedAt: ServerDate
 }

@@ -98,15 +98,8 @@ export const bankAdminRoutes: MockRoute[] = [
       const query = ctx.query
       let items = Object.values(mockBankProfileDetails).flatMap((profile) =>
         profile.requests.map((request) => ({
-          id: request.id,
-          clientId: request.clientId,
+          ...request,
           clientFullName: profile.fullName,
-          orderReference: request.orderReference,
-          requestedAmount: request.requestedAmount,
-          termMonths: request.termMonths,
-          status: request.status,
-          decisionReason: request.decisionReason,
-          createdAt: request.createdAt,
           riskLevel: profile.riskLevel,
         })),
       )
@@ -122,8 +115,7 @@ export const bankAdminRoutes: MockRoute[] = [
         const request = profile.requests.find((item) => item.id === ctx.params.id)
         if (request) {
           return ok({
-            id: request.id,
-            clientId: request.clientId,
+            ...request,
             clientFullName: profile.fullName,
             email: profile.email,
             phone: profile.phone,
@@ -134,12 +126,6 @@ export const bankAdminRoutes: MockRoute[] = [
             salaryVerified: profile.salaryVerified,
             bankProfileValidated: profile.bankProfileValidated,
             riskLevel: profile.riskLevel,
-            orderReference: request.orderReference,
-            requestedAmount: request.requestedAmount,
-            termMonths: request.termMonths,
-            status: request.status,
-            decisionReason: request.decisionReason,
-            createdAt: request.createdAt,
             documents: profile.documents,
             history: profile.requests,
           })

@@ -3,6 +3,14 @@ import type { CreditRequest } from './financing'
 import type { OrderStatus } from './order'
 
 export interface BankCreditRequest extends CreditRequest {
+  /**
+   * Client concerné.
+   *
+   * Porté par la vue **banque**, pas par la vue client : un client n'a jamais à
+   * recevoir l'identifiant d'un autre, et n'a pas besoin du sien (son jeton
+   * l'identifie déjà) — `AGENTS.md` §19, §29.
+   */
+  clientId: string
   clientFullName: string
   riskLevel?: BankRiskLevel
 }
@@ -57,7 +65,7 @@ export interface BankClientProfileDetail extends BankClientProfile {
   monthlySalary: Money | null
   totalRequested: Money
   documents: BankClientDocument[]
-  requests: CreditRequest[]
+  requests: BankCreditRequest[]
 }
 
 export interface BankCreditRequestDetail extends BankCreditRequest {
@@ -71,7 +79,7 @@ export interface BankCreditRequestDetail extends BankCreditRequest {
   bankProfileValidated: boolean
   riskLevel: BankRiskLevel
   documents: BankClientDocument[]
-  history: CreditRequest[]
+  history: BankCreditRequest[]
 }
 
 export interface BankCredit {

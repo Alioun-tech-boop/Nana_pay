@@ -12,6 +12,7 @@ import {
   bodyOf,
   businessRule,
   created,
+  daysAgo,
   daysAhead,
   notFound,
   ok,
@@ -20,7 +21,7 @@ import {
   secondsAgo,
 } from './helpers'
 import type { MockRoute } from './types'
-import type { Order, Savings } from '../../types'
+import type { Order, Savings, CreditRequest } from '../../types'
 
 function findOrder(orderId: string): Order | undefined {
   return mockOrders.find((order) => order.id === orderId)
@@ -274,6 +275,21 @@ export const financingRoutes: MockRoute[] = [
     handler: () => ok({ eligible: true, reasons: [] }),
   },
   {
+    method: 'GET',
+    pattern: '/credit/profile',
+    handler: () =>
+      ok({
+        id: 'crp_01HCLIENT',
+        bankProfileValidated: true,
+        score: 72,
+        maxAmount: { amount: 1000000, currency: 'XOF' },
+        status: 'VALIDATED',
+        validatedAt: daysAgo(30),
+        createdAt: daysAgo(60),
+        updatedAt: daysAgo(30),
+      }),
+  },
+  {
     method: 'POST',
     pattern: '/credit/request',
     handler: (ctx) => {
@@ -284,15 +300,23 @@ export const financingRoutes: MockRoute[] = [
       }
       const order = findOrder(String(body.orderId ?? ''))
       const amount = order?.product.price ?? { amount: 690000, currency: 'XOF' }
-      const request = {
+      const ratePercent = termMonths <= 6 ? 5 : termMonths <= 12 ? 7 : termMonths <= 18 ? 9 : 11
+      const totalRepayment = {
+        amount: Math.ceil(amount.amount * (1 + (ratePercent / 100) * (termMonths / 12))),
+        currency: amount.currency,
+      }
+      const request: CreditRequest = {
         id: `cre_01HNEW${Date.now()}`,
+        orderId: String(body.orderId ?? ''),
         orderReference: order?.reference ?? 'NP-2026-00001300',
-        clientId: 'usr_01HCLIENT',
         requestedAmount: amount,
         termMonths,
-        status: 'IN_REVIEW' as const,
+        ratePercent,
+        totalRepayment,
+        status: 'IN_REVIEW',
         decisionReason: null,
         createdAt: secondsAgo(10),
+        updatedAt: secondsAgo(10),
       }
       mockCreditRequests.push(request)
       return created(request)

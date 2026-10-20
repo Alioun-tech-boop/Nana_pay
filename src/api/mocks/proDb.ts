@@ -8,6 +8,7 @@ import type {
   BankClientProfile,
   BankClientProfileDetail,
   BankCredit,
+  BankCreditRequest,
   BankTransfer,
   MerchantOrderDetail,
   MerchantProduct,
@@ -17,6 +18,48 @@ import type {
 import { daysAgo, daysAhead, secondsAgo, secondsAhead } from './helpers'
 
 const XOF = 'XOF'
+
+/**
+ * Construit une demande de crédit **vue banque** complète.
+ *
+ * Le contrat client ne connaît pas `clientId` (son jeton l'identifie déjà) ; la
+ * vue banque, elle, doit nommer le client. Ce helper évite de recopier des
+ * champs calculés (taux, total, horodatage de mise à jour) à chaque fixture.
+ */
+function bankRequest(input: {
+  id: string
+  clientId: string
+  clientFullName: string
+  orderId: string
+  orderReference: string
+  amount: number
+  termMonths: number
+  status: CreditRequestStatusLike
+  decisionReason?: string | null
+  createdAt: string
+}): BankCreditRequest {
+  const ratePercent = input.termMonths <= 6 ? 5 : input.termMonths <= 12 ? 7 : input.termMonths <= 18 ? 9 : 11
+  return {
+    id: input.id,
+    clientId: input.clientId,
+    clientFullName: input.clientFullName,
+    orderId: input.orderId,
+    orderReference: input.orderReference,
+    requestedAmount: { amount: input.amount, currency: XOF },
+    termMonths: input.termMonths,
+    ratePercent,
+    totalRepayment: {
+      amount: Math.ceil(input.amount * (1 + (ratePercent / 100) * (input.termMonths / 12))),
+      currency: XOF,
+    },
+    status: input.status,
+    decisionReason: input.decisionReason ?? null,
+    createdAt: input.createdAt,
+    updatedAt: input.createdAt,
+  }
+}
+
+type CreditRequestStatusLike = 'IN_REVIEW' | 'APPROVED' | 'REFUSED' | 'CANCELLED'
 
 export const mockMerchantUser: User = {
   id: 'usr_01HMERCHANT',
@@ -358,27 +401,30 @@ export const mockBankProfiles: BankClientProfile[] = [
   },
 ]
 
-const adaRequests = [
-  {
+const adaRequests: BankCreditRequest[] = [
+  bankRequest({
     id: 'cre_01HREQ1',
+    clientId: 'usr_01HCLIENT',
+    clientFullName: 'Ada Doumbia',
+    orderId: 'ord_01HREQ1',
     orderReference: 'NP-2026-00001300',
-    clientId: 'usr_01HCLIENT',
-    requestedAmount: { amount: 690000, currency: XOF },
+    amount: 690000,
     termMonths: 12,
-    status: 'IN_REVIEW' as const,
-    decisionReason: null,
+    status: 'IN_REVIEW',
     createdAt: secondsAgo(2 * 86_400),
-  },
-  {
+  }),
+  bankRequest({
     id: 'cre_01HAPP',
-    orderReference: 'NP-2026-00001241',
     clientId: 'usr_01HCLIENT',
-    requestedAmount: { amount: 450000, currency: XOF },
+    clientFullName: 'Ada Doumbia',
+    orderId: 'ord_01HAPP',
+    orderReference: 'NP-2026-00001241',
+    amount: 450000,
     termMonths: 9,
-    status: 'APPROVED' as const,
+    status: 'APPROVED',
     decisionReason: 'Profil bancaire validé',
     createdAt: daysAgo(6),
-  },
+  }),
 ]
 
 export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
@@ -404,16 +450,17 @@ export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
       { id: 'doc_12', label: 'Bulletin de salaire', type: 'PAYSLIP', status: 'PENDING', submittedAt: daysAgo(4) },
     ],
     requests: [
-      {
+      bankRequest({
         id: 'cre_01HREQ2',
-        orderReference: 'NP-2026-00001304',
         clientId: 'usr_01HCLI002',
-        requestedAmount: { amount: 275000, currency: XOF },
+        clientFullName: 'Moussa Diakité',
+        orderId: 'ord_01HREQ2',
+        orderReference: 'NP-2026-00001304',
+        amount: 275000,
         termMonths: 6,
         status: 'IN_REVIEW',
-        decisionReason: null,
         createdAt: secondsAgo(36 * 3600),
-      },
+      }),
     ],
   },
   usr_01HCLI003: {
@@ -426,16 +473,18 @@ export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
       { id: 'doc_22', label: 'Relevé bancaire', type: 'STATEMENT', status: 'VERIFIED', submittedAt: daysAgo(30) },
     ],
     requests: [
-      {
+      bankRequest({
         id: 'cre_01HAPP2',
-        orderReference: 'NP-2026-00001217',
         clientId: 'usr_01HCLI003',
-        requestedAmount: { amount: 158000, currency: XOF },
+        clientFullName: 'Fatou Bamba',
+        orderId: 'ord_01HAPP2',
+        orderReference: 'NP-2026-00001217',
+        amount: 158000,
         termMonths: 4,
         status: 'APPROVED',
         decisionReason: 'Salaire stable, faible endettement',
         createdAt: daysAgo(18),
-      },
+      }),
     ],
   },
   usr_01HCLI004: {
@@ -447,16 +496,18 @@ export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
       { id: 'doc_31', label: 'Pièce d’identité', type: 'IDENTITY', status: 'REJECTED', submittedAt: daysAgo(26) },
     ],
     requests: [
-      {
+      bankRequest({
         id: 'cre_01HREQ3',
-        orderReference: 'NP-2026-00001299',
         clientId: 'usr_01HCLI004',
-        requestedAmount: { amount: 37000, currency: XOF },
+        clientFullName: 'Yacouba Sanogo',
+        orderId: 'ord_01HREQ3',
+        orderReference: 'NP-2026-00001299',
+        amount: 37000,
         termMonths: 3,
         status: 'REFUSED',
         decisionReason: 'Revenus non vérifiables',
         createdAt: daysAgo(24),
-      },
+      }),
     ],
   },
   usr_01HCLI005: {
@@ -468,16 +519,18 @@ export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
       { id: 'doc_41', label: 'Attestation d’emploi', type: 'EMPLOYMENT', status: 'VERIFIED', submittedAt: daysAgo(140) },
     ],
     requests: [
-      {
+      bankRequest({
         id: 'cre_01HAPP3',
-        orderReference: 'NP-2026-00001208',
         clientId: 'usr_01HCLI005',
-        requestedAmount: { amount: 560000, currency: XOF },
+        clientFullName: 'Aïcha Coulibaly',
+        orderId: 'ord_01HAPP3',
+        orderReference: 'NP-2026-00001208',
+        amount: 560000,
         termMonths: 12,
         status: 'APPROVED',
         decisionReason: 'Profil bancaire validé',
         createdAt: daysAgo(22),
-      },
+      }),
     ],
   },
   usr_01HCLI006: {
@@ -489,16 +542,17 @@ export const mockBankProfileDetails: Record<string, BankClientProfileDetail> = {
       { id: 'doc_51', label: 'Pièce d’identité', type: 'IDENTITY', status: 'PENDING', submittedAt: daysAgo(3) },
     ],
     requests: [
-      {
+      bankRequest({
         id: 'cre_01HREQ4',
-        orderReference: 'NP-2026-00001251',
         clientId: 'usr_01HCLI006',
-        requestedAmount: { amount: 125000, currency: XOF },
+        clientFullName: 'Salif Traoré',
+        orderId: 'ord_01HREQ4',
+        orderReference: 'NP-2026-00001251',
+        amount: 125000,
         termMonths: 6,
         status: 'IN_REVIEW',
-        decisionReason: null,
         createdAt: secondsAgo(20 * 3600),
-      },
+      }),
     ],
   },
 }

@@ -24,7 +24,8 @@ const creditHeroImage = '/assets/credit-card-bg.jpeg'
 
 export function CreditPage() {
   const eligibility = useRequest(() => creditService.getEligibility(), { deps: [] })
-  const credit = useRequest(() => creditService.getCredit(), { deps: [] })
+  const profile = useRequest(() => creditService.getProfile(), { deps: [], optional: true })
+  const credit = useRequest(() => creditService.getCredit(), { deps: [], optional: true })
   const requests = useRequest(() => creditService.getCreditRequests({ pageSize: 25 }), { deps: [] })
 
   if (credit.isError) {
@@ -84,11 +85,9 @@ export function CreditPage() {
                   <ProgressBar value={paidPercent} label="Remboursement du crédit" showLabel />
                 </div>
                 <div className={styles.heroActions}>
-                  {data.nextDueAt ? (
-                    <Text muted>
-                      Prochaine échéance le {formatDate(data.nextDueAt)}
-                    </Text>
-                  ) : null}
+                  <Text muted>
+                    Taux annuel {data.ratePercent} % · {data.termMonths} mois
+                  </Text>
                 </div>
               </div>
             </div>
@@ -105,11 +104,18 @@ export function CreditPage() {
               icon="wallet"
               value={<MoneyAmount amount={data.remaining.amount} currency={data.remaining.currency} />}
             />
+            <Metric
+              label="Total à rembourser"
+              icon="receipt"
+              value={
+                <MoneyAmount amount={data.totalAmount.amount} currency={data.totalAmount.currency} />
+              }
+            />
             <Metric label="Taux annuel" icon="receipt" value={`${data.ratePercent} %`} />
             <Metric
-              label="Prochaine échéance"
+              label="Durée"
               icon="calendar"
-              value={data.nextDueAt ? formatDate(data.nextDueAt) : '—'}
+              value={`${data.termMonths} mois`}
             />
           </div>
         </>
@@ -168,7 +174,8 @@ export function CreditPage() {
                   <span className={styles.itemMain}>
                     <span className={styles.itemTitle}>{request.orderReference}</span>
                     <span className={styles.itemMuted}>
-                      {request.termMonths} mois · {formatDate(request.createdAt)}
+                      {request.termMonths} mois · {request.ratePercent} % ·{' '}
+                      {formatDate(request.createdAt)}
                       {request.decisionReason ? ` · ${request.decisionReason}` : ''}
                     </span>
                   </span>
@@ -182,6 +189,42 @@ export function CreditPage() {
           </div>
         )}
       </Section>
+
+      {profile.data ? (
+        <Section title="Mon dossier bancaire">
+          <div className={styles.metricGrid}>
+            <Metric
+              label="État du dossier"
+              icon="bank"
+              value={profile.data.bankProfileValidated ? 'Validé' : 'En cours'}
+            />
+            <Metric
+              label="Score bancaire"
+              icon="receipt"
+              value={profile.data.score === null ? 'Non calculé' : `${profile.data.score}`}
+            />
+            <Metric
+              label="Plafond accordé"
+              icon="money"
+              value={
+                profile.data.maxAmount ? (
+                  <MoneyAmount
+                    amount={profile.data.maxAmount.amount}
+                    currency={profile.data.maxAmount.currency}
+                  />
+                ) : (
+                  'Non défini'
+                )
+              }
+            />
+            <Metric
+              label="Validé le"
+              icon="calendar"
+              value={profile.data.validatedAt ? formatDate(profile.data.validatedAt) : '—'}
+            />
+          </div>
+        </Section>
+      ) : null}
     </div>
   )
 }
