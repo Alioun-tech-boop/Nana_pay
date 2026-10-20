@@ -26,6 +26,30 @@ function findOrder(orderId: string): Order | undefined {
   return mockOrders.find((order) => order.id === orderId)
 }
 
+/**
+ * Recalcule les valeurs dérivées du coffre (progression, reste à atteindre).
+ *
+ * Ces deux champs sont calculés par le backend en production
+ * (`vault.mapper.ts`) : le mock doit faire de même pour rester fidèle au
+ * contrat, sinon l'interface serait validée contre des valeurs figées.
+ */
+function refreshVaultDerived(): void {
+  const target = mockVault.targetAmount
+  if (!target) {
+    mockVault.progressPercent = null
+    mockVault.remainingToTarget = null
+    return
+  }
+  mockVault.progressPercent =
+    target.amount <= 0
+      ? 0
+      : Math.min(100, Math.round((mockVault.balance.amount / target.amount) * 100))
+  mockVault.remainingToTarget = {
+    amount: Math.max(0, target.amount - mockVault.balance.amount),
+    currency: mockVault.balance.currency,
+  }
+}
+
 export const financingRoutes: MockRoute[] = [
   {
     method: 'GET',
@@ -199,6 +223,7 @@ export const financingRoutes: MockRoute[] = [
       }
       mockVault.monthlyContribution = { amount: monthlyAmount, currency: mockVault.balance.currency }
       mockVault.targetAmount = { amount: targetAmount, currency: mockVault.balance.currency }
+      refreshVaultDerived()
       return ok(mockVault)
     },
   },
@@ -225,6 +250,7 @@ export const financingRoutes: MockRoute[] = [
         ...mockVault.balance,
         amount: mockVault.balance.amount - order.product.price.amount,
       }
+      refreshVaultDerived()
       mockVaultTransactions.unshift({
         id: `vtx_gen_${Date.now()}`,
         direction: 'DEBIT',

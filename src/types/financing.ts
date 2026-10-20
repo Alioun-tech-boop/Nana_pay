@@ -77,6 +77,10 @@ export interface Vault {
   targetAmount: Money | null
   /** Montant prélevé chaque mois sur le salaire ; null tant qu'aucun plan n'est actif. */
   monthlyContribution: Money | null
+  /** Progression vers la somme visée, calculée par le backend ; null si aucun plan. */
+  progressPercent: number | null
+  /** Reste à atteindre, calculé par le backend ; null si aucun plan. Jamais négatif. */
+  remainingToTarget: Money | null
   transactionsCount: number
 }
 

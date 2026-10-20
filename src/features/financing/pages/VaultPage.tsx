@@ -55,11 +55,10 @@ export function VaultPage() {
   const data = vault.data
   const target = data?.targetAmount ?? null
   const monthly = data?.monthlyContribution ?? null
-  const remainingToTarget = target && data ? Math.max(0, target.amount - data.balance.amount) : 0
-  const progressPercent =
-    target && data && target.amount > 0
-      ? Math.min(100, Math.round((data.balance.amount / target.amount) * 100))
-      : 0
+  // Progression et reste à atteindre viennent du backend : le frontend ne les
+  // recalcule jamais (`AGENTS.md` §10). Sans plan, le backend renvoie `null`.
+  const remainingToTarget = data?.remainingToTarget?.amount ?? 0
+  const progressPercent = data?.progressPercent ?? 0
 
   const monthlyValue = Number(monthlyInput)
   const targetValue = Number(targetInput)

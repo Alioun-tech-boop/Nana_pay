@@ -442,6 +442,9 @@ export const mockVault: Vault = {
   eligible: true,
   targetAmount: { amount: 500000, currency: XOF },
   monthlyContribution: { amount: 20000, currency: XOF },
+  // 250 000 / 500 000 = 50 % — valeurs backend, jamais recalculées par l'UI.
+  progressPercent: 50,
+  remainingToTarget: { amount: 250000, currency: XOF },
   transactionsCount: 4,
 }
 

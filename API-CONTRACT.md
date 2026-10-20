@@ -285,10 +285,10 @@ Règles métier (affichées, jamais calculées) : extension max **2 mois**, pén
 
 | Endpoint | Méthode | Réponse |
 |---|---|---|
-| `GET /vault` | `[PROPOSED]` | `Vault` (solde, plan, historique) |
-| `GET /vault/transactions` | `[PROPOSED]` | `{ items: VaultTransaction[], pagination }` |
-| `PUT /vault/plan` | `[PROPOSED]` | `200 Vault` — définition du plan coffre ; requiert `Idempotency-Key` |
-| `POST /vault/use` | `[PROPOSED]` | `201` — affectation à une commande ; requiert `Idempotency-Key` |
+| `GET /vault` | ✅ implémenté | `Vault` (solde, plan, progression) |
+| `GET /vault/transactions` | ✅ implémenté | `{ items: VaultTransaction[], pagination }` |
+| `PUT /vault/plan` | ✅ implémenté | `200 Vault` — définition du plan coffre ; requiert `Idempotency-Key` |
+| `POST /vault/use` | ✅ implémenté | `201 Vault` — affectation à une commande ; requiert `Idempotency-Key` |
 
 ```json
 {
@@ -297,13 +297,21 @@ Règles métier (affichées, jamais calculées) : extension max **2 mois**, pén
   "eligible": true,
   "targetAmount": { "amount": 500000, "currency": "XOF" },
   "monthlyContribution": { "amount": 20000, "currency": "XOF" },
+  "progressPercent": 50,
+  "remainingToTarget": { "amount": 250000, "currency": "XOF" },
   "transactionsCount": 4
 }
 ```
 
-`PUT /vault/plan` — corps : `{ "monthlyAmount": 20000, "targetAmount": 500000 }`. **Le client choisit** le montant prélevé chaque mois sur son salaire et la **somme visée**. Le backend **valide** (entiers, unités mineures, > 0) et confirme les termes définitifs ; le front n'applique aucune règle métier. Le coffre est alimenté **uniquement par prélèvement mensuel sur salaire**, jusqu'à atteindre la somme visée : il n'existe **pas** de rechargement manuel.
+`progressPercent` et `remainingToTarget` sont **calculés par le backend** : le frontend les affiche tels quels et ne les recalcule jamais. Tous deux valent `null` tant qu'aucun plan n'est défini (`0 %` décrirait un plan existant mais vide). `remainingToTarget` est borné à `0` si le solde dépasse la somme visée.
 
-Contrainte : le Coffre est réservé aux **salariés éligibles** dont le profil bancaire est validé. L'éligibilité est décidée par le backend, jamais par l'UI. Le coffre reste un mécanisme de financement lié à l'éligibilité bancaire, pas un portefeuille générique.
+`PUT /vault/plan` — corps : `{ "monthlyAmount": 20000, "targetAmount": 500000 }`. **Le client choisit** le montant prélevé chaque mois sur son salaire et la **somme visée**. Le backend **valide** (entiers, unités mineures, > 0, prélèvement ≤ somme visée) et confirme les termes définitifs ; le front n'applique aucune règle métier. Chaque version du plan est conservée dans `VaultPlanHistory`. Le coffre est alimenté **uniquement par prélèvement mensuel sur salaire** : il n'existe **pas** de rechargement manuel.
+
+Contrainte : le Coffre est réservé aux **salariés éligibles** dont le profil bancaire est validé. L'éligibilité (`eligible`) est décidée par le backend, jamais par l'UI ; toute opération sur un coffre non éligible renvoie `403`. Le coffre reste un mécanisme de financement lié à l'éligibilité bancaire, pas un portefeuille générique.
+
+**Garanties backend** : une commande ne peut être financée qu'une fois (`VaultUsage.orderId` unique) ; un verrou optimiste empêche deux financements concurrents de se perdre (le perdant reçoit `409`) ; un solde insuffisant est refusé (`422`) ; chaque lecture est scopée au `userId` du jeton.
+
+`GET /vault/transactions` — chaque mouvement expose un `direction` (`CREDIT` / `DEBIT`) **projeté par le backend** depuis le type métier : le frontend n'interprète jamais `TransactionType`. `CREDIT` = entrée (prélèvement salaire), tout le reste = sortie.
 
 ### 6.3 Crédit bancaire
 

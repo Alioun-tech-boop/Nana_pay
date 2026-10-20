@@ -10,6 +10,9 @@ coverage/
 out/
 *.tsbuildinfo
 
+# Netlify CLI (etat local genere par `netlify deploy`)
+.netlify/
+
 # Environnements et secrets — JAMAIS commité
 .env
 .env.*
