@@ -305,9 +305,13 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const [moreOpen, setMoreOpen] = useState(false)
 
-  const vaultReq = useRequest(() => vaultService.getVault(), { deps: [] })
-  const savingsReq = useRequest(() => savingsService.getSavings({ pageSize: 50 }), { deps: [] })
-  const historyReq = useRequest(() => historyService.getHistory({ pageSize: 100 }), { deps: [] })
+  // Les modules Coffre, Épargne et Historique ne sont pas encore implémentés
+  // côté backend (voir API-CONTRACT.md §14) : leurs endpoints renvoient 404. Le
+  // tableau de bord doit rester lisible et afficher des valeurs neutres plutôt
+  // qu'une bannière d'erreur pour une fonctionnalité non livrée.
+  const vaultReq = useRequest(() => vaultService.getVault(), { deps: [], optional: true })
+  const savingsReq = useRequest(() => savingsService.getSavings({ pageSize: 50 }), { deps: [], optional: true })
+  const historyReq = useRequest(() => historyService.getHistory({ pageSize: 100 }), { deps: [], optional: true })
 
   const vault = vaultReq.data
   const savingsItems = savingsReq.data?.items ?? []
