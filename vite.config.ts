@@ -9,8 +9,15 @@ export default defineConfig({
     proxy: {
       // En développement, /api est redirigé vers le backend NestJS local.
       // Évite les problèmes de CORS et garde une URL de base identique en dev/prod.
-      '/api': {
-        target: 'http://localhost:3000',
+      // Cible surchargeable sans code : VITE_NP_API_PROXY_TARGET=https://nanapay-api.onrender.com
+      // (racine SANS /api — le préfixe vient déjà du chemin demandé). Indispensable
+      // quand aucun backend local n'est possible, par ex. sans accès à la base.
+      // `^/api/` (et non `'/api'`) : avec un simple préfixe, Vite redirigerait
+      // aussi `/apixyz` vers le backend. Volontairement PAS de règle pour
+      // /healthz : cette route est hors préfixe côté backend et ne concerne pas
+      // le frontend déployé.
+      '^/api/': {
+        target: process.env.VITE_NP_API_PROXY_TARGET ?? 'http://localhost:3000',
         changeOrigin: true,
       },
     },

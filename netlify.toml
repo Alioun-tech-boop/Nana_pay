@@ -10,9 +10,17 @@
   # setGlobalPrefix('api') : le préfixe est ajouté par le proxy ci-dessous.
   VITE_NP_API_URL = "/api"
 
-# Proxy /api -> backend Render.
+# Proxy vers le backend Render.
 # Meme origine : aucun CORS, aucun en-tete bloque en preflight.
-# DOIT précéder la règle "/*" et être forcé, sinon le fallback SPA l'intercepte.
+# DOIT preceder la regle "/*" et etre force, sinon le fallback SPA l'intercepte.
+# /healthz est le healthcheck du backend, hors du prefixe /api : sans sa propre
+# regle il tomberait dans le fallback SPA et renverrait du HTML en 200.
+[[redirects]]
+  from = "/healthz"
+  to = "https://nanapay-api.onrender.com/healthz"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/api/*"
   to = "https://nanapay-api.onrender.com/api/:splat"
