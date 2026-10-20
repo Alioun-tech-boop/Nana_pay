@@ -189,7 +189,10 @@ export class AuthService {
     });
 
     const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
-    if (!user || user.status !== 'ACTIVE') {
+    // Même regle que login() : PENDING_VERIFICATION peut rafraichir sa session,
+    // seuls SUSPENDED/BANNED (et le soft-delete) y sont opposes. Sans cela un
+    // compte nouveau est deconnecte des l'expiration de l'access token.
+    if (!user || user.deletedAt || user.status === 'SUSPENDED' || user.status === 'BANNED') {
       throw new UnauthorizedException('User inactive');
     }
 

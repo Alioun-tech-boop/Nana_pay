@@ -13,7 +13,12 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.get<boolean>('isPublic', context.getHandler());
+    // `getAllAndOverride` : le décorateur @Public() est accepté sur la méthode
+    // ET sur le contrôleur (ex. Catalog, entièrement public).
+    const isPublic = this.reflector.getAllAndOverride<boolean>('isPublic', [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest();
