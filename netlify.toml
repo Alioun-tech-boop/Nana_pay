@@ -4,7 +4,19 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  VITE_NP_API_MODE = "mock"
+  # Mode réel : le backend est la source de vérité (le mock ne sert plus qu'au dev).
+  VITE_NP_API_MODE = "real"
+  # Les chemins frontend n'ont pas de préfixe (/auth/login) et le backend
+  # utilise setGlobalPrefix('api') : le préfixe est ajouté ici via le proxy.
+  VITE_NP_API_URL = "/api"
+
+# Proxy /api -> backend Render.
+# AVANT le fallback SPA et avec force=true, sinon la règle "/*" intercepte.
+[[redirects]]
+  from = "/api/*"
+  to = "https://nanapay-backend.onrender.com/api/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"

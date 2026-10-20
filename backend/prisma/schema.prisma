@@ -280,7 +280,9 @@ model Product {
   category    Category? @relation(fields: [categoryId], references: [id])
   price       BigInt // Minor units
   currency    String    @db.Char(3)
+  images      Json?     // [{ "url": "...", "width": 0, "height": 0 }]
   stock       Int       @default(0)
+  financingEligible Boolean @default(true)
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
