@@ -203,7 +203,7 @@ MERCHANT_PAID
 COMPLETED
 ```
 
-### Schéma Commande (`[PROPOSED]`)
+### Schéma Commande (`[CONFIRMED]` — aligné sur l'implémentation du backend)
 
 ```json
 {
@@ -212,6 +212,8 @@ COMPLETED
   "client": { "id": "usr_...", "fullName": "…" },
   "merchant": { "id": "mer_...", "name": "…" },
   "product": { "id": "prd_...", "name": "…", "price": { "amount": 250000, "currency": "XOF" } },
+  "quantity": 2,
+  "totalPrice": { "amount": 500000, "currency": "XOF" },
   "financingMode": "SAVINGS",
   "financing": { "id": "fin_...", "status": "…", "amount": { "amount": 250000, "currency": "XOF" } },
   "status": "FINANCING_IN_PROGRESS",
@@ -223,8 +225,14 @@ COMPLETED
 
 Règles :
 - `reference` = identifiant unique central affiché dans l'UI (`NP-YYYY-NNNNNNNN`).
+- `product.price` est le prix **unitaire** ; `quantity` est la quantité enregistrée.
+- `totalPrice` est le **total autoritaire** (`prix unitaire × quantité`), lu en base et
+  renvoyé tel quel. Le frontend l'affiche, il ne le recalcule **jamais** (`AGENTS.md` §10).
 - Les **totaux, soldes, pénalités, intérêts** sont calculés par le backend et renvoyés ; le frontend ne les calcule jamais.
 - `financingMode` ∈ `SAVINGS  VAULT  CREDIT` (Épargne progressive, Coffre NanaPay, Crédit bancaire).
+- `financing` est `null` tant qu'aucun financement n'existe, puis renseigné avec
+  l'identifiant, le statut et le montant réellement épargné/engagé. C'est le lien
+  commande → financement que l'UI affiche (« Montant financé », « Statut du financement »).
 
 ---
 
@@ -487,6 +495,9 @@ fonctionnalités indisponibles (`AGENTS.md` §21).
 | `GET /notifications/summary` | ⛔ non implémenté | Badge de non-lus de `AppShell.tsx` forcé à `0` (`useRequest({ optional: true })`). |
 | `POST /notifications/:id/read` | ⛔ non implémenté | Action indisponible tant que le module n'existe pas. |
 | `POST /notifications/read-all` | ⛔ non implémenté | Action indisponible tant que le module n'existe pas. |
+| `GET /merchants` | ⛔ non implémenté | `BoutiquesPage.tsx` et `SearchPage.tsx` (`optional: true`) : la section boutiques est masquée ou remplacée par « Les boutiques arrivent bientôt ». La recherche de produits reste fonctionnelle. |
+| `GET /merchants/meta` | ⛔ non implémenté | Filtres ville/commune indisponibles tant que le module Boutiques n'existe pas. |
+| `GET /merchants/:id` | ⛔ non implémenté | `ProductPage.tsx` (`optional: true`) : le bloc boutique reste neutre, la fiche produit demeure utilisable. `StorePage.tsx` affiche « Boutique bientôt disponible ». |
 
 **Règle** : aucun de ces endpoints ne doit être remplacé par une donnée inventée.
 Le jour où le backend les expose, le frontend n'a qu'à retirer l'option
