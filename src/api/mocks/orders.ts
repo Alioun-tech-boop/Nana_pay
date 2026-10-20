@@ -25,10 +25,17 @@ function buildOrderFromProduct(productId: string, quantity = 1): Order | null {
     reference: nextReference(),
     client: { id: 'usr_01HCLIENT', fullName: 'Ada Doumbia' },
     merchant: { id: product.merchantId, name: merchantName(product.merchantId) },
+    // `price` est le prix UNITAIRE, comme le backend ; le total est porté par
+    // `totalPrice`. Confondre les deux faussait tout affichage de commande.
     product: {
       id: product.id,
       name: product.name,
-      price: { amount: product.price.amount * safeQuantity, currency: product.price.currency },
+      price: { amount: product.price.amount, currency: product.price.currency },
+    },
+    quantity: safeQuantity,
+    totalPrice: {
+      amount: product.price.amount * safeQuantity,
+      currency: product.price.currency,
     },
     financingMode: 'SAVINGS' as FinancingMode,
     financing: null,

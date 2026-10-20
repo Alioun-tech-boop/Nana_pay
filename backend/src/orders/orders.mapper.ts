@@ -21,8 +21,23 @@ export interface OrderDto {
   client: { id: string; fullName: string };
   merchant: { id: string; name: string };
   product: { id: string; name: string; price: { amount: number; currency: string } };
+  /** Quantité commandée, telle qu'enregistrée par le backend. */
+  quantity: number;
+  /**
+   * Total autoritaire (`prix × quantité`), calculé et stocké par le backend.
+   *
+   * Le frontend ne doit jamais le recalculer : il l'affiche tel quel
+   * (`AGENTS.md` §10). Un total recalculé côté client pourrait diverger du
+   * montant réellement financé.
+   */
+  totalPrice: { amount: number; currency: string };
   financingMode: FinancingMode;
-  /** Renseigné une fois le module de financement associé implémenté. */
+  /**
+   * Financement associé, lorsqu'il existe.
+   *
+   * Renseigné dès que l'épargne (ou le coffre/crédit) est créée : c'est le lien
+   * entre la commande et son financement, que l'interface doit pouvoir montrer.
+   */
   financing: { id: string; status: string; amount: { amount: number; currency: string } } | null;
   status: OrderStatus;
   payment: OrderPaymentDto | null;
@@ -36,6 +51,9 @@ export const ORDER_INCLUDE = {
   merchant: { select: { id: true, storeName: true } },
   product: { select: { id: true, name: true, price: true, currency: true } },
   payments: { orderBy: { initiatedAt: 'desc' as const } },
+  // L'épargne est la seule source de financement implémentée à ce jour ; les
+  // autres modes seront ajoutés ici au fur et à mesure.
+  savings: { select: { id: true, status: true, savedAmount: true, currency: true } },
 } satisfies Prisma.OrderInclude;
 
 export type OrderWithRelations = Prisma.OrderGetPayload<{ include: typeof ORDER_INCLUDE }>;
@@ -58,6 +76,19 @@ export function toPaymentDto(payment: PrismaPayment): OrderPaymentDto {
 export function toOrderDto(order: OrderWithRelations): OrderDto {
   const payment = order.payments.length > 0 ? order.payments[0] : null;
 
+  // Le financement reflète l'état réel enregistré : jamais une valeur inventée.
+  const financing =
+    order.savings !== null && order.savings !== undefined
+      ? {
+          id: order.savings.id,
+          status: order.savings.status,
+          amount: toMoney(order.savings.savedAmount, order.savings.currency) as {
+            amount: number;
+            currency: string;
+          },
+        }
+      : null;
+
   return {
     id: order.id,
     reference: order.reference,
@@ -74,8 +105,11 @@ export function toOrderDto(order: OrderWithRelations): OrderDto {
         currency: string;
       },
     },
+    quantity: order.quantity,
+    // Total autoritaire : lu en base, jamais recalculé ici ni côté client.
+    totalPrice: toMoney(order.totalPrice, order.currency) as { amount: number; currency: string },
     financingMode: order.financingMode,
-    financing: null,
+    financing,
     status: order.status,
     payment: payment ? toPaymentDto(payment) : null,
     createdAt: order.createdAt.toISOString(),

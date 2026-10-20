@@ -29,14 +29,15 @@ export function ProductShelf({ products, loading, count, skeletonCount = 8, onOp
     )
   }
 
-  // Filter products that have at least one image
-  const productsWithImages = products.filter((p) => p.images && p.images.length > 0)
-
-  if (productsWithImages.length === 0) return null
+  // Tous les produits sont affichés, y compris sans photo : `ProductCard` sait
+  // rendre un visuel de remplacement. Filtrer les produits sans image les
+  // rendait invisibles et donc impossibles à acheter, alors que le backend les
+  // expose comme disponibles.
+  if (products.length === 0) return null
 
   return (
     <div className={styles.gridProducts}>
-      {productsWithImages.slice(0, count ?? productsWithImages.length).map((product) => {
+      {products.slice(0, count ?? products.length).map((product) => {
         const primaryImage = product.images[0]
         const available = product.stock.available && product.status === 'ACTIVE'
         return (
@@ -47,9 +48,9 @@ export function ProductShelf({ products, loading, count, skeletonCount = 8, onOp
             description={product.description.slice(0, 80)}
             price={product.price.amount}
             currency={product.price.currency}
-            image={primaryImage.url}
-            imageWidth={primaryImage.width}
-            imageHeight={primaryImage.height}
+            image={primaryImage?.url}
+            imageWidth={primaryImage?.width}
+            imageHeight={primaryImage?.height}
             badge={available ? 'En stock' : 'Rupture'}
             badgeTone={available ? 'success' : 'danger'}
             onClick={() => (onOpen ? onOpen(product) : navigate(`/products/${product.id}`))}

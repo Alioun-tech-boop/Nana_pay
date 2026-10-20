@@ -55,6 +55,15 @@ export interface Order {
   client: OrderClientReference
   merchant: OrderMerchantReference
   product: OrderProductReference
+  /** Quantité commandée, telle qu'enregistrée par le backend. */
+  quantity: number
+  /**
+   * Total autoritaire de la commande (`prix × quantité`), fourni par le backend.
+   *
+   * Ne jamais le recalculer côté client (`AGENTS.md` §10) : c'est le montant
+   * réellement financé.
+   */
+  totalPrice: Money
   financingMode: FinancingMode
   financing: OrderFinancingReference | null
   status: OrderStatus

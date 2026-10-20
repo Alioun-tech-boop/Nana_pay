@@ -164,7 +164,7 @@ export function OrderQrPage() {
               <p className={styles.qrMuted}>{data.product.name}</p>
               <p className={styles.qrRef}>{data.reference}</p>
             </div>
-            <MoneyAmount amount={data.product.price.amount} currency={data.product.price.currency} variant="strong" />
+            <MoneyAmount amount={data.totalPrice.amount} currency={data.totalPrice.currency} variant="strong" />
             <Text muted>
               {qr.data?.expiresAt ? `Valide jusqu’au ${formatDate(qr.data.expiresAt, { hour: '2-digit', minute: '2-digit' })}` : ' '}
             </Text>

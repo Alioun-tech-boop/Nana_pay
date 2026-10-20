@@ -66,11 +66,13 @@ export function CheckoutPage() {
   const [vaultConfirmOpen, setVaultConfirmOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Total autoritaire : somme des totaux renvoyés par le backend, jamais un
+  // recalcul local (`AGENTS.md` §10).
   const totalAmount = useMemo(
-    () => orders.reduce((sum, { order }) => sum + order.product.price.amount, 0),
+    () => orders.reduce((sum, { order }) => sum + order.totalPrice.amount, 0),
     [orders],
   )
-  const totalCurrency = orders[0]?.order.product.price.currency ?? subtotal?.currency ?? 'XOF'
+  const totalCurrency = orders[0]?.order.totalPrice.currency ?? subtotal?.currency ?? 'XOF'
 
   async function createOrders() {
     if (creating) return
@@ -263,7 +265,7 @@ export function CheckoutPage() {
                     <span className={styles.lineRef}>{order.reference}</span>
                   </span>
                   <StatusPill tone="neutral" label={order.status} />
-                  <MoneyAmount amount={order.product.price.amount} currency={order.product.price.currency} />
+                  <MoneyAmount amount={order.totalPrice.amount} currency={order.totalPrice.currency} />
                 </div>
               ))}
             </div>
@@ -276,7 +278,7 @@ export function CheckoutPage() {
                 </p>
                 <div className={styles.contributions}>
                   {orders.map(({ order }) => {
-                    const amount = order.product.price.amount
+                    const amount = order.totalPrice.amount
                     const value = contribution[order.id] ?? suggestedMonthly(amount)
                     return (
                       <div key={order.id} className={styles.contributionRow}>

@@ -105,7 +105,7 @@ export function PurchasesPage() {
                 <span className={styles.orderSide}>
                   <StatusPill tone={status.tone} label={status.label} />
                   <span className={styles.orderAmount}>
-                    <MoneyAmount amount={order.product.price.amount} currency={order.product.price.currency} />
+                    <MoneyAmount amount={order.totalPrice.amount} currency={order.totalPrice.currency} />
                   </span>
                   <Text muted>{FINANCING_MODE_LABELS[order.financingMode]}</Text>
                 </span>

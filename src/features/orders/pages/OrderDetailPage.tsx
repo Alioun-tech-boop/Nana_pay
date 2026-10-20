@@ -82,7 +82,7 @@ export function OrderDetailPage() {
               </div>
             </div>
             <div className={styles.heroAmount}>
-              <MoneyAmount amount={data.product.price.amount} currency={data.product.price.currency} variant="display" />
+              <MoneyAmount amount={data.totalPrice.amount} currency={data.totalPrice.currency} variant="display" />
               <div>
                 <Text muted>{FINANCING_MODE_LABELS[data.financingMode]}</Text>
               </div>
@@ -136,7 +136,7 @@ export function OrderDetailPage() {
                 <div className={styles.definition}>
                   <dt>Montant</dt>
                   <dd>
-                    <MoneyAmount amount={data.product.price.amount} currency={data.product.price.currency} variant="strong" />
+                    <MoneyAmount amount={data.totalPrice.amount} currency={data.totalPrice.currency} variant="strong" />
                   </dd>
                 </div>
                 <div className={styles.definition}>

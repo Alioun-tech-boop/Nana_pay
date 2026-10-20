@@ -273,6 +273,7 @@ function order(
   status: Order['status'],
   createdInDays: number,
   updatedInDays: number,
+  quantity = 1,
 ): Order {
   return {
     id,
@@ -280,6 +281,9 @@ function order(
     client: { id: mockUser.id, fullName: mockUser.fullName },
     merchant: { id: merchantId, name: merchantName },
     product: { id: productId, name: productName, price: { amount, currency: XOF } },
+    quantity,
+    // Le backend calcule et stocke le total ; le mock reproduit la même forme.
+    totalPrice: { amount: amount * quantity, currency: XOF },
     financingMode,
     financing:
       financingId === null
