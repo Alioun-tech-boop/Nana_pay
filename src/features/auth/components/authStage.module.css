@@ -1,0 +1,106 @@
+/* Cadre sombre commun : Connexion / Vérification.
+   Même langage visuel que l'écran d'ouverture, mais le décor est atténué et
+   désaturé pour ne jamais gêner la lecture ni la saisie. */
+
+.root {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #050506;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* Le décor est poussé en arrière-plan : opacité réduite + léger flou, et
+   surtout `pointer-events: none` pour ne jamais intercepter les clics. */
+.backdropLayer {
+  position: absolute;
+  inset: 0;
+  opacity: 0.45;
+  filter: saturate(0.7);
+  pointer-events: none;
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  padding: clamp(20px, 4vw, 36px) clamp(20px, 6vw, 72px);
+}
+
+.brand {
+  display: inline-flex;
+  color: #fff;
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: clamp(16px, 4vw, 40px) clamp(20px, 6vw, 72px) clamp(40px, 8vw, 96px);
+}
+
+.panel {
+  width: min(100%, 420px);
+}
+
+.title {
+  margin: 0 0 28px;
+  font-family: var(--np-font-display);
+  font-size: clamp(32px, 6vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ---- Thème sombre des champs ----
+   Les primitives du design system sont conçues pour un fond clair. On les
+   surcharge ici, localement, plutôt que de modifier le design system global
+   (une page sombre reste l'exception dans l'app). */
+
+.body :global(label) {
+  color: #b9bbc2 !important;
+}
+
+.body :global(input) {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: #fff !important;
+}
+
+.body :global(input)::placeholder {
+  color: #6b6d75 !important;
+}
+
+.body :global(input):focus {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  outline: none;
+}
+
+.body :global(p) {
+  color: #8b8d95;
+}
+
+.body :global(code) {
+  color: #e7e8ea;
+  font-family: var(--np-font-mono);
+}
+
+@media (max-width: 560px) {
+  .backdropLayer {
+    opacity: 0.3;
+  }
+}

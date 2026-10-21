@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Button, Checkbox, InlineAlert, Input, Text } from '../../../design-system'
+import { Button, InlineAlert } from '../../../design-system'
 import { toUserMessage } from '../../../lib/errors'
 import { authService } from '../../../services/authService'
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthStage } from '../components/AuthStage'
 import styles from './authPages.module.css'
 
 type ContactType = 'email' | 'phone'
@@ -63,7 +63,7 @@ export function RegisterPage() {
   }
 
   return (
-    <AuthLayout title="Créer votre compte" subtitle="Un e-mail ou un numéro, un mot de passe, et c’est prêt.">
+    <AuthStage title="Créer un compte">
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {error ? <InlineAlert tone="danger" title={error} /> : null}
 
@@ -84,52 +84,56 @@ export function RegisterPage() {
           </button>
         </div>
 
-        <Input
-          label={contactType === 'email' ? 'Adresse e-mail' : 'Numéro de téléphone'}
+        <input
+          className={styles.field}
+          aria-label={contactType === 'email' ? 'Adresse e-mail' : 'Numéro de téléphone'}
           type={contactType === 'email' ? 'email' : 'tel'}
           inputMode={contactType === 'email' ? 'email' : 'tel'}
           autoComplete={contactType === 'email' ? 'email' : 'tel'}
-          placeholder={contactType === 'email' ? 'vous@exemple.com' : '+225 07 00 00 00 00'}
+          placeholder={contactType === 'email' ? 'E-mail' : 'Numéro de téléphone'}
           value={contact}
           onChange={(event) => setContact(event.target.value)}
           required
         />
 
-        <Input
-          label="Mot de passe"
+        <input
+          className={styles.field}
+          aria-label="Mot de passe"
           type="password"
           autoComplete="new-password"
-          placeholder="8 caractères minimum"
+          placeholder="Mot de passe (8 caractères minimum)"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           minLength={8}
           required
         />
 
-        <Input
-          label="Confirmer le mot de passe"
+        <input
+          className={styles.field}
+          aria-label="Confirmer le mot de passe"
           type="password"
           autoComplete="new-password"
-          placeholder="Répétez votre mot de passe"
+          placeholder="Confirmer le mot de passe"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
           minLength={8}
           required
         />
 
-        <Checkbox
-          label={
-            <Text muted>
-              J’accepte la{' '}
-              <Link to="/privacy" className={styles.linkSubtle}>
-                politique de confidentialité
-              </Link>
-              .
-            </Text>
-          }
-          checked={accepted}
-          onChange={(event) => setAccepted(event.target.checked)}
-        />
+        <label className={styles.checkRow}>
+          <input
+            type="checkbox"
+            checked={accepted}
+            onChange={(event) => setAccepted(event.target.checked)}
+          />
+          <span>
+            J’accepte la{' '}
+            <Link to="/privacy" className={styles.linkSubtle}>
+              politique de confidentialité
+            </Link>
+            .
+          </span>
+        </label>
 
         <Button type="submit" fullWidth size="lg" loading={submitting}>
           Créer mon compte
@@ -141,6 +145,6 @@ export function RegisterPage() {
           </Link>
         </p>
       </form>
-    </AuthLayout>
+    </AuthStage>
   )
 }

@@ -8,6 +8,8 @@ import { mockTransport } from '../../api/mockTransport'
 import { LandingPage } from '../auth/pages/LandingPage'
 import { AuthStartPage } from '../auth/pages/AuthStartPage'
 import { RegisterPage } from '../auth/pages/RegisterPage'
+import { LoginPage } from '../auth/pages/LoginPage'
+import { VerifyPage } from '../auth/pages/VerifyPage'
 import { authService } from '../../services/authService'
 
 /**
@@ -95,5 +97,41 @@ describe('Onboarding', () => {
         password: 'motdepasse',
       }),
     )
+  })
+})
+
+/**
+ * Les écrans Connexion et Vérification reprennent le cadre sombre du parcours
+ * d'ouverture, et ne doivent jamais exposer d'identifiants de démonstration
+ * (le code frontend est public — AGENTS.md §29).
+ */
+describe('Écrans d’authentification', () => {
+  beforeEach(() => {
+    api.clearCache()
+    api.setTransportForTests(mockTransport)
+    api.setTokenProvider(() => null)
+    api.setRefreshProvider(async () => 'failed')
+    api.setAuthenticationFailureHandler(() => {})
+  })
+
+  it('la connexion demande un identifiant et un mot de passe, sans identifiants de démo', () => {
+    renderWithProviders(<LoginPage />)
+
+    expect(screen.getByLabelText(/e-mail ou numéro de téléphone/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^mot de passe$/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /se connecter/i })).toBeInTheDocument()
+
+    // Aucun mot de passe ni compte de démonstration affiché.
+    expect(screen.queryByText(/démo/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/correct/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/commercant@nanapay/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/admin@nanapay/i)).not.toBeInTheDocument()
+  })
+
+  it('la vérification ne divulgue pas de code de démonstration', () => {
+    renderWithProviders(<VerifyPage />)
+
+    expect(screen.getByRole('button', { name: /vérifier mon compte/i })).toBeInTheDocument()
+    expect(screen.queryByText(/000000/)).not.toBeInTheDocument()
   })
 })

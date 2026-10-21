@@ -1,86 +1,106 @@
+/* Styles partagés des écrans d'authentification (fond sombre). */
+
 .form {
   display: flex;
   flex-direction: column;
-  gap: var(--np-space-4);
-}
-
-.formRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--np-space-3);
-  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .linkSubtle {
   font-size: var(--np-type-caption-size);
-  color: var(--np-color-brand-300);
+  color: #9aa0ae;
   text-decoration: none;
 }
 
 .linkSubtle:hover {
+  color: #fff;
   text-decoration: underline;
 }
 
+/* ---- Champ de saisie sombre ----
+   Élément natif (et non la primitive `Input`) : sur un fond sombre, styliser
+   nativement évite d'avoir à lutter contre la spécificité des modules CSS du
+   design system. Les mêmes attributs d'accessibilité sont conservés
+   (`aria-label`, `autoComplete`, `required`). */
+.field {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.field::placeholder {
+  color: #6b6d75;
+}
+
+.field:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.field:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.45);
+  outline-offset: 2px;
+}
+
+/* Sélecteur E-mail / Téléphone */
 .contactSwitch {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   padding: 4px;
-  border-radius: var(--np-radius-sm);
-  background: var(--np-bg-surface-2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .contactOption {
-  min-height: 38px;
-  border-radius: 8px;
-  color: var(--np-text-secondary);
+  min-height: 44px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #9aa0ae;
   font-size: var(--np-type-body-sm-size);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.contactOption:hover {
+  color: #fff;
 }
 
 .contactOptionActive {
-  background: var(--np-bg-surface-4);
-  color: var(--np-text-primary);
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: var(--np-space-3);
-  color: var(--np-text-tertiary);
-  font-size: var(--np-type-caption-size);
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--np-border-base);
-}
-
-.secondaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--np-border-base);
-  border-radius: var(--np-radius-1);
-  padding: var(--np-space-3);
-  font-size: var(--np-type-body-sm-size);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
   font-weight: 600;
-  color: var(--np-text-primary);
-  text-decoration: none;
 }
 
-.secondaryLink:hover {
-  border-color: var(--np-border-strong);
-  background: var(--np-bg-surface-2);
+/* Acceptation de la politique de confidentialité */
+.checkRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 2px 0;
+  color: #b9bbc2;
+  font-size: var(--np-type-body-sm-size);
+  line-height: 1.5;
+  cursor: pointer;
 }
 
-.demoCode {
-  font-family: var(--np-font-mono);
-  font-size: var(--np-type-caption-size);
-  color: var(--np-text-primary);
+.checkRow input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 1px;
+  accent-color: #fff;
+  cursor: pointer;
 }
 
 .centered {
@@ -92,4 +112,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--np-space-3);
+}
+
+/* Les alertes du design system sont conçues pour un fond clair : sur le fond
+   sombre on leur rend un minimum de contraste sans changer leur sémantique. */
+.form :global([role='alert']),
+.form :global(.alert) {
+  border-radius: 12px;
 }

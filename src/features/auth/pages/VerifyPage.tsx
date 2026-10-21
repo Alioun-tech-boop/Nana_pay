@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Button, InlineAlert, Input, OTPInput, Text } from '../../../design-system'
+import { Button, InlineAlert, OTPInput, Text, useToast } from '../../../design-system'
 import { isAppError, toUserMessage } from '../../../lib/errors'
 import { authService } from '../../../services/authService'
-import { useToast } from '../../../design-system'
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthStage } from '../components/AuthStage'
 import styles from './authPages.module.css'
 
+/**
+ * Vérification du compte (route `/verify`), atteinte après l'inscription.
+ *
+ * Le backend décide si le code est valide : l'écran ne fait que transmettre et
+ * afficher le résultat. Tant que `POST /auth/verify` n'est pas implémenté, on
+ * l'annonce clairement au lieu d'exposer une erreur technique (AGENTS.md §21).
+ */
 export function VerifyPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -60,10 +66,7 @@ export function VerifyPage() {
   }
 
   return (
-    <AuthLayout
-      title="Vérification"
-      subtitle="Saisissez le code reçu pour activer votre compte."
-    >
+    <AuthStage title="Vérification">
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {verified ? (
           <InlineAlert tone="success" title="Votre compte est vérifié.">
@@ -89,27 +92,25 @@ export function VerifyPage() {
               <>
                 {error ? <InlineAlert tone="danger" title={error} /> : null}
                 {!identifier ? (
-                  <Input
-                    label="E-mail ou numéro de téléphone utilisé à l’inscription"
+                  <input
+                    className={styles.field}
+                    aria-label="E-mail ou numéro de téléphone utilisé à l’inscription"
                     type="text"
-                    placeholder="vous@exemple.com ou +225..."
+                    placeholder="E-mail ou numéro de téléphone"
                     value={identifier}
                     onChange={(event) => setIdentifier(event.target.value)}
                     required
                   />
                 ) : (
-                  <InlineAlert tone="info">
-                    <Text muted>
-                      Un code de vérification a été envoyé à <strong>{identifier}</strong>.
-                    </Text>
-                  </InlineAlert>
+                  <Text muted>
+                    Un code de vérification a été envoyé à <strong>{identifier}</strong>.
+                  </Text>
                 )}
                 <OTPInput
                   label="Code de vérification"
                   length={6}
                   value={code}
                   onChange={setCode}
-                  hint="Démo : utilisez le code 000000."
                 />
                 <Button type="submit" fullWidth size="lg" loading={submitting}>
                   Vérifier mon compte
@@ -124,6 +125,6 @@ export function VerifyPage() {
           </>
         )}
       </form>
-    </AuthLayout>
+    </AuthStage>
   )
 }
