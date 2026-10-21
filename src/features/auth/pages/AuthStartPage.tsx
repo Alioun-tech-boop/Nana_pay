@@ -1,32 +1,24 @@
 import { Link } from 'react-router-dom'
-import { Icon, Logo } from '../../../design-system'
-import styles from './authFlow.module.css'
+import { Icon } from '../../../design-system'
+import styles from './authStart.module.css'
 
+/**
+ * Écran de choix (route `/auth`), atteint après « Suivant ».
+ *
+ * Ne contient QUE les deux boutons « Créer un compte » et « Se connecter »,
+ * superposés en haut, sur fond sombre. Aucun texte, aucune carte.
+ */
 export function AuthStartPage() {
   return (
-    <main className={styles.startPage}>
-      <Link to="/" className={styles.startBrand} aria-label="NanaPay, accueil">
-        <Logo size={32} />
-      </Link>
-      <section className={styles.startMain}>
-        <p className={styles.startEyebrow}>NanaPay · espace sécurisé</p>
-        <h1 className={styles.startTitle}>Votre argent. Votre rythme.</h1>
-        <p className={styles.startText}>
-          Financez vos achats, suivez vos versements et gardez le contrôle de chaque étape.
-        </p>
-        <div className={styles.startActions}>
-          <Link to="/login" className={styles.startAction}>
-            Se connecter <Icon name="arrow-right" size={18} />
-          </Link>
-          <Link to="/register" className={styles.startAction}>
-            Créer un compte <Icon name="arrow-right" size={18} />
-          </Link>
-        </div>
-      </section>
-      <footer className={styles.startFooter}>
-        <span>Des paiements clairs, confirmés par NanaPay.</span>
-        <span>© 2026 NanaPay</span>
-      </footer>
+    <main className={styles.choicePage}>
+      <div className={styles.choiceActions}>
+        <Link to="/register" className={styles.choiceAction}>
+          Créer un compte <Icon name="arrow-right" size={18} />
+        </Link>
+        <Link to="/login" className={styles.choiceAction}>
+          Se connecter <Icon name="arrow-right" size={18} />
+        </Link>
+      </div>
     </main>
   )
 }

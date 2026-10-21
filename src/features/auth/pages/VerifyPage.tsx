@@ -62,7 +62,7 @@ export function VerifyPage() {
   return (
     <AuthLayout
       title="Vérification"
-      subtitle="Étape 4 sur 4 · Saisissez le code reçu pour activer votre compte."
+      subtitle="Saisissez le code reçu pour activer votre compte."
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {verified ? (
@@ -117,7 +117,7 @@ export function VerifyPage() {
               </>
             )}
             <p className={styles.centered}>
-              <Link to="/register/password" className={styles.linkSubtle}>
+              <Link to="/register" className={styles.linkSubtle}>
                 Modifier mes informations
               </Link>
             </p>

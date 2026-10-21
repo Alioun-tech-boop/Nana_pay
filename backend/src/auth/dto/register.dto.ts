@@ -6,6 +6,11 @@ import { z } from 'zod';
  * (`email: ''` pour une inscription par telephone). On normalise en aval :
  * un champ vide n'est PAS un champ fourni.
  *
+ * Inscription simplifiee : seuls l'email/telephone et le mot de passe sont
+ * exiges. `firstName` / `lastName` sont desormais OPTIONNELS (le profil peut
+ * etre complete plus tard). Ils sont normalises vers une chaine vide, jamais
+ * vers `undefined`, car les colonnes Prisma sont NOT NULL.
+ *
  * Mot de passe : minimum 8 caracteres (UI d'inscription + NIST SP 800-63B).
  */
 const emptyToUndefined = (value: unknown) => {
@@ -14,10 +19,14 @@ const emptyToUndefined = (value: unknown) => {
   return trimmed.length === 0 ? undefined : trimmed;
 };
 
+/** Chaine vide par defaut : `firstName`/`lastName` sont NOT NULL en base. */
+const emptyToString = (value: unknown) =>
+  typeof value === 'string' ? value.trim() : '';
+
 export const RegisterDtoSchema = z
   .object({
-    firstName: z.string().trim().min(1, 'Prenom requis.').max(64),
-    lastName: z.string().trim().min(1, 'Nom requis.').max(64),
+    firstName: z.string().trim().max(64).optional(),
+    lastName: z.string().trim().max(64).optional(),
     fullName: z.string().trim().max(129).optional(),
     birthDate: z.string().trim().max(32).optional(),
     contact: z.string().trim().max(254).optional(),
@@ -35,7 +44,14 @@ export const RegisterDtoSchema = z
       emptyToUndefined(value.phone) ??
       (value.contactType === 'phone' ? contact : undefined);
 
-    return { ...value, contact, email, phone };
+    return {
+      ...value,
+      contact,
+      email,
+      phone,
+      firstName: emptyToString(value.firstName),
+      lastName: emptyToString(value.lastName),
+    };
   })
   .refine((value) => Boolean(value.email ?? value.phone), {
     message: 'Un email ou un numero de telephone est requis.',

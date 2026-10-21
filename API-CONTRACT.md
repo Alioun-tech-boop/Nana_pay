@@ -93,7 +93,7 @@ Paramètres : `?page=1&pageSize=25`. Tri/ﬁltres par domaine (`sortBy`, `status
 
 | Endpoint | État | Note |
 |---|---|---|
-| `POST /auth/register` | ✅ implémenté | Corps réel du frontend : `{firstName,lastName,birthDate,contact,contactType,email,phone,password}` ; les champs vides sont ignorés. Réponse `{id,fullName,email,phone,status}`. |
+| `POST /auth/register` | ✅ implémenté | **Inscription simplifiée** : `{email|phone, password}` suffisent ; `firstName`/`lastName` sont **optionnels** (normalisés en chaîne vide, colonnes NOT NULL). Le frontend envoie `{firstName:'',lastName:'',birthDate:'',contact,contactType,email,phone,password}`. Réponse `{id,fullName,email,phone,status}` — `fullName` retombe sur la partie locale de l'email (ou le téléphone) quand les noms sont vides. |
 | `POST /auth/login` | ✅ implémenté | `identifier` = email **ou** téléphone (l'ancien champ `email` reste toléré). |
 | `POST /auth/refresh` | ✅ implémenté | Rotation : l'ancienne session est révoquée. |
 | `POST /auth/logout` | ✅ implémenté | `204`. |

@@ -74,10 +74,33 @@ export function toContractUser(user: {
   return {
     id: user.id,
     role,
-    fullName: `${user.firstName} ${user.lastName}`.trim(),
+    fullName: displayNameFor(user),
     email: user.email ?? '',
     phone: user.phone ?? '',
     merchantId: user.merchant?.id ?? null,
     permissions: [...ROLE_PERMISSIONS[role]],
   };
+}
+
+/**
+ * Nom affichable pour un utilisateur.
+ *
+ * Depuis l'inscription simplifiee (email/telephone + mot de passe), `firstName`
+ * et `lastName` peuvent etre vides. On retombe alors sur la partie locale de
+ * l'email, ou le numero de telephone — jamais sur une chaine vide, qui
+ * laisserait le tableau de bord sans identite a afficher.
+ */
+export function displayNameFor(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}): string {
+  const full = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+  if (full) return full;
+  const email = (user.email ?? '').trim();
+  if (email.includes('@')) return email.split('@')[0] ?? email;
+  if (email) return email;
+  const phone = (user.phone ?? '').trim();
+  return phone;
 }

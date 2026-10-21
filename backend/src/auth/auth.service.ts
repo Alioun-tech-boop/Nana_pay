@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Argon2Service, CryptoService } from '../common/crypto';
 import { LoginDto, LoginDtoSchema } from './dto/login.dto';
 import { RegisterDto, RegisterDtoSchema } from './dto/register.dto';
-import { ContractUser, toContractUser } from './auth.mapper';
+import { ContractUser, displayNameFor, toContractUser } from './auth.mapper';
 import { z } from 'zod';
 
 export interface TokenPair {
@@ -74,7 +74,7 @@ export class AuthService {
 
     return {
       id: user.id,
-      fullName: `${user.firstName} ${user.lastName}`.trim(),
+      fullName: displayNameFor(user),
       email: user.email ?? '',
       phone: user.phone ?? '',
       status: 'PENDING_VERIFICATION',

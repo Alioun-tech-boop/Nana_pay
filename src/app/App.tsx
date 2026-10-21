@@ -9,8 +9,6 @@ import {
   LandingPage,
   LoginPage,
   RegisterPage,
-  RegisterContactPage,
-  RegisterPasswordPage,
   AuthStartPage,
   VerifyPage,
 } from '../features/auth/pages'
@@ -200,8 +198,6 @@ export function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth" element={<AuthStartPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/register/contact" element={<RegisterContactPage />} />
-          <Route path="/register/password" element={<RegisterPasswordPage />} />
           <Route path="/verify" element={<VerifyPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
 

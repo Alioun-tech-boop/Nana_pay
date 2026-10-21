@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import type { FormEvent, ReactNode } from 'react'
+import type { FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Button, Icon, InlineAlert, Input, Text } from '../../../design-system'
-import type { IconName } from '../../../design-system'
+import { Button, InlineAlert, Input, Text } from '../../../design-system'
 import { toUserMessage } from '../../../lib/errors'
 import { safeRedirectPath } from '../../../lib/redirect'
 import { useSession } from '../../../stores/session'
@@ -91,29 +90,5 @@ export function LoginPage() {
         </InlineAlert>
       </form>
     </AuthLayout>
-  )
-}
-
-interface FeaturePoint {
-  icon: IconName
-  label: ReactNode
-}
-
-const FEATURES: FeaturePoint[] = [
-  { icon: 'shield', label: 'Identifiants sécurisés' },
-  { icon: 'vault', label: 'Coffre NanaPay' },
-  { icon: 'check-circle', label: 'Paiements confirmés' },
-]
-
-export function RegisterBenefits() {
-  return (
-    <ul className={styles.benefits}>
-      {FEATURES.map((feature) => (
-        <li key={feature.label?.toString()}>
-          <Icon name={feature.icon} size={16} />
-          <span>{feature.label}</span>
-        </li>
-      ))}
-    </ul>
   )
 }
