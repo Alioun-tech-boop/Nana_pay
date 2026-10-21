@@ -26,6 +26,11 @@ export interface ProductDto {
   status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
 }
 
+/** Produit Prisma avec la relation des images binaires (BYTEA) chargée. */
+export type ProductWithImages = PrismaProduct & {
+  productImages?: { id: string }[];
+};
+
 /** Les images sont stockées en JSONB : on ne retourne jamais d'entrée invalide. */
 function normalizeImages(value: unknown): ProductImageDto[] {
   if (!Array.isArray(value)) return [];
@@ -46,8 +51,14 @@ function normalizeImages(value: unknown): ProductImageDto[] {
   return images;
 }
 
-export function toProductDto(product: PrismaProduct): ProductDto {
+export function toProductDto(product: ProductWithImages): ProductDto {
   const inStock = product.stock > 0;
+
+  // Images binaires (BYTEA) : servies par le module marchand. Elles complètent
+  // le JSONB `images` historique sans le remplacer.
+  const binaryImages: ProductImageDto[] = (product.productImages ?? []).map((image) => ({
+    url: `/merchants/products/${product.id}/image/${image.id}`,
+  }));
 
   return {
     id: product.id,
@@ -56,7 +67,7 @@ export function toProductDto(product: PrismaProduct): ProductDto {
     description: product.description ?? '',
     // Le prix est une vérité backend (unités mineures).
     price: toMoney(product.price, product.currency) as { amount: number; currency: string },
-    images: normalizeImages(product.images),
+    images: [...binaryImages, ...normalizeImages(product.images)],
     categoryId: product.categoryId ?? null,
     stock: { available: product.isActive && inStock, quantity: product.stock },
     financingEligible: product.financingEligible,

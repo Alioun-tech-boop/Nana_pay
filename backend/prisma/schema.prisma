@@ -289,10 +289,24 @@ model Product {
   updatedAt   DateTime  @updatedAt
 
   orders Order[]
+  productImages ProductImage[]
 
   @@index([merchantId])
   @@index([categoryId])
   @@index([isActive])
+}
+
+// Image binaire du produit (BYTEA), stockée en base, servie par URL
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  data      Bytes
+  contentType String @default("image/jpeg")
+  size      Int      // octets
+  createdAt DateTime @default(now())
+
+  @@index([productId])
 }
 
 model Category {

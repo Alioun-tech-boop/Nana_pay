@@ -140,7 +140,10 @@ export const api: ApiClient = {
         'Accept-Language': appConfig.locale,
         'X-Request-Id': requestId,
       }
-      if (config.body !== undefined && config.method !== 'GET') {
+      // `FormData` (upload) : le navigateur doit fixer lui-même le
+      // `Content-Type` multipart avec sa frontière — on ne l'écrase jamais.
+      const isFormData = typeof FormData !== 'undefined' && config.body instanceof FormData
+      if (config.body !== undefined && config.method !== 'GET' && !isFormData) {
         headers['Content-Type'] = 'application/json'
       }
       if (config.idempotencyKey) {

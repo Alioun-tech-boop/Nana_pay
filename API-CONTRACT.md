@@ -449,6 +449,30 @@ Séquence non négociable : **QR généré → scanne → vérification backend 
 | `GET /merchant/transactions` | `[PROPOSED]` | `{ items, pagination }` — historique |
 | `GET /merchant/balance` | `[PROPOSED]` | `{ amount, currency }` (affichage uniquement) |
 
+#### 10.1.1 Image produit — ✅ livré
+
+L'image produit est **obligatoire** et **stockée en base** (`ProductImage.data` en `BYTEA`,
+`backend/prisma/schema.prisma`). Le disque Render étant éphémère, la base est la seule source
+de vérité durable du binaire (`AGENTS.md` §22, §30, §52).
+
+| Endpoint | Méthode | Réponse |
+|---|---|---|
+| `POST /merchants/products/:productId/image` | ✅ `201` | `{ url, size }` — `multipart/form-data`, champ `file` ; requis rôle `MERCHANT` |
+| `GET /merchants/products/:productId/image/:imageId` | ✅ `200` | Binaire avec son `Content-Type` (`Cache-Control: public, max-age=86400`) |
+
+Règles vérifiées côté serveur :
+
+- **Formats** : JPEG, PNG, WebP. Le type est détecté par les **magic numbers** du fichier, jamais
+  d'après le `mimetype` ni le nom déclarés par le client.
+- **Taille** : ≤ 5 Mo (`MAX_IMAGE_SIZE`), plafond également posé sur Multer en amont.
+- **Propriété** : le produit doit appartenir au commerçant connecté (`merchant.userId`), sinon `404`.
+- **Produit inconnu / image inconnue** : `404`.
+- **Fichier absent ou format invalide** : `400` / `422`.
+- **Sans le rôle `MERCHANT`** : `403`.
+
+L'URL de l'image binaire est renvoyée par le catalogue dans `Product.images[].url`
+(`/merchants/products/:productId/image/:imageId`), en complément des entrées JSONB historiques.
+
 Séquence non négociable : **QR généré → scanne → vérification backend → retrait confirmé → règlement payé.** Le frontend ne paye jamais automatiquement le commerçant.
 
 ### 10.2 Banque
@@ -468,26 +492,38 @@ Séquence non négociable : **QR généré → scanne → vérification backend 
 
 Contrainte : l'analyse de crédit est la **responsabilité exclusive de la banque**. L'interface Admin n'octroie aucune décision de crédit.
 
-### 10.3 Admin
+### 10.3 Admin — ✅ espace administrateur livré
+
+Protégé par `Roles('ADMIN')`. L'admin supervise mais ne décide jamais d'une opération financière (`AGENTS.md` §46, §45). Aucune autorité supplémentaire n'est accordée par la navigation seule (`AGENTS.md` §19, §29).
 
 | Endpoint | Méthode | Réponse |
 |---|---|---|
-| `GET /admin/summary` | `[PROPOSED]` | `AdminSummary` — indicateurs plateforme |
-| `GET /admin/users` | `[PROPOSED]` | `{ items: AdminUser[], pagination }` |
-| `GET /admin/merchants` | `[PROPOSED]` | `{ items: AdminMerchant[], pagination }` |
-| `GET /admin/orders` | `[PROPOSED]` | `{ items: AdminOrderSummary[], pagination }` |
-| `GET /admin/payments` | `[PROPOSED]` | `{ items: AdminPaymentSummary[], pagination }` |
-| `GET /admin/credits` | `[PROPOSED]` | `{ items: AdminCreditSummary[], pagination }` |
-| `GET /admin/savings` | `[PROPOSED]` | `{ items: AdminSavingsSummary[], pagination }` |
-| `GET /admin/vaults` | `[PROPOSED]` | `{ items: AdminVaultSummary[], pagination }` |
-| `GET /admin/kyc` | `[PROPOSED]` | `{ items: AdminKycRecord[], pagination }` |
-| `GET /admin/qr` | `[PROPOSED]` | `{ items: AdminQrRecord[], pagination }` |
-| `GET /admin/withdrawals` | `[PROPOSED]` | `{ items: AdminWithdrawalRecord[], pagination }` |
-| `GET /admin/settlements` | `[PROPOSED]` | `{ items: AdminSettlementRecord[], pagination }` |
-| `GET /admin/transactions` | `[PROPOSED]` | `{ items: AdminTransactionRecord[], pagination }` |
-| `GET /admin/audit` | `[PROPOSED]` | `{ items: AuditEntry[], pagination }` — journal d'audit |
+| `GET /admin/summary` | ✅ | Compteurs plateforme (utilisateurs, clients, boutiques validées, commandes actives, paiements en attente, crédits à l'étude, volume du mois en XOF) |
+| `GET /admin/users` | ✅ | `{ items, pagination }` — `roles` renvoyés en tableau |
+| `GET /admin/merchants` | ✅ | `{ items, pagination }` — `verified` = statut `VALIDATED` |
+| `GET /admin/orders` | ✅ | `{ items, pagination }` — montant backend |
+| `GET /admin/payments` | ✅ | `{ items, pagination }` — paiements, statuts backend |
+| `GET /admin/credits` | ✅ | `{ items, pagination }` — demandes de crédit (lecture seule) |
+| `GET /admin/savings` | ✅ | `{ items, pagination }` — épargnes, progression backend |
+| `GET /admin/vaults` | ✅ | `{ items, pagination }` — coffres et soldes |
+| `GET /admin/qr` | ✅ | `{ items, pagination }` — états QR (**le `payload` signé n'est jamais exposé**) |
+| `GET /admin/withdrawals` | ✅ | `{ items, pagination }` — retraits |
+| `GET /admin/settlements` | ✅ | `{ items, pagination }` — règlements commerçants |
+| `GET /admin/transactions` | ✅ | `{ items, pagination }` — mouvements de coffre |
+| `GET /admin/audit` | ✅ | `{ items, pagination }` — journal d'audit (append-only) |
 
-Règles : l'Admin **supervise** (utilisateurs, boutiques, commandes, paiements, crédits, KYC, QR, retraits, règlements, transactions, audit) mais ne décide **jamais** de la validité d'un QR, d'un retrait, d'un règlement ou d'un crédit à la place du backend/de la banque.
+Toutes les listes sont paginées (`?page=&pageSize=`, `pageSize` ≤ 100) et renvoient
+`{ items, pagination: { page, pageSize, total, hasMore } }`.
+
+Règles : l'Admin **supervise** (utilisateurs, boutiques, commandes, paiements, crédits, épargnes,
+coffres, QR, retraits, règlements, transactions, audit) mais ne décide **jamais** de la validité
+d'un QR, d'un retrait, d'un règlement ou d'un crédit à la place du backend ou de la banque
+(`AGENTS.md` §45, §46). L'accès est refusé (`403`) sans le rôle `ADMIN` : masquer un écran côté
+frontend n'est pas une autorisation (`AGENTS.md` §18, §19).
+
+> **Non implémenté** : les endpoints KYC. Aucun modèle KYC n'existe en base ; les inventer
+> produirait des données factices (`AGENTS.md` §22, §58). À ajouter lorsque le flux KYC sera
+> contractualisé.
 
 ---
 

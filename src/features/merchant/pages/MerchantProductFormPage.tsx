@@ -25,6 +25,7 @@ interface FormState {
   categoryId: string
   financingEligible: boolean
   status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK'
+  imageFile?: File
 }
 
 const EMPTY_FORM: FormState = {
@@ -80,7 +81,9 @@ export function MerchantProductFormPage() {
           status: state.status,
         })
       }
-      return merchantService.createProduct({
+      // Création : le produit doit d'abord exister pour recevoir son image
+      // (l'image est obligatoire et stockée en BYTEA côté backend).
+      const created = await merchantService.createProduct({
         name: state.name.trim(),
         description: state.description.trim(),
         priceAmount,
@@ -89,6 +92,11 @@ export function MerchantProductFormPage() {
         categoryId: state.categoryId.trim() === '' ? null : state.categoryId.trim(),
         financingEligible: state.financingEligible,
       })
+      // Le fichier est validé (taille/format) par le backend ; si l'upload
+      // échoue, la création est signalée en erreur plutôt que silencieusement
+      // laissée sans image.
+      await merchantService.uploadProductImage(created.id, state.imageFile as File)
+      return created
     },
     {
       onSuccess: () => navigate('/merchant/products'),
@@ -108,6 +116,11 @@ export function MerchantProductFormPage() {
     const stockQuantity = Number.parseInt(form.stock, 10)
     if (!Number.isInteger(stockQuantity) || stockQuantity < 0) {
       next.stock = 'Indiquez une quantité valide.'
+    }
+    // L'image est obligatoire et doit être stockée en base (BYTEA) — la vérification
+    // côté serveur confirme le format et la taille (≤ 5 Mo, JPEG/PNG/WebP).
+    if (!form.imageFile) {
+      next.imageFile = 'Une image du produit est obligatoire (≤ 5 Mo, JPEG/PNG/WebP).'
     }
     setErrors(next)
     return Object.keys(next).length === 0
@@ -217,6 +230,19 @@ export function MerchantProductFormPage() {
           onCheckedChange={update('financingEligible')}
           label="Éligible au financement NanaPay"
         />
+
+        <div className={styles.formActions}>
+          <label className={styles.fileLabel}>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => update('imageFile')(e.target.files?.[0] ?? undefined)}
+              aria-required
+            />
+            <span>Image produit {form.imageFile ? `(sélectionnée : ${form.imageFile.name})` : '(obligatoire)'} — max 5 Mo, JPEG/PNG/WebP</span>
+          </label>
+          {errors.imageFile ? <span className={styles.error}>{errors.imageFile}</span> : null}
+        </div>
 
         <div className={styles.formActions}>
           <Button type="submit" loading={save.isLoading}>

@@ -42,10 +42,20 @@ export const realTransport: Transport = {
     }, apiTimeoutMs)
 
     try {
+      const isFormData =
+        typeof FormData !== 'undefined' && request.body instanceof FormData
       const response = await fetch(url, {
         method: request.method,
         headers: request.headers,
-        body: request.body === undefined ? undefined : JSON.stringify(request.body),
+        // Un corps `FormData` (upload de fichier) part tel quel : le navigateur
+        // fixe lui-même le `Content-Type` avec la frontière multipart. Le
+        // sérialiser en JSON détruirait le fichier.
+        body:
+          request.body === undefined
+            ? undefined
+            : isFormData
+              ? (request.body as FormData)
+              : JSON.stringify(request.body),
         signal: controller.signal,
         redirect: 'error',
       })

@@ -165,6 +165,37 @@
   display: inline-flex;
 }
 
+/* Champ fichier (image produit) : seul contrôle non couvert par les primitives
+   Input/Textarea. Même langage visuel que les champs du design system. */
+.fileLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--np-space-3);
+  padding: var(--np-space-3);
+  border: 1px dashed var(--np-border-base);
+  border-radius: var(--np-radius-md);
+  background: var(--np-surface-raised);
+  color: var(--np-text-secondary);
+  font-size: var(--np-font-size-sm);
+  cursor: pointer;
+}
+
+.fileLabel:focus-within {
+  outline: 2px solid var(--np-accent-primary);
+  outline-offset: 2px;
+}
+
+.fileLabel input[type='file'] {
+  color: var(--np-text-secondary);
+  font: inherit;
+  max-width: 100%;
+}
+
+.error {
+  color: var(--np-state-error-text);
+  font-size: var(--np-font-size-sm);
+}
+
 .scanPanel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

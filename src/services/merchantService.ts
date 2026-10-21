@@ -56,6 +56,20 @@ export const merchantService = {
     return api.request<MerchantSummary>({ method: 'GET', path: '/merchant/summary' })
   },
 
+  uploadProductImage(productId: string, file: File): Promise<{ url: string; size: number }> {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.request<{ url: string; size: number }>({
+      method: 'POST',
+      path: `/merchants/products/${productId}/image`,
+      body: formData,
+    })
+  },
+
+  getProductImageUrl(productId: string, imageId: string): string {
+    return `/merchants/products/${productId}/image/${imageId}`
+  },
+
   getStore(): Promise<MerchantStore> {
     return api.request<MerchantStore>({ method: 'GET', path: '/merchant/store' })
   },

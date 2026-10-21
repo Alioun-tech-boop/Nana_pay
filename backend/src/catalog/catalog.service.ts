@@ -40,6 +40,8 @@ export class CatalogService {
         orderBy: { createdAt: 'desc' },
         skip: page.skip,
         take: page.take,
+        // `id` seulement : le binaire n'est jamais chargé pour lister, l'URL suffit.
+        include: { productImages: { select: { id: true } } },
       }),
       this.prisma.product.count({ where }),
     ]);
@@ -50,6 +52,7 @@ export class CatalogService {
   async getProduct(id: string): Promise<ProductDto> {
     const product = await this.prisma.product.findFirst({
       where: { id, isActive: true, merchant: { status: 'VALIDATED' } },
+      include: { productImages: { select: { id: true } } },
     });
     if (!product) throw new NotFoundException('Produit introuvable.');
     return toProductDto(product);
