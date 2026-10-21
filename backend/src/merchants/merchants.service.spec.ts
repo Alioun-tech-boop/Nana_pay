@@ -118,6 +118,24 @@ describe('MerchantsService.getProductImage', () => {
     expect(Buffer.isBuffer(result.data)).toBe(true);
   });
 
+  it('convertit le Uint8Array de Prisma en Buffer (sinon Express sérialise en JSON)', async () => {
+    // Prisma renvoie `Uint8Array`, pas un `Buffer` Node.
+    const fromPrisma = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
+    const prisma = {
+      productImage: {
+        findFirst: jest
+          .fn()
+          .mockResolvedValue({ data: fromPrisma, contentType: 'image/png', size: 4 }),
+      },
+    };
+    const service = new MerchantsService(prisma as unknown as PrismaService);
+
+    const result = await service.getProductImage('product-1', 'image-1');
+
+    expect(Buffer.isBuffer(result.data)).toBe(true);
+    expect([...result.data]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+  });
+
   it('refuse (404) une image inconnue', async () => {
     const prisma = { productImage: { findFirst: jest.fn().mockResolvedValue(null) } };
     const service = new MerchantsService(prisma as unknown as PrismaService);

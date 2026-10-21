@@ -53,6 +53,13 @@ export class MerchantsService {
       select: { data: true, contentType: true, size: true },
     });
     if (!img) throw new NotFoundException('Image non trouvée.');
-    return { data: img.data as unknown as Buffer, contentType: img.contentType, size: img.size };
+    // Prisma renvoie `Uint8Array`. Express `res.send()` sérialise un Uint8Array
+    // en objet JSON ({"0":137,...}) : on repasse explicitement par un Buffer
+    // pour que le binaire soit envoyé tel quel.
+    return {
+      data: Buffer.from(img.data),
+      contentType: img.contentType,
+      size: img.size,
+    };
   }
 }
