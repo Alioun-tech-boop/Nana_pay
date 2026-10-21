@@ -15,7 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { MerchantsService } from './merchants.service';
 import { AuthenticatedUser, CurrentUser } from '../common/decorators/current-user.decorator';
-import { Roles } from '../common/decorators/public.decorator';
+import { Roles, Public } from '../common/decorators/public.decorator';
 import { MAX_IMAGE_SIZE } from './dto/merchant.dto';
 
 /** Fichier en mémoire produit par Multer (upload en BYTEA, pas sur disque éphémère). */
@@ -61,8 +61,13 @@ export class MerchantsController {
   /**
    * Sert le binaire de l'image depuis la base (BYTEA). L'URL est la source
    * de vérité de localisation ; le binaire est la source de vérité du contenu.
+   *
+   * Route publique : l'image fait partie des données catalogue visibles par
+   * tout visiteur (elle est référencée par `Product.images[].url`). Le contrôle
+   * d'accès porte sur le catalogue, pas sur le binaire.
    */
   @Get('products/:productId/image/:imageId')
+  @Public()
   async getImage(
     @Param('productId') productId: string,
     @Param('imageId') imageId: string,
