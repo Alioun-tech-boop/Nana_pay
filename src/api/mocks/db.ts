@@ -2,7 +2,6 @@ import type {
   Credit,
   CreditRequest,
   HistoryEntry,
-  Merchant,
   Notification,
   Order,
   Product,
@@ -14,6 +13,7 @@ import type {
   Withdrawal,
 } from '../../types'
 import { daysAgo, daysAhead, secondsAgo } from './helpers'
+import type { MockMerchant } from './types'
 
 const XOF = 'XOF'
 
@@ -42,7 +42,7 @@ export const mockPendingUser = {
   phone: '+225 05 05 00 00 00',
 }
 
-export const mockMerchants: Merchant[] = [
+export const mockMerchants: MockMerchant[] = [
   {
     id: 'mer_01HPLUS1',
     name: 'ElectroPlus Ouaga',

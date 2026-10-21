@@ -8,16 +8,24 @@ export interface Merchant {
   id: string
   name: string
   slug: string
-  category: string
-  description: string
-  city: string
-  commune: string
-  rating: number
-  verified: boolean
-  createdAt: ServerDate
-  logo: string
-  image: string
-  identity: {
+  /**
+   * Champs non fournis par le backend aujourd'hui (`GET /merchants` n'expose que
+   * `id`, `name`, `slug`, `status`, `productCount`, `createdAt`). Ils restent
+   * optionnels : l'interface ne doit jamais afficher de valeur inventée
+   * (AGENTS.md §58).
+   */
+  status?: string
+  productCount?: number
+  category?: string
+  description?: string
+  city?: string
+  commune?: string
+  rating?: number
+  verified?: boolean
+  createdAt?: ServerDate
+  logo?: string
+  image?: string
+  identity?: {
     monogram: string
     accent: MerchantAccent
   }

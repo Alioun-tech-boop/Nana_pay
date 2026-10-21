@@ -25,18 +25,18 @@ export function MerchantShelf({ merchants, loading, count, skeletonCount = 6, on
     )
   }
 
-  // Filter merchants that have an image
-  const merchantsWithImage = merchants.filter((m) => m.image)
-
-  if (merchantsWithImage.length === 0) return null
+  // Le backend n'expose pas (encore) d'image de boutique : filtrer sur `image`
+  // rendait TOUTES les boutiques invisibles. On affiche donc chaque boutique et
+  // `StoreCard` rend son visuel de remplacement quand il n'y a pas d'image.
+  if (merchants.length === 0) return null
 
   return (
     <div className={styles.grid}>
-      {merchantsWithImage.slice(0, count ?? merchantsWithImage.length).map((merchant) => (
+      {merchants.slice(0, count ?? merchants.length).map((merchant) => (
         <StoreCard
           key={merchant.id}
           name={merchant.name}
-          image={merchant.image}
+          image={merchant.image || undefined}
           imageWidth={300}
           imageHeight={225}
           onClick={() => (onOpen ? onOpen(merchant) : navigate(`/shops/${merchant.id}`))}

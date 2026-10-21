@@ -84,3 +84,39 @@ export interface CategoryDto {
 export function toCategoryDto(category: { id: string; name: string; slug: string }): CategoryDto {
   return { id: category.id, name: category.name, slug: category.slug };
 }
+
+/** Boutique exposée publiquement (catalogue). Aucune donnée personnelle. */
+export interface MerchantDto {
+  id: string;
+  name: string;
+  slug: string;
+  status: 'VALIDATED';
+  productCount: number;
+  createdAt: string;
+}
+
+/** Boutique Prisma avec le compteur de produits chargé. */
+export type MerchantWithCount = {
+  id: string;
+  storeName: string;
+  storeSlug: string;
+  createdAt?: Date;
+  status?: string;
+  _count?: { products: number };
+};
+
+/**
+ * Le catalogue ne publie que des boutiques validées. On n'expose que des champs
+ * réellement présents en base : ni note, ni ville, ni logo — le frontend ne doit
+ * pas afficher de valeur inventée (AGENTS.md §58).
+ */
+export function toMerchantDto(merchant: MerchantWithCount): MerchantDto {
+  return {
+    id: merchant.id,
+    name: merchant.storeName,
+    slug: merchant.storeSlug,
+    status: 'VALIDATED',
+    productCount: merchant._count?.products ?? 0,
+    createdAt: (merchant.createdAt ?? new Date(0)).toISOString(),
+  };
+}

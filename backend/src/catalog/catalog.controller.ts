@@ -4,7 +4,7 @@ import { CatalogService } from './catalog.service';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { Public } from '../common/decorators/public.decorator';
 import { ListProductsQuery, listProductsQuerySchema } from './dto/catalog.query';
-import { CategoryDto, ProductDto } from './catalog.mapper';
+import { CategoryDto, MerchantDto, ProductDto } from './catalog.mapper';
 import { PaginatedDto } from '../common/utils/pagination';
 
 /**
@@ -33,5 +33,22 @@ export class CatalogController {
   @Get('categories')
   listCategories(): Promise<CategoryDto[]> {
     return this.catalog.listCategories();
+  }
+
+  @Get('merchants')
+  listMerchants(
+    @Query(new ZodValidationPipe(listProductsQuerySchema)) query: ListProductsQuery,
+  ): Promise<PaginatedDto<MerchantDto>> {
+    return this.catalog.listMerchants(query);
+  }
+
+  /**
+   * Boutique publique. Le `ParseUUIDPipe` est volontairement strict : il empêche
+   * qu'un segment non-UUID (`products`, `meta`…) soit interprété ici. Les routes
+   * voisines `/merchants/products/...` (images) restent donc atteignables.
+   */
+  @Get('merchants/:id')
+  getMerchant(@Param('id', new ParseUUIDPipe()) id: string): Promise<MerchantDto> {
+    return this.catalog.getMerchant(id);
   }
 }

@@ -16,6 +16,7 @@ import { useCart } from '../../../stores/cart'
 import { useToast } from '../../../design-system'
 import { PageHeader, ProductTile, QuantityPicker } from '../../../components/client'
 import { productVisual } from '../lib/visual'
+import { resolveMediaUrl } from '../../../lib/media'
 import viewStyles from '../../../components/client/view.module.css'
 import styles from './productDetail.module.css'
 
@@ -96,7 +97,7 @@ export function ProductPage() {
           {primaryImage ? (
             <div className={styles.imageFrame}>
               <img
-                src={primaryImage.url}
+                src={resolveMediaUrl(primaryImage.url)}
                 alt={item.name}
                 className={styles.productImage}
                 width={primaryImage.width}
@@ -120,7 +121,15 @@ export function ProductPage() {
           {merchant.data ? (
             <Link to={`/shops/${merchant.data.id}`} className={styles.storeLink}>
               <Icon name="shop" size={15} />
-              {merchant.data.name} · <span className={viewStyles.tiny}>{merchant.data.commune}, {merchant.data.city}</span>
+              {merchant.data.name}
+              {/* Ville/commune : affichées seulement si le backend les fournit,
+                  sinon on évite un « , » orphelin. */}
+              {merchant.data.city || merchant.data.commune ? (
+                <span className={viewStyles.tiny}>
+                  {' · '}
+                  {[merchant.data.commune, merchant.data.city].filter(Boolean).join(', ')}
+                </span>
+              ) : null}
             </Link>
           ) : null}
 

@@ -6,8 +6,10 @@ import { paginate, PaginatedDto, resolvePageParams } from '../common/utils/pagin
 import { ListProductsQuery } from './dto/catalog.query';
 import {
   CategoryDto,
+  MerchantDto,
   ProductDto,
   toCategoryDto,
+  toMerchantDto,
   toProductDto,
 } from './catalog.mapper';
 
@@ -61,5 +63,44 @@ export class CatalogService {
   async listCategories(): Promise<CategoryDto[]> {
     const categories = await this.prisma.category.findMany({ orderBy: { name: 'asc' } });
     return categories.map(toCategoryDto);
+  }
+
+  /**
+   * Boutiques publiques : uniquement les marchands VALIDATED, comme pour les
+   * produits. Aucune donnée personnelle du marchand (email, téléphone) n'est
+   * exposée — le catalogue est public (AGENTS.md §30).
+   */
+  async listMerchants(query: ListProductsQuery): Promise<PaginatedDto<MerchantDto>> {
+    const page = resolvePageParams(query);
+
+    const where: Prisma.MerchantWhereInput = {
+      status: 'VALIDATED',
+      ...(query.q
+        ? { storeName: { contains: query.q, mode: 'insensitive' } }
+        : {}),
+    };
+
+    const [rows, total] = await this.prisma.$transaction([
+      this.prisma.merchant.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: page.skip,
+        take: page.take,
+        // Nombre de produits publiés : utile pour l'affichage, jamais deviné.
+        include: { _count: { select: { products: { where: { isActive: true } } } } },
+      }),
+      this.prisma.merchant.count({ where }),
+    ]);
+
+    return paginate(rows.map(toMerchantDto), total, page);
+  }
+
+  async getMerchant(id: string): Promise<MerchantDto> {
+    const merchant = await this.prisma.merchant.findFirst({
+      where: { id, status: 'VALIDATED' },
+      include: { _count: { select: { products: { where: { isActive: true } } } } },
+    });
+    if (!merchant) throw new NotFoundException('Boutique introuvable.');
+    return toMerchantDto(merchant);
   }
 }

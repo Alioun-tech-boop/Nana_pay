@@ -286,7 +286,7 @@ export const bankAdminRoutes: MockRoute[] = [
                   : merchant.id === 'mer_01HHOME1'
                     ? 1
                     : 2,
-        createdAt: new Date(merchant.createdAt).toISOString(),
+        createdAt: new Date(merchant.createdAt ?? new Date(0).toISOString()).toISOString(),
       }))
       return ok(paginate(items, currentPage, pageSize))
     },

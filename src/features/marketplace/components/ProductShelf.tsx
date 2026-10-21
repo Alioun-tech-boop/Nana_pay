@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { ProductCard, Skeleton } from '../../../design-system'
 import type { Product } from '../../../types'
+import { resolveMediaUrl } from '../../../lib/media'
 import { merchantNameById } from '../lib/visual'
 import styles from './shelves.module.css'
 
@@ -48,7 +49,7 @@ export function ProductShelf({ products, loading, count, skeletonCount = 8, onOp
             description={product.description.slice(0, 80)}
             price={product.price.amount}
             currency={product.price.currency}
-            image={primaryImage?.url}
+            image={resolveMediaUrl(primaryImage?.url)}
             imageWidth={primaryImage?.width}
             imageHeight={primaryImage?.height}
             badge={available ? 'En stock' : 'Rupture'}
