@@ -18,6 +18,9 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   background: var(--np-bg-page);
+  /* Empêche le débordement horizontal global : une carte ou un texte trop large
+     ne doit jamais créer de scroll latéral sur mobile (AGENTS.md §34). */
+  overflow-x: hidden;
 }
 
 body {
@@ -30,6 +33,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv11', 'ss01';
+  /* Le contenu ne doit jamais créer de scroll latéral sur mobile. */
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+#root {
+  min-height: 100vh;
+  /* `min-width: 0` laisse les enfants flex/grid se contracter au lieu de
+     forcer la largeur de la page (cause classique de débordement mobile). */
+  min-width: 0;
+  overflow-x: clip;
 }
 
 img,
@@ -74,6 +88,33 @@ ol,
 figure,
 blockquote {
   margin: 0;
+}
+
+/* Les références longues (NP-2026-00001245), emails et URLs ne doivent pas
+   élargir leur conteneur : on autorise la césure plutôt que le débordement. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+li,
+span,
+a,
+dt,
+dd,
+label,
+strong,
+em,
+small,
+code,
+pre,
+blockquote,
+td,
+th,
+figcaption {
+  overflow-wrap: anywhere;
 }
 
 ul,

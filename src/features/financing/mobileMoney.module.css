@@ -213,6 +213,15 @@
   color: #101010;
 }
 
+@media (max-width: 640px) {
+  /* Sur mobile, le bouton ne doit pas imposer 260px : il occupe la largeur
+     disponible pour éviter tout débordement horizontal. */
+  .submitButton {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 .submitButton:hover:not(:disabled) {
   background: #ffffff;
 }

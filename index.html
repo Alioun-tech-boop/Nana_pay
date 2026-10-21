@@ -2,7 +2,13 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Zoom désactivé sur mobile : l'app se comporte comme une application native
+         (pas de pincement pour zoomer, pas de double-tap zoom). `user-scalable=no`
+         + `maximum-scale=1` couvrent iOS Safari et Android Chrome. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#ffffff" />
     <meta

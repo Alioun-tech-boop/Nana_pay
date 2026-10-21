@@ -66,7 +66,11 @@
   padding: 3px;
   background: var(--np-bg-surface-2);
   border-radius: var(--np-radius-md);
+  /* `fit-content` + `overflow-x: auto` se contredisent : la barre s'élargissait
+     au lieu de défiler, ce qui débordait l'écran sur mobile. La barre reste
+     compacte sur grand écran et défile horizontalement sur petit écran. */
   width: fit-content;
+  max-width: 100%;
 }
 
 .tabs--segmented .tab {
@@ -119,4 +123,19 @@
 .tabs--segmented .tabActive .count {
   background: color-mix(in srgb, var(--np-color-paper-0) 20%, transparent);
   color: var(--np-color-paper-0);
+}
+
+@media (max-width: 767px) {
+  /* Sur mobile, les onglets segmentés occupent toute la largeur et défilent
+     horizontalement (style barre mobile). Chaque onglet garde sa taille pour
+     rester lisible ; c'est la barre qui défile, pas la page. */
+  .tabs--segmented {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .tabs--segmented .tab {
+    flex: 0 0 auto;
+  }
 }

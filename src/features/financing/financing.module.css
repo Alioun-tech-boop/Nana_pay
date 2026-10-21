@@ -960,6 +960,12 @@
   .nextStep {
     align-items: flex-start;
   }
+
+  /* `min-width: 240px` est retiré sur mobile : le bloc peut s'aligner sur la
+     largeur de l'écran au lieu de forcer 240px. */
+  .nextStepMain {
+    min-width: 0;
+  }
 }
 
 /* ==========================================================================
@@ -1290,5 +1296,24 @@
   
   .continueButton {
     border: 2px solid currentColor;
+  }
+}
+
+/* Petits écrans : les largeurs minimales fixées en dur (280px) pouvaient
+   dépasser la largeur disponible sous 320px. On autorise les blocs à se
+   contracter pour éviter tout débordement horizontal. */
+@media (max-width: 380px) {
+  .paymentMethodsGrid {
+    grid-template-columns: 1fr;
+    padding: 0 var(--np-space-3);
+  }
+
+  .continueButton {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .paymentMethodBadge {
+    min-width: 0;
   }
 }
