@@ -13,7 +13,6 @@ import { api } from '../../api'
 import type { RefreshOutcome } from '../../api/client'
 import { useToast } from '../../design-system'
 import { isMockMode } from '../../lib/config'
-import { clearStoredRefreshToken, saveRefreshToken } from '../../lib/session-storage'
 import { authService, type LoginInput } from '../../services/authService'
 import type { Session } from '../../types'
 
@@ -37,24 +36,21 @@ const EMPTY: SessionContextValue = {
 
 const SessionContext = createContext<SessionContextValue>(EMPTY)
 
-function buildSession(accessToken: string, refreshToken: string, user: Session['user']): Session {
-  return { accessToken, refreshToken, user }
+function buildSession(accessToken: string, user: Session['user']): Session {
+  return { accessToken, user }
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [status, setStatus] = useState<SessionStatus>('idle')
   const tokenRef = useRef<string | null>(null)
-  const refreshTokenRef = useRef<string | null>(null)
   const refreshInFlightRef = useRef<Promise<RefreshOutcome> | null>(null)
   const navigate = useNavigate()
   const { toast } = useToast()
 
   const clearSession = useCallback(() => {
     tokenRef.current = null
-    refreshTokenRef.current = null
     refreshInFlightRef.current = null
-    clearStoredRefreshToken()
     api.clearCache()
     setSession(null)
     setStatus('unauthenticated')
@@ -65,14 +61,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     refreshInFlightRef.current = (async () => {
       if (isMockMode()) return 'failed'
-      const refreshToken = refreshTokenRef.current
-      if (!refreshToken) return 'failed'
       try {
-        const response = await authService.refresh(refreshToken)
+        const response = await authService.refresh()
         tokenRef.current = response.accessToken
-        refreshTokenRef.current = response.refreshToken
-        saveRefreshToken(response.refreshToken)
-        setSession((current) => (current ? buildSession(response.accessToken, response.refreshToken, current.user) : current))
+        setSession((current) => (current ? buildSession(response.accessToken, current.user) : current))
         return 'refreshed'
       } catch {
         return 'failed'
@@ -110,14 +102,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    // La session est restaurée à partir du refresh token stocké, qui est le
-    // seul secret capable de rouvrir une session (AGENTS.md §49 et §51 : l'état
-    // financier ne doit jamais reposer uniquement sur le stockage navigateur).
-    // Si aucun refresh token n'est disponible, il n'y a rien à restaurer — donc
-    // aucune requête, et donc aucun 401 inutile.
+    // Le refresh token est un cookie httpOnly. Une tentative de restauration est
+    // donc nécessaire ; un 401 signifie simplement qu'aucune session n'est active.
     setStatus('loading')
     authService
-      .restoreSession(handleAuthenticationFailure)
+      .restoreSession()
       .then((restored) => {
         if (cancelled) return
         if (!restored) {
@@ -125,8 +114,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           return
         }
         tokenRef.current = restored.accessToken
-        refreshTokenRef.current = restored.refreshToken
-        saveRefreshToken(restored.refreshToken)
         // Les réponses obtenues AVANT l'établissement de la session ont pu être
         // mises en cache anonymement (le catalogue public accepte les requêtes
         // sans jeton). Les rejouer après connexion renverrait des données
@@ -151,8 +138,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       const response = await authService.login(input)
       api.clearCache()
       tokenRef.current = response.accessToken
-      refreshTokenRef.current = response.refreshToken
-      saveRefreshToken(response.refreshToken)
       setSession(response)
       setStatus('authenticated')
     } catch (error) {
@@ -162,10 +147,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    const refreshToken = refreshTokenRef.current
     setStatus('loading')
     try {
-      if (refreshToken) await authService.logout(refreshToken)
+      await authService.logout()
     } finally {
       clearSession()
     }

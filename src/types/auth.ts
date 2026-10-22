@@ -49,17 +49,14 @@ export interface VerifyResponse {
 
 export interface LoginResponse {
   accessToken: string
-  refreshToken: string
   user: User
 }
 
 export interface RefreshResponse {
   accessToken: string
-  refreshToken: string
 }
 
 export interface Session {
   accessToken: string
-  refreshToken: string
   user: User
 }

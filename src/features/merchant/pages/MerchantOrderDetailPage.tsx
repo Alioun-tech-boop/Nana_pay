@@ -16,7 +16,7 @@ import {
 import type { TimelineItemData } from '../../../design-system'
 import type { OrderStatus } from '../../../types'
 import { merchantService } from '../../../services'
-import { useMutation, useRequest } from '../../../hooks'
+import { useFreshIdempotencyKey, useMutation, useRequest } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
 import { getStatusDefinition, ORDER_LIFECYCLE } from '../../../lib/status'
 import { formatDate } from '../../../lib/dates'
@@ -28,11 +28,12 @@ export function MerchantOrderDetailPage() {
   const { orderId = '' } = useParams()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const settlementKey = useFreshIdempotencyKey(orderId)
 
   const order = useRequest(() => merchantService.getOrder(orderId), { deps: [orderId] })
 
   const settle = useMutation(
-    (idempotencyKey: string) => merchantService.settle({ orderId, idempotencyKey }),
+    () => merchantService.settle({ orderId, idempotencyKey: settlementKey }),
     {
       onSuccess: () => {
         setConfirmOpen(false)
@@ -170,7 +171,7 @@ export function MerchantOrderDetailPage() {
       <ConfirmDialog
         open={confirmOpen}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={() => void settle.mutate(crypto.randomUUID())}
+        onConfirm={() => void settle.mutate()}
         title="Confirmer le règlement"
         body={
           <div className={styles.stack}>

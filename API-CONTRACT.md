@@ -84,19 +84,25 @@ Paramètres : `?page=1&pageSize=25`. Tri/ﬁltres par domaine (`sortBy`, `status
 
 | Endpoint | Méthode | Corps / Paramètres | Réponse | Notes |
 |---|---|---|---|---|
-| `POST /auth/login` | `[PROPOSED]` | `{ identifier, password }` | `{ accessToken, refreshToken, user }` | `user` ne contient aucune donnée financière |
-| `POST /auth/refresh` | `[PROPOSED]` | `{ refreshToken }` | `{ accessToken, refreshToken }` | Rotation : nouveau refresh à chaque rafraîchissement |
-| `POST /auth/logout` | `[PROPOSED]` | `{ refreshToken }` | `204` | Invalidation côté backend |
+| `POST /auth/login` | `[PROPOSED]` | `{ identifier, password }` | `{ accessToken, user }` + cookie `nanapay_refresh` | `user` ne contient aucune donnée financière ; le refresh token n'est **jamais** renvoyé dans le corps |
+| `POST /auth/refresh` | `[PROPOSED]` | *(aucun corps — cookie `nanapay_refresh`)* | `{ accessToken }` + cookie rotationné | Rotation : nouveau refresh à chaque rafraîchissement |
+| `POST /auth/logout` | `[PROPOSED]` | *(aucun corps — cookie `nanapay_refresh`)* | `204` + cookie effacé | Invalidation côté backend |
 | `GET /auth/me` | `[PROPOSED]` | — | `{ user }` | Rôle, permissions, profil minimal |
+
+**Refresh token (cookie `httpOnly`)** — le refresh token circule exclusivement dans un cookie
+`nanapay_refresh` (`httpOnly`, `secure` en production, `sameSite=lax`, `path=/api/auth`).
+Il n'est **jamais** exposé au JavaScript ni stocké dans `localStorage`/`sessionStorage`
+(AGENTS.md §51). Le frontend appelle donc `/auth/refresh` et `/auth/logout` **sans corps**,
+en `credentials: 'include'`.
 
 **Statut d'implémentation (backend `nanapay-api`, 2026-10-20)**
 
 | Endpoint | État | Note |
 |---|---|---|
 | `POST /auth/register` | ✅ implémenté | **Inscription simplifiée** : `{email|phone, password}` suffisent ; `firstName`/`lastName` sont **optionnels** (normalisés en chaîne vide, colonnes NOT NULL). Le frontend envoie `{firstName:'',lastName:'',birthDate:'',contact,contactType,email,phone,password}`. Réponse `{id,fullName,email,phone,status}` — `fullName` retombe sur la partie locale de l'email (ou le téléphone) quand les noms sont vides. |
-| `POST /auth/login` | ✅ implémenté | `identifier` = email **ou** téléphone (l'ancien champ `email` reste toléré). |
-| `POST /auth/refresh` | ✅ implémenté | Rotation : l'ancienne session est révoquée. |
-| `POST /auth/logout` | ✅ implémenté | `204`. |
+| `POST /auth/login` | ✅ implémenté | `identifier` = email **ou** téléphone (l'ancien champ `email` reste toléré). Réponse `{accessToken, user}` ; le refresh token est posé en cookie `httpOnly`. |
+| `POST /auth/refresh` | ✅ implémenté | Lit le cookie `nanapay_refresh`, rotation : l'ancienne session est révoquée. Réponse `{accessToken}`. |
+| `POST /auth/logout` | ✅ implémenté | `204` + effacement du cookie. |
 | `GET /auth/me` | ✅ implémenté | `{ user }`. |
 | `POST /auth/verify` | ⛔ **non implémenté** | Utilisé par `VerifyPage.tsx` après inscription. Nécessite une **table d'OTP** + un canal de diffusion (SMS/email), absents du schéma. Non simulé volontairement → renvoie `404 NOT_FOUND`. |
 

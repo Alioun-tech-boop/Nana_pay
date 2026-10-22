@@ -14,7 +14,7 @@ import {
   Textarea,
 } from '../../../design-system'
 import { bankService } from '../../../services'
-import { useMutation, useRequest } from '../../../hooks'
+import { useFreshIdempotencyKey, useMutation, useRequest } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
 import { getStatusDefinition } from '../../../lib/status'
 import { formatDate } from '../../../lib/dates'
@@ -40,6 +40,7 @@ export function BankCreditRequestDetailPage() {
   const [decision, setDecision] = useState<DecisionKind | null>(null)
   const [reason, setReason] = useState('')
   const [feedback, setFeedback] = useState<string | null>(null)
+  const decisionKey = useFreshIdempotencyKey(`${requestId}:${decision ?? ''}:${reason.trim()}`)
 
   const detail = useRequest(() => bankService.getCreditRequest(requestId), { deps: [requestId] })
 
@@ -48,7 +49,7 @@ export function BankCreditRequestDetailPage() {
       bankService.decideCreditRequest(requestId, {
         decision: kind,
         reason: reason.trim(),
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: decisionKey,
       }),
     {
       onSuccess: () => {

@@ -44,6 +44,7 @@ async function bootstrap() {
       // En-tete reellement envoye par le frontend (voir src/api/client.ts)
       'Idempotency-Key',
       'X-Idempotency-Key',
+      'X-Request-Id',
       'X-Trace-Id',
     ],
     exposedHeaders: ['X-Trace-Id'],

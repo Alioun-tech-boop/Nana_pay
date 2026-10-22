@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Button, Icon, Metric, Text } from '../../../design-system'
+import { Button, Icon, Metric, MoneyAmount, Text } from '../../../design-system'
 import { adminService } from '../../../services'
 import { useRequest } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
@@ -51,7 +51,14 @@ export function AdminDashboardPage() {
         />
         <Metric
           label="Volume du mois"
-          value={summary.data ? `${(summary.data.volumeThisMonth.amount / 100).toLocaleString('fr-FR')} XOF` : undefined}
+          value={
+            summary.data ? (
+              <MoneyAmount
+                amount={summary.data.volumeThisMonth.amount}
+                currency={summary.data.volumeThisMonth.currency}
+              />
+            ) : undefined
+          }
           hint={summary.data ? 'Total toutes transactions' : undefined}
           icon="money"
           loading={summary.isLoading}

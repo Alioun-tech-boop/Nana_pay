@@ -1,5 +1,4 @@
 import { api } from '../api'
-import { readStoredRefreshToken, saveRefreshToken } from '../lib/session-storage'
 import type { LoginRequest, LoginResponse, RefreshResponse, RegisterRequest, RegisterResponse, Session, User, VerifyRequest, VerifyResponse } from '../types'
 
 export interface LoginInput extends LoginRequest {}
@@ -57,20 +56,18 @@ export const authService = {
     })
   },
 
-  refresh(refreshToken: string): Promise<RefreshResponse> {
+  refresh(): Promise<RefreshResponse> {
     return api.request<RefreshResponse>({
       method: 'POST',
       path: '/auth/refresh',
-      body: { refreshToken },
       auth: false,
     })
   },
 
-  logout(refreshToken: string): Promise<void> {
+  logout(): Promise<void> {
     return api.request<void>({
       method: 'POST',
       path: '/auth/logout',
-      body: { refreshToken },
       auth: false,
     })
   },
@@ -100,17 +97,8 @@ export const authService = {
   },
 
   /**
-   * Rouvre une session à partir du refresh token stocké.
-   *
-   * Le backend renvoie un refresh token OPAQUE, pas un JWT : il ne peut pas être
-   * transmis tel quel à `/auth/me` (Bearer). Seul `POST /auth/refresh` l'accepte.
-   * On échange donc le refresh token contre un access token, puis on lit le
-   * profil. Aucun secret n'est décodé ni interprété côté navigateur.
-   *
-   * Le refresh token est à USAGE UNIQUE côté backend : chaque appel en révoque le
-   * précédent. Un second appel concurrent avec le même jeton échoue donc en 401.
-   * Or `StrictMode` monte les effets deux fois en développement. Pour ne jamais
-   * rejouer un jeton déjà consommé, l'appel en cours est mémorisé et partagé.
+   * Rouvre une session à partir du cookie refresh httpOnly. Le jeton n'est jamais
+   * exposé au JavaScript ; le backend le fait tourner à chaque échange.
    *
    * L'access token est transmis à `/auth/me` via l'en-tête `Authorization`. Il
    * est donc impératif de l'installer AVANT l'appel — `tokenProvider` est la
@@ -121,19 +109,13 @@ export const authService = {
    * c'est le seul cas où la session a réellement expiré. Sans refresh token, le
    * visiteur est simplement anonyme.
    */
-  async restoreSession(onExpired?: (requestId: string) => void): Promise<Session | null> {
-    // Un seul échange à la fois : le jeton est à usage unique.
+  async restoreSession(): Promise<Session | null> {
+    // Un seul échange à la fois : le cookie est à usage unique côté backend.
     if (restoreInFlight) return restoreInFlight
-
-    const refreshToken = readStoredRefreshToken()
-    if (!refreshToken) return null
 
     restoreInFlight = (async () => {
       try {
-        const refreshed = await authService.refresh(refreshToken)
-        // Le jeton est rotationné immédiatement : si un autre appel survient, il
-        // repartira du jeton valide et non de celui qu'on vient de consommer.
-        saveRefreshToken(refreshed.refreshToken)
+        const refreshed = await authService.refresh()
 
         const previousToken = api.currentAccessToken()
         api.setRestoredAccessToken(refreshed.accessToken)
@@ -143,9 +125,8 @@ export const authService = {
         } finally {
           api.setRestoredAccessToken(previousToken)
         }
-        return { accessToken: refreshed.accessToken, refreshToken: refreshed.refreshToken, user }
+        return { accessToken: refreshed.accessToken, user }
       } catch {
-        onExpired?.('')
         return null
       } finally {
         restoreInFlight = null

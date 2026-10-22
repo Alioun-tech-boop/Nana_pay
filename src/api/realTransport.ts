@@ -58,6 +58,9 @@ export const realTransport: Transport = {
               : JSON.stringify(request.body),
         signal: controller.signal,
         redirect: 'error',
+        // Le refresh token vit dans un cookie httpOnly : il doit accompagner
+        // les requêtes API y compris lorsque l'API est sur une autre origine.
+        credentials: 'include',
       })
       const data = await readBody(response)
       return {

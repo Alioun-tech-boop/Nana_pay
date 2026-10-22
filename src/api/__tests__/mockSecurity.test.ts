@@ -235,25 +235,30 @@ describe('mock security', () => {
       expect(result.user.role).toBe('CLIENT')
     })
 
-    it('refresh with invalid token returns 401', async () => {
+    it('refresh returns 401 in demo mode (no persistent session)', async () => {
+      // Le refresh token vit dans un cookie httpOnly pose par le backend : il
+      // n'existe donc aucune session persistante en mode démonstration. Un jeton
+      // transmis dans le corps n'est plus accepté (contrat supprimé).
       await expect(
         api.request({
           method: 'POST',
           path: '/auth/refresh',
-          body: { refreshToken: 'invalid' },
+          body: { refreshToken: 'mock-refresh-token' },
           auth: false,
         }),
       ).rejects.toMatchObject({ kind: 'unauthorized', status: 401 })
     })
 
-    it('refresh with valid token succeeds', async () => {
-      const result = await api.request<{ accessToken: string }>({
+    it('login does not expose a refresh token to the browser', async () => {
+      const result = await api.request<Record<string, unknown>>({
         method: 'POST',
-        path: '/auth/refresh',
-        body: { refreshToken: 'mock-refresh-token' },
+        path: '/auth/login',
+        body: { identifier: 'ada.doumbia@example.com', password: 'correct' },
         auth: false,
       })
       expect(result.accessToken).toBe('mock-access-token')
+      // Le refresh token ne doit jamais transiter par le JavaScript.
+      expect(result).not.toHaveProperty('refreshToken')
     })
   })
 })

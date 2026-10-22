@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   Button,
@@ -6,7 +6,6 @@ import {
   EmptyState,
   Icon,
   InlineAlert,
-  Input,
   MoneyAmount,
   RadioGroup,
   Select,
@@ -20,6 +19,7 @@ import type { Order } from '../../../types'
 import { orderService, savingsService, vaultService, creditService } from '../../../services'
 import { useCart } from '../../../stores/cart'
 import { toUserMessage } from '../../../lib/errors'
+import { createIdempotencyKey } from '../../../lib/idempotency'
 import { PageHeader, ProductTile } from '../../../components/client'
 import { productVisual } from '../lib/visual'
 import viewStyles from '../../../components/client/view.module.css'
@@ -45,10 +45,6 @@ const MODE_OPTIONS: Array<{ value: FinancingMode; title: string; note: string }>
   },
 ]
 
-function suggestedMonthly(amount: number): number {
-  return Math.max(1500, Math.round(amount / 12 / 500) * 500)
-}
-
 export function CheckoutPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -56,7 +52,6 @@ export function CheckoutPage() {
 
   const [step, setStep] = useState<CheckoutStep>(lines.length > 0 ? 'review' : 'financing')
   const [mode, setMode] = useState<FinancingMode>('SAVINGS')
-  const [contribution, setContribution] = useState<Record<string, number>>({})
   const [termMonths, setTermMonths] = useState(12)
 
   const [orders, setOrders] = useState<Array<{ order: Order; quantity: number }>>([])
@@ -65,6 +60,9 @@ export function CheckoutPage() {
   const [working, setWorking] = useState(false)
   const [vaultConfirmOpen, setVaultConfirmOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Une clé appartient à une intention de checkout, pas au produit. Elle reste
+  // stable lors d'un retry réseau, tout en permettant un nouvel achat ultérieur.
+  const orderKeysRef = useRef(new Map<string, string>())
 
   // Total autoritaire : somme des totaux renvoyés par le backend, jamais un
   // recalcul local (`AGENTS.md` §10).
@@ -81,11 +79,14 @@ export function CheckoutPage() {
     try {
       const created: Array<{ order: Order; quantity: number }> = []
       for (const line of lines) {
+        const operation = `${mode}:${line.product.id}:${line.quantity}`
+        const idempotencyKey = orderKeysRef.current.get(operation) ?? createIdempotencyKey()
+        orderKeysRef.current.set(operation, idempotencyKey)
         const order = await orderService.createOrder({
           productId: line.product.id,
           financingMode: mode,
           quantity: line.quantity,
-          idempotencyKey: `np-order-${line.product.id}`,
+          idempotencyKey,
         })
         created.push({ order, quantity: line.quantity })
       }
@@ -271,41 +272,10 @@ export function CheckoutPage() {
             </div>
 
             {mode === 'SAVINGS' ? (
-              <div className={styles.financePanel}>
-                <h2 className={styles.blockTitle}>Montant mensuel suggéré</h2>
-                <p className={styles.panelNote}>
-                  Ajustez le versement mensuel de chaque épargne. La durée et l’échéance sont recalculées par NanaPay.
-                </p>
-                <div className={styles.contributions}>
-                  {orders.map(({ order }) => {
-                    const amount = order.totalPrice.amount
-                    const value = contribution[order.id] ?? suggestedMonthly(amount)
-                    return (
-                      <div key={order.id} className={styles.contributionRow}>
-                        <div className={styles.contributionInfo}>
-                          <span className={styles.lineName}>{order.product.name}</span>
-                          <span className={styles.lineRef}>
-                            Cible <MoneyAmount amount={amount} currency={totalCurrency} noSymbol />
-                          </span>
-                        </div>
-                        <Input
-                          type="number"
-                          aria-label={`Versement mensuel pour ${order.product.name}`}
-                          value={value}
-                          onChange={(event) => {
-                            const next = Number.parseInt(event.target.value, 10)
-                            setContribution((current) => ({
-                              ...current,
-                              [order.id]: Number.isFinite(next) && next > 0 ? next : 0,
-                            }))
-                          }}
-                          name={order.id}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+              <InlineAlert tone="info">
+                Les versements d’épargne sont libres. Après création, NanaPay fournit l’objectif et l’échéance
+                autoritaires ; aucun versement mensuel n’est défini ici.
+              </InlineAlert>
             ) : null}
 
             {mode === 'CREDIT' ? (

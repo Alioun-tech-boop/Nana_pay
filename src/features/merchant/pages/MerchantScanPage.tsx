@@ -11,7 +11,7 @@ import {
   Textarea,
 } from '../../../design-system'
 import { merchantService } from '../../../services'
-import { useMutation } from '../../../hooks'
+import { useFreshIdempotencyKey, useMutation } from '../../../hooks'
 import { toUserMessage } from '../../../lib/errors'
 import { getStatusDefinition } from '../../../lib/status'
 import { ProPageHeader, proStyles } from '../../../components/pro'
@@ -23,13 +23,15 @@ export function MerchantScanPage() {
   const [result, setResult] = useState<MerchantScanResult | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [settled, setSettled] = useState(false)
+  const scanKey = useFreshIdempotencyKey(payload.trim())
+  const settlementKey = useFreshIdempotencyKey(result?.orderId ?? '')
 
   const scan = useMutation((value: string) =>
-    merchantService.scanQr({ payload: value, idempotencyKey: crypto.randomUUID() }),
+    merchantService.scanQr({ payload: value, idempotencyKey: scanKey }),
   )
 
   const settle = useMutation((orderId: string) =>
-    merchantService.settle({ orderId, idempotencyKey: crypto.randomUUID() }),
+    merchantService.settle({ orderId, idempotencyKey: settlementKey }),
   )
 
   const runScan = () => {

@@ -38,7 +38,7 @@ function buildSession(role: UserRole): SessionContextValue {
   } as Session['user']
   return {
     status: 'authenticated',
-    session: { accessToken: 'access', refreshToken: 'refresh', user },
+    session: { accessToken: 'access', user },
     login: async () => {},
     logout: async () => {},
     clearSession: () => {},

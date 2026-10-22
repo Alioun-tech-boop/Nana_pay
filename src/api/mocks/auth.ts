@@ -6,7 +6,6 @@ import type { MockContext, MockRoute } from './types'
 const DEMO_USERS = [mockUser, mockMerchantUser, mockBankUser, mockAdminUser]
 
 const ACCESS_TOKEN = 'mock-access-token'
-const REFRESH_TOKEN = 'mock-refresh-token'
 let pendingIdentifier = mockPendingUser.email
 
 function bearerToken(ctx: MockContext): string {
@@ -16,12 +15,6 @@ function bearerToken(ctx: MockContext): string {
 
 function hasAccessToken(ctx: MockContext): boolean {
   return bearerToken(ctx) === ACCESS_TOKEN
-}
-
-function hasValidSessionToken(ctx: MockContext): boolean {
-  if (hasAccessToken(ctx)) return true
-  const body = bodyOf(ctx)
-  return body.refreshToken === REFRESH_TOKEN
 }
 
 export const authRoutes: MockRoute[] = [
@@ -43,7 +36,6 @@ export const authRoutes: MockRoute[] = [
       }
       return ok({
         accessToken: ACCESS_TOKEN,
-        refreshToken: REFRESH_TOKEN,
         user,
       })
     },
@@ -93,23 +85,12 @@ export const authRoutes: MockRoute[] = [
   {
     method: 'POST',
     pattern: '/auth/refresh',
-    handler: (ctx) => {
-      const body = bodyOf(ctx)
-      if (body.refreshToken !== REFRESH_TOKEN) {
-        return unauthorized('Votre session a expiré. Veuillez vous reconnecter.')
-      }
-      return ok({ accessToken: ACCESS_TOKEN, refreshToken: REFRESH_TOKEN })
-    },
+    handler: () => unauthorized('Aucune session persistante en mode démonstration.'),
   },
   {
     method: 'POST',
     pattern: '/auth/logout',
-    handler: (ctx) => {
-      if (!hasValidSessionToken(ctx)) {
-        return unauthorized('Session introuvable.')
-      }
-      return { status: 204 }
-    },
+    handler: () => ({ status: 204 }),
   },
   {
     method: 'GET',

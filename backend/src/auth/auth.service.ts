@@ -15,6 +15,12 @@ export interface TokenPair {
   expiresIn: number;
 }
 
+export interface LoginResult {
+  accessToken: string;
+  refreshToken: string;
+  user: ContractUser;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -85,7 +91,7 @@ export class AuthService {
     dto: LoginDto,
     ip?: string,
     userAgent?: string,
-  ): Promise<{ accessToken: string; refreshToken: string; user: ContractUser }> {
+  ): Promise<LoginResult> {
     const parsed = LoginDtoSchema.parse(dto);
 
     // Contrat API-CONTRACT.md §3 : `identifier` = email OU numero de telephone.
@@ -216,6 +222,10 @@ export class AuthService {
     } catch {
       // Ignore invalid token on logout
     }
+  }
+
+  refreshCookieMaxAgeMs(): number {
+    return this.parseTtl(this.config.get<string>('JWT_REFRESH_TTL', '7d'));
   }
 
   /** Contrat API-CONTRACT.md §3 : `GET /auth/me` -> `{ user }`. */
